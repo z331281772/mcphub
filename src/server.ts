@@ -1,8 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { ZodType, ZodRawShape } from 'zod';
+import { z, ZodType, ZodRawShape } from 'zod';
 
 const transport1 = new SSEClientTransport(new URL('http://localhost:3001/sse'));
 const client1 = new Client(
@@ -51,11 +52,13 @@ export const registerAllTools = async (server: McpServer) => {
         tool.description || '',
         cast(tool.inputSchema.properties),
         async (params) => {
-          const result = await client1.callTool({
+          console.log(`Calling tool: ${tool.name} with params: ${JSON.stringify(params)}`);
+          const result = await client.callTool({
             name: tool.name,
             arguments: params,
           });
-          return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+          console.log(`Tool result: ${JSON.stringify(result)}`);
+          return result as CallToolResult;
         },
       );
     }
@@ -67,14 +70,45 @@ function cast(inputSchema: unknown): ZodRawShape {
     throw new Error('Invalid input schema');
   }
 
-  const castedSchema = inputSchema as ZodRawShape;
+  const properties = inputSchema as Record<string, any>;
+  const processedSchema: ZodRawShape = {};
+  for (const key in properties) {
+    const prop = properties[key];
+    if (prop instanceof ZodType) {
+      processedSchema[key] = prop.optional();
+    } else if (typeof prop === 'object' && prop !== null) {
+      let zodType: ZodType;
+      switch (prop.type) {
+        case 'string':
+          zodType = z.string();
+          break;
+        case 'number':
+          zodType = z.number();
+          break;
+        case 'boolean':
+          zodType = z.boolean();
+          break;
+        case 'integer':
+          zodType = z.number().int();
+          break;
+        case 'array':
+          zodType = z.array(z.any());
+          break;
+        case 'object':
+          zodType = z.record(z.any());
+          break;
+        default:
+          zodType = z.any();
+      }
 
-  for (const key in castedSchema) {
-    if (castedSchema[key] instanceof ZodType) {
-      castedSchema[key] = castedSchema[key].optional() as ZodType;
+      if (prop.description) {
+        zodType = zodType.describe(prop.description);
+      }
+
+      processedSchema[key] = zodType.optional();
     }
   }
 
-  console.log(`Casted schema: ${JSON.stringify(castedSchema)}`);
-  return castedSchema;
+  console.log(`Processed schema: ${JSON.stringify(processedSchema)}`);
+  return processedSchema;
 }

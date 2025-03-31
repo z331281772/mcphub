@@ -1,5 +1,5 @@
 # Use Node.js LTS image with Python support
-FROM node:lts-alpine
+FROM node:22-alpine
 
 # Install Python and pip
 RUN apk add --no-cache \

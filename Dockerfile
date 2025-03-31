@@ -3,9 +3,9 @@ FROM node:22-alpine
 
 # Install Python and pip
 RUN apk add --no-cache \
-    python3 \
-    py3-pip \
-    && ln -sf python3 /usr/bin/python
+  python3 \
+  py3-pip \
+  && ln -sf python3 /usr/bin/python
 
 # Create symbolic links for python commands
 RUN ln -sf /usr/bin/pip3 /usr/bin/pip

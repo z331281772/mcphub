@@ -3,7 +3,8 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { z, ZodType, ZodRawShape } from 'zod';
+import * as z from 'zod'; 
+import { ZodType, ZodRawShape } from 'zod';
 import fs from 'fs';
 import path from 'path';
 
@@ -31,14 +32,17 @@ function loadSettings(): McpSettings {
 }
 
 // Initialize clients and transports from settings
-function initializeClientsFromSettings(): { clients: Client[]; transports: (SSEClientTransport | StdioClientTransport)[] } {
+function initializeClientsFromSettings(): {
+  clients: Client[];
+  transports: (SSEClientTransport | StdioClientTransport)[];
+} {
   const settings = loadSettings();
   const clients: Client[] = [];
   const transports: (SSEClientTransport | StdioClientTransport)[] = [];
 
   Object.entries(settings.mcpServers).forEach(([name, config]) => {
     let transport;
-    
+
     if (config.url) {
       transport = new SSEClientTransport(new URL(config.url));
     } else if (config.command && config.args) {
@@ -87,7 +91,7 @@ export const registerAllTools = async (server: McpServer) => {
         tool.name,
         tool.description || '',
         cast(tool.inputSchema.properties),
-        async (params) => {
+        async (params: Record<string, unknown>) => {
           console.log(`Calling tool: ${tool.name} with params: ${JSON.stringify(params)}`);
           const result = await client.callTool({
             name: tool.name,

@@ -1,6 +1,6 @@
 # MCP Hub
 
-A hub server for mcp servers.
+A hub server for MCP servers.
 
 ## Installation
 

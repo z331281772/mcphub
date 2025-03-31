@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "time": {
-      "command": "python",
-      "args": ["-m", "mcp_server_time", "--local-timezone=America/New_York"]
+    "time-mcp": {
+      "command": "npx",
+      "args": ["-y", "time-mcp"]
     },
     "sequential-thinking": {
       "command": "npx",

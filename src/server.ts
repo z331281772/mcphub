@@ -4,46 +4,82 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { z, ZodType, ZodRawShape } from 'zod';
+import fs from 'fs';
+import path from 'path';
 
-const transport1 = new SSEClientTransport(new URL('http://localhost:3001/sse'));
-const client1 = new Client(
-  {
-    name: 'example-client',
-    version: '1.0.0',
-  },
-  {
-    capabilities: {
-      prompts: {},
-      resources: {},
-      tools: {},
-    },
-  },
-);
+// Define settings interface
+interface McpSettings {
+  mcpServers: {
+    [key: string]: {
+      url?: string;
+      command?: string;
+      args?: string[];
+    };
+  };
+}
 
-const transport2 = new StdioClientTransport({
-  command: 'python3',
-  args: ['-m', 'mcp_server_time', '--local-timezone=America/New_York'],
-});
-const client2 = new Client(
-  {
-    name: 'example-client',
-    version: '1.0.0',
-  },
-  {
-    capabilities: {
-      prompts: {},
-      resources: {},
-      tools: {},
-    },
-  },
-);
+// Function to read and parse the settings file
+function loadSettings(): McpSettings {
+  const settingsPath = path.resolve(process.cwd(), 'mcp_settings.json');
+  try {
+    const settingsData = fs.readFileSync(settingsPath, 'utf8');
+    return JSON.parse(settingsData);
+  } catch (error) {
+    console.error(`Failed to load settings from ${settingsPath}:`, error);
+    return { mcpServers: {} };
+  }
+}
 
-const clients = [client1, client2];
-const transports = [transport1, transport2];
+// Initialize clients and transports from settings
+function initializeClientsFromSettings(): { clients: Client[]; transports: (SSEClientTransport | StdioClientTransport)[] } {
+  const settings = loadSettings();
+  const clients: Client[] = [];
+  const transports: (SSEClientTransport | StdioClientTransport)[] = [];
+
+  Object.entries(settings.mcpServers).forEach(([name, config]) => {
+    let transport;
+    
+    if (config.url) {
+      transport = new SSEClientTransport(new URL(config.url));
+    } else if (config.command && config.args) {
+      transport = new StdioClientTransport({
+        command: config.command,
+        args: config.args,
+      });
+    } else {
+      console.warn(`Skipping server '${name}': missing required configuration`);
+      return;
+    }
+
+    const client = new Client(
+      {
+        name: `mcp-client-${name}`,
+        version: '1.0.0',
+      },
+      {
+        capabilities: {
+          prompts: {},
+          resources: {},
+          tools: {},
+        },
+      },
+    );
+
+    clients.push(client);
+    transports.push(transport);
+    console.log(`Initialized client for server: ${name}`);
+  });
+
+  return { clients, transports };
+}
+
+// Initialize clients and transports
+const { clients, transports } = initializeClientsFromSettings();
 
 export const registerAllTools = async (server: McpServer) => {
   for (const client of clients) {
-    await client.connect(transports[clients.indexOf(client)]);
+    const transportIndex = clients.indexOf(client);
+    await client.connect(transports[transportIndex]);
     const tools = await client.listTools();
     for (const tool of tools.tools) {
       console.log(`Registering tool: ${JSON.stringify(tool)}`);

@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "mcphub": {
+      "url": "http://localhost:3001/sse"
+    },
+    "time": {
+      "command": "python3",
+      "args": ["-m", "mcp_server_time", "--local-timezone=America/New_York"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    }
+  }
+}

@@ -12,7 +12,7 @@ const server = new McpServer({
 });
 
 // Register all MCP tools from the modular structure
-registerAllTools(server);
+await registerAllTools(server);
 
 const app = express();
 const PORT = process.env.PORT || 3000;

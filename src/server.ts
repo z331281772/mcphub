@@ -70,7 +70,7 @@ function cast(inputSchema: unknown): ZodRawShape {
     throw new Error('Invalid input schema');
   }
 
-  const properties = inputSchema as Record<string, any>;
+  const properties = inputSchema as Record<string, { type: string; description?: string }>;
   const processedSchema: ZodRawShape = {};
   for (const key in properties) {
     const prop = properties[key];
@@ -108,7 +108,5 @@ function cast(inputSchema: unknown): ZodRawShape {
       processedSchema[key] = zodType.optional();
     }
   }
-
-  console.log(`Processed schema: ${JSON.stringify(processedSchema)}`);
   return processedSchema;
 }

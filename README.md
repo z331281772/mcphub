@@ -1,12 +1,17 @@
-# MCP Hub
+# MCPHub
 
-A hub server for MCP servers.
+MCPHub is a unified hub server that consolidates multiple MCP (Model Context Protocol) servers into a single SSE endpoint. It simplifies service management and provides a centralized interface for all your MCP needs.
+
+## Features
+
+- **Centralized Management**: Manage multiple MCP servers from a single hub
+- **Protocol Support**: Compatible with stdio and SSE MCP protocols
+- **Dashboard UI**: Monitor server status through a web interface
+- **Easy Configuration**: Simple JSON-based configuration system
 
 ## Configuration
 
-MCP Hub allows you to configure multiple MCP servers. You can add as many stdio/sse MCP servers as you want.
-
-The configuration file should be named `mcp_settings.json` and placed in the root directory of the project.
+Create a `mcp_settings.json` file in your project root:
 
 ```json
 {
@@ -25,41 +30,37 @@ The configuration file should be named `mcp_settings.json` and placed in the roo
 
 ## Installation
 
-### Using Docker
-
-1. Add your `mcp_settings.json` file to the current directory.
-
-2. Run the following command to start the Docker container:
+### Docker (Recommended)
 
 ```bash
-docker run -p 3000:3000 -v ./mcp_settings.json:/app/mcp_settings.json samanhappy/mcphub
+docker run -p 3000:3000 -v $(pwd)/mcp_settings.json:/app/mcp_settings.json samanhappy/mcphub
 ```
 
-### Local Installation
-
-1. Clone the repository:
+### Manual Installation
 
 ```bash
 git clone https://github.com/samanhappy/mcphub.git
 cd mcphub
-```
-
-2. Install dependencies:
-
-```bash
 pnpm install
-```
-
-3. Run the server:
-
-```bash
 pnpm dev
 ```
 
 ## Usage
 
-1. Visit Dashboard UI at `http://localhost:3000` to see the status of your MCP servers.
+### Dashboard
+Access the monitoring UI at `http://localhost:3000`
 
-   ![](assets/dashboard.png)
+![Dashboard Preview](assets/dashboard.png)
 
-2. Use sse endpoint in any application: `http://localhost:3000/sse`
+### API Endpoint 
+Connect your applications to `http://localhost:3000/sse`
+
+
+## Requirements
+
+- Node.js 14+ (for manual installation)
+- Docker (for containerized deployment)
+
+## License
+
+[MIT License](LICENSE)

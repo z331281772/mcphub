@@ -44,12 +44,16 @@ function ToolCard({ tool }) {
 
 function ServerCard({ server, onRemove }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleRemove = (e) => {
     e.stopPropagation();
-    if (confirm(`Are you sure you want to delete server ${server.name}?`)) {
-      onRemove(server.name);
-    }
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    onRemove(server.name);
+    setShowDeleteDialog(false);
   };
 
   return (
@@ -72,6 +76,14 @@ function ServerCard({ server, onRemove }) {
           <button className="text-gray-400 hover:text-gray-600">{isExpanded ? '▼' : '▶'}</button>
         </div>
       </div>
+      
+      <DeleteDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleConfirmDelete}
+        serverName={server.name}
+      />
+
       {isExpanded && server.tools && (
         <div className="mt-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Available Tools</h3>

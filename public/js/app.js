@@ -46,8 +46,8 @@ function ServerCard({ server, onRemove }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleRemove = (e) => {
-    e.stopPropagation(); // 防止展开/收起行为
-    if (confirm(`确定要删除服务器 ${server.name} 吗？`)) {
+    e.stopPropagation();
+    if (confirm(`Are you sure you want to delete server ${server.name}?`)) {
       onRemove(server.name);
     }
   };
@@ -67,7 +67,7 @@ function ServerCard({ server, onRemove }) {
             onClick={handleRemove}
             className="px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 text-sm"
           >
-            删除
+            Delete
           </button>
           <button className="text-gray-400 hover:text-gray-600">{isExpanded ? '▼' : '▶'}</button>
         </div>
@@ -104,7 +104,6 @@ function AddServerForm({ onAdd }) {
 
   const handleArgsChange = (value) => {
     try {
-      // 尝试解析为数组，如果不是有效的 JSON 格式，则作为单个字符串处理
       let args;
       if (value.trim().startsWith('[')) {
         args = JSON.parse(value);
@@ -113,7 +112,6 @@ function AddServerForm({ onAdd }) {
       }
       setFormData({ ...formData, args });
     } catch (err) {
-      // 如果解析失败，使用默认值
       setFormData({ ...formData, args: ['-y', value] });
     }
   };
@@ -126,29 +124,29 @@ function AddServerForm({ onAdd }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    
+
     try {
       const payload = {
         name: formData.name,
-        config: serverType === 'url' 
-          ? { url: formData.url } 
-          : { command: formData.command, args: formData.args }
+        config:
+          serverType === 'url'
+            ? { url: formData.url }
+            : { command: formData.command, args: formData.args },
       };
 
       const response = await fetch('/api/servers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
-      
+
       if (!response.ok) {
-        setError(result.message || '添加服务器失败');
+        setError(result.message || 'Failed to add server');
         return;
       }
 
-      // 重置表单
       setFormData({
         name: '',
         url: '',
@@ -156,11 +154,10 @@ function AddServerForm({ onAdd }) {
         args: ['-y', ''],
       });
       setFormVisible(false);
-      
-      // 通知父组件
+
       onAdd();
     } catch (err) {
-      setError('发生错误: ' + err.message);
+      setError('Error: ' + err.message);
     }
   };
 
@@ -171,30 +168,23 @@ function AddServerForm({ onAdd }) {
           onClick={toggleForm}
           className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
         >
-          添加新服务器
+          Add New Server
         </button>
       ) : (
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">添加新服务器</h2>
-            <button 
-              onClick={toggleForm}
-              className="text-gray-500 hover:text-gray-700"
-            >
+            <h2 className="text-xl font-semibold text-gray-900">Add New Server</h2>
+            <button onClick={toggleForm} className="text-gray-500 hover:text-gray-700">
               ✕
             </button>
           </div>
-          
-          {error && (
-            <div className="bg-red-50 text-red-700 p-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-          
+
+          {error && <div className="bg-red-50 text-red-700 p-3 rounded mb-4">{error}</div>}
+
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                服务器名称
+                Server Name
               </label>
               <input
                 type="text"
@@ -203,15 +193,13 @@ function AddServerForm({ onAdd }) {
                 value={formData.name}
                 onChange={handleInputChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="例如: time-mcp"
+                placeholder="e.g., time-mcp"
                 required
               />
             </div>
-            
+
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                服务器类型
-              </label>
+              <label className="block text-gray-700 text-sm font-bold mb-2">Server Type</label>
               <div className="flex space-x-4">
                 <div>
                   <input
@@ -239,11 +227,11 @@ function AddServerForm({ onAdd }) {
                 </div>
               </div>
             </div>
-            
+
             {serverType === 'url' ? (
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="url">
-                  服务器 URL
+                  Server URL
                 </label>
                 <input
                   type="url"
@@ -252,7 +240,7 @@ function AddServerForm({ onAdd }) {
                   value={formData.url}
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="例如: http://localhost:3000/sse"
+                  placeholder="e.g., http://localhost:3000/sse"
                   required={serverType === 'url'}
                 />
               </div>
@@ -260,7 +248,7 @@ function AddServerForm({ onAdd }) {
               <Fragment>
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="command">
-                    命令
+                    Command
                   </label>
                   <input
                     type="text"
@@ -269,13 +257,13 @@ function AddServerForm({ onAdd }) {
                     value={formData.command}
                     onChange={handleInputChange}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="例如: npx"
+                    placeholder="e.g., npx"
                     required={serverType === 'command'}
                   />
                 </div>
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="args">
-                    参数
+                    Arguments
                   </label>
                   <input
                     type="text"
@@ -284,29 +272,29 @@ function AddServerForm({ onAdd }) {
                     value={formData.args[1] || ''}
                     onChange={(e) => handleArgsChange(e.target.value)}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="例如: time-mcp"
+                    placeholder="e.g., time-mcp"
                     required={serverType === 'command'}
                   />
                   <p className="text-gray-500 text-xs mt-1">
-                    将自动添加 "-y" 参数
+                    "-y" argument will be added automatically
                   </p>
                 </div>
               </Fragment>
             )}
-            
+
             <div className="flex justify-end mt-6">
               <button
                 type="button"
                 onClick={toggleForm}
                 className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded mr-2"
               >
-                取消
+                Cancel
               </button>
               <button
                 type="submit"
                 className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
               >
-                添加服务器
+                Add Server
               </button>
             </div>
           </form>
@@ -339,26 +327,25 @@ function App() {
   }, [refreshKey]);
 
   const handleServerAdd = () => {
-    setRefreshKey(prevKey => prevKey + 1); // 强制重新加载
+    setRefreshKey((prevKey) => prevKey + 1);
   };
 
   const handleServerRemove = async (serverName) => {
     try {
       const response = await fetch(`/api/servers/${serverName}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
-      
+
       const result = await response.json();
-      
+
       if (!response.ok) {
-        setError(result.message || `删除服务器 ${serverName} 失败`);
+        setError(result.message || `Failed to delete server ${serverName}`);
         return;
       }
-      
-      // 刷新服务器列表
-      setRefreshKey(prevKey => prevKey + 1);
+
+      setRefreshKey((prevKey) => prevKey + 1);
     } catch (err) {
-      setError('发生错误: ' + err.message);
+      setError('Error: ' + err.message);
     }
   };
 
@@ -373,7 +360,7 @@ function App() {
               onClick={() => setError(null)}
               className="mt-4 bg-red-100 text-red-800 py-1 px-3 rounded hover:bg-red-200"
             >
-              关闭
+              Close
             </button>
           </div>
         </div>
@@ -385,9 +372,9 @@ function App() {
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">MCP Hub Dashboard</h1>
-        
+
         <AddServerForm onAdd={handleServerAdd} />
-        
+
         {servers.length === 0 ? (
           <div className="bg-white shadow rounded-lg p-6">
             <p className="text-gray-600">No MCP servers available</p>
@@ -404,6 +391,5 @@ function App() {
   );
 }
 
-// 使用 React 18 的 createRoot API
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);

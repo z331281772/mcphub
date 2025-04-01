@@ -74,7 +74,6 @@ function initializeClientsFromSettings(): {
     if (config.url) {
       transport = new SSEClientTransport(new URL(config.url));
     } else if (config.command && config.args) {
-      // add PATH to env
       const env = config.env || {};
       env.PATH = process.env.PATH || '';
       transport = new StdioClientTransport({
@@ -122,7 +121,6 @@ export const registerAllTools = async (server: McpServer) => {
     try {
       await client.connect(transports[index]);
       const tools = await client.listTools();
-      // Transform the tools to match our ToolInfo interface
       clientTools[index] = tools.tools.map((tool) => ({
         name: tool.name,
         description: tool.description || '',
@@ -167,33 +165,30 @@ export function getServersSettings(): McpSettings {
 }
 
 // Add function to add a new server
-export async function addServer(mcpServer: McpServer, name: string, config: { url?: string; command?: string; args?: string[]; env?: Record<string, string> }): Promise<boolean> {
+export async function addServer(
+  mcpServer: McpServer,
+  name: string,
+  config: { url?: string; command?: string; args?: string[]; env?: Record<string, string> },
+): Promise<boolean> {
   try {
-    // Load current settings
     const settings = loadSettings();
-    
-    // Check if server with this name already exists
     if (settings.mcpServers[name]) {
       return false;
     }
-    
-    // Add new server to settings
+
     settings.mcpServers[name] = config;
-    
-    // Save updated settings
+
     if (!saveSettings(settings)) {
       return false;
     }
-    
-    // Re-initialize clients with updated settings
+
     const result = initializeClientsFromSettings();
     servers = result.servers;
     clients = result.clients;
     transports = result.transports;
-    
-    // Register tools for the new server
+
     await registerAllTools(mcpServer);
-    
+
     return true;
   } catch (error) {
     console.error(`Failed to add server: ${name}`, error);
@@ -201,31 +196,35 @@ export async function addServer(mcpServer: McpServer, name: string, config: { ur
   }
 }
 
-// 修改返回类型
-export function removeServer(name: string): { success: boolean; newServers?: string[]; newClients?: Client[]; newTransports?: (SSEClientTransport | StdioClientTransport)[] } {
+export function removeServer(name: string): {
+  success: boolean;
+  newServers?: string[];
+  newClients?: Client[];
+  newTransports?: (SSEClientTransport | StdioClientTransport)[];
+} {
   try {
     const settings = loadSettings();
-    
+
     if (!settings.mcpServers[name]) {
       return { success: false };
     }
-    
+
     delete settings.mcpServers[name];
-    
+
     if (!saveSettings(settings)) {
       return { success: false };
     }
-    
+
     const result = initializeClientsFromSettings();
     servers = result.servers;
     clients = result.clients;
     transports = result.transports;
-    
+
     return {
       success: true,
       newServers: result.servers,
       newClients: result.clients,
-      newTransports: result.transports
+      newTransports: result.transports,
     };
   } catch (error) {
     console.error(`Failed to remove server: ${name}`, error);

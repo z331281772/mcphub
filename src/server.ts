@@ -20,6 +20,19 @@ interface McpSettings {
   };
 }
 
+// Add type definitions for API responses
+export interface ServerInfo {
+  name: string;
+  status: 'connected' | 'disconnected';
+  tools: ToolInfo[];
+}
+
+export interface ToolInfo {
+  name: string;
+  description: string;
+  inputSchema: Record<string, any>;
+}
+
 // Function to read and parse the settings file
 function loadSettings(): McpSettings {
   const settingsPath = path.resolve(process.cwd(), 'mcp_settings.json');
@@ -87,36 +100,54 @@ function initializeClientsFromSettings(): {
 // Initialize clients and transports
 const { servers, clients, transports } = initializeClientsFromSettings();
 
+// Keep track of connected clients and their tools
+const clientTools: { [clientIndex: number]: ToolInfo[] } = {};
+
 export const registerAllTools = async (server: McpServer) => {
   for (const client of clients) {
     const index = clients.indexOf(client);
     const serverName = servers[index];
     try {
       await client.connect(transports[index]);
+      const tools = await client.listTools();
+      // Transform the tools to match our ToolInfo interface
+      clientTools[index] = tools.tools.map(tool => ({
+        name: tool.name,
+        description: tool.description || '',
+        inputSchema: tool.inputSchema.properties || {}
+      }));
+      
+      for (const tool of tools.tools) {
+        console.log(`Registering tool: ${JSON.stringify(tool)}`);
+        await server.tool(
+          tool.name,
+          tool.description || '',
+          cast(tool.inputSchema.properties),
+          async (params: Record<string, unknown>) => {
+            console.log(`Calling tool: ${tool.name} with params: ${JSON.stringify(params)}`);
+            const result = await client.callTool({
+              name: tool.name,
+              arguments: params,
+            });
+            console.log(`Tool result: ${JSON.stringify(result)}`);
+            return result as CallToolResult;
+          },
+        );
+      }
     } catch (error) {
       console.error(`Failed to connect to server for client: ${serverName} by error: ${error}`);
-      continue;
-    }
-    const tools = await client.listTools();
-    for (const tool of tools.tools) {
-      console.log(`Registering tool: ${JSON.stringify(tool)}`);
-      await server.tool(
-        tool.name,
-        tool.description || '',
-        cast(tool.inputSchema.properties),
-        async (params: Record<string, unknown>) => {
-          console.log(`Calling tool: ${tool.name} with params: ${JSON.stringify(params)}`);
-          const result = await client.callTool({
-            name: tool.name,
-            arguments: params,
-          });
-          console.log(`Tool result: ${JSON.stringify(result)}`);
-          return result as CallToolResult;
-        },
-      );
     }
   }
 };
+
+// Add function to get current server status
+export function getServersInfo(): ServerInfo[] {
+  return servers.map((name, index) => ({
+    name,
+    status: clientTools[index] ? 'connected' : 'disconnected',
+    tools: clientTools[index] || []
+  }));
+}
 
 function cast(inputSchema: unknown): ZodRawShape {
   if (typeof inputSchema !== 'object' || inputSchema === null) {

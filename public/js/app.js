@@ -223,7 +223,7 @@ function AddServerForm({ onAdd }) {
                     onChange={() => setServerType('command')}
                     className="mr-1"
                   />
-                  <label htmlFor="command">命令行</label>
+                  <label htmlFor="command">stdio</label>
                 </div>
                 <div>
                   <input
@@ -235,7 +235,7 @@ function AddServerForm({ onAdd }) {
                     onChange={() => setServerType('url')}
                     className="mr-1"
                   />
-                  <label htmlFor="url">URL</label>
+                  <label htmlFor="url">sse</label>
                 </div>
               </div>
             </div>
@@ -252,7 +252,7 @@ function AddServerForm({ onAdd }) {
                   value={formData.url}
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="例如: http://localhost:3001"
+                  placeholder="例如: http://localhost:3000/sse"
                   required={serverType === 'url'}
                 />
               </div>
@@ -404,5 +404,6 @@ function App() {
   );
 }
 
-// 使用兼容性更好的渲染方式
-ReactDOM.render(<App />, document.getElementById('root'));
+// 使用 React 18 的 createRoot API
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);

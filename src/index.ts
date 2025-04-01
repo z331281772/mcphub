@@ -21,8 +21,17 @@ const PORT = process.env.PORT || 3000;
 // Serve static files from the public directory
 app.use(express.static('public'));
 
-// Parse JSON request body
-app.use(express.json());
+// Remove this line
+// app.use(express.json());
+
+// Add conditional JSON parsing middleware
+app.use((req, res, next) => {
+  if (req.path !== '/sse' && req.path !== '/messages') {
+    express.json()(req, res, next);
+  } else {
+    next();
+  }
+});
 
 // to support multiple simultaneous connections we have a lookup object from sessionId to transport
 const transports: { [sessionId: string]: SSEServerTransport } = {};

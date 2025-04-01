@@ -1,4 +1,5 @@
 const { useState, useEffect, Fragment } = React;
+const { ChevronDown, ChevronRight } = window.LucideIcons || {};
 
 function Badge({ status }) {
   const colors = {
@@ -25,7 +26,11 @@ function ToolCard({ tool }) {
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <h3 className="text-lg font-medium text-gray-900">{tool.name}</h3>
-        <button className="text-gray-400 hover:text-gray-600">{isExpanded ? '▼' : '▶'}</button>
+        <button className="text-gray-400 hover:text-gray-600">
+          {isExpanded ? 
+            (ChevronDown ? <ChevronDown size={18} /> : '▼') : 
+            (ChevronRight ? <ChevronRight size={18} /> : '▶')}
+        </button>
       </div>
       {isExpanded && (
         <div className="mt-4">
@@ -73,7 +78,11 @@ function ServerCard({ server, onRemove }) {
           >
             Delete
           </button>
-          <button className="text-gray-400 hover:text-gray-600">{isExpanded ? '▼' : '▶'}</button>
+          <button className="text-gray-400 hover:text-gray-600">
+            {isExpanded ? 
+              (ChevronDown ? <ChevronDown size={18} /> : '▼') : 
+              (ChevronRight ? <ChevronRight size={18} /> : '▶')}
+          </button>
         </div>
       </div>
       

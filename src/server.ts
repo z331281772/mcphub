@@ -47,10 +47,13 @@ function initializeClientsFromSettings(): {
     if (config.url) {
       transport = new SSEClientTransport(new URL(config.url));
     } else if (config.command && config.args) {
+      // add PATH to env
+      const env = config.env || {};
+      env.PATH = process.env.PATH || '';
       transport = new StdioClientTransport({
         command: config.command,
         args: config.args,
-        env: config.env,
+        env: env,
       });
     } else {
       console.warn(`Skipping server '${name}': missing required configuration`);

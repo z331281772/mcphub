@@ -3,7 +3,7 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import * as z from 'zod'; 
+import * as z from 'zod';
 import { ZodType, ZodRawShape } from 'zod';
 import fs from 'fs';
 import path from 'path';
@@ -34,10 +34,12 @@ function loadSettings(): McpSettings {
 
 // Initialize clients and transports from settings
 function initializeClientsFromSettings(): {
+  servers: string[];
   clients: Client[];
   transports: (SSEClientTransport | StdioClientTransport)[];
 } {
   const settings = loadSettings();
+  const servers = Object.keys(settings.mcpServers);
   const clients: Client[] = [];
   const transports: (SSEClientTransport | StdioClientTransport)[] = [];
 
@@ -79,16 +81,22 @@ function initializeClientsFromSettings(): {
     console.log(`Initialized client for server: ${name}`);
   });
 
-  return { clients, transports };
+  return { servers, clients, transports };
 }
 
 // Initialize clients and transports
-const { clients, transports } = initializeClientsFromSettings();
+const { servers, clients, transports } = initializeClientsFromSettings();
 
 export const registerAllTools = async (server: McpServer) => {
   for (const client of clients) {
-    const transportIndex = clients.indexOf(client);
-    await client.connect(transports[transportIndex]);
+    const index = clients.indexOf(client);
+    const serverName = servers[index];
+    try {
+      await client.connect(transports[index]);
+    } catch (error) {
+      console.error(`Failed to connect to server for client: ${serverName} by error: ${error}`);
+      continue;
+    }
     const tools = await client.listTools();
     for (const tool of tools.tools) {
       console.log(`Registering tool: ${JSON.stringify(tool)}`);

@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-import { registerAllTools, getServersInfo } from './server.js';
+import { registerAllTools, getServersInfo, getServersSettings, addServer, removeServer } from './server.js';
 import path from 'path';
 
 dotenv.config();
@@ -21,6 +21,9 @@ const PORT = process.env.PORT || 3000;
 // Serve static files from the public directory
 app.use(express.static('public'));
 
+// Parse JSON request body
+app.use(express.json());
+
 // to support multiple simultaneous connections we have a lookup object from sessionId to transport
 const transports: { [sessionId: string]: SSEServerTransport } = {};
 
@@ -28,6 +31,56 @@ const transports: { [sessionId: string]: SSEServerTransport } = {};
 app.get('/api/servers', (req: Request, res: Response) => {
   const serversInfo = getServersInfo();
   res.json(serversInfo);
+});
+
+// API endpoint to get all server settings
+app.get('/api/settings', (req: Request, res: Response) => {
+  const settings = getServersSettings();
+  res.json(settings);
+});
+
+// API endpoint to add a new server
+app.post('/api/servers', async (req: Request, res: Response) => {
+  const { name, config } = req.body;
+  
+  if (!name || typeof name !== 'string') {
+    return res.status(400).json({ success: false, message: 'Server name is required' });
+  }
+
+  if (!config || typeof config !== 'object') {
+    return res.status(400).json({ success: false, message: 'Server configuration is required' });
+  }
+
+  // Validate config has either url or command+args
+  if (!config.url && (!config.command || !config.args)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Server configuration must include either a URL or command with arguments',
+    });
+  }
+
+  const success = await addServer(server, name, config);
+  if (success) {
+    res.json({ success: true, message: 'Server added successfully' });
+  } else {
+    res.status(400).json({ success: false, message: 'Failed to add server' });
+  }
+});
+
+// API endpoint to remove a server
+app.delete('/api/servers/:name', (req: Request, res: Response) => {
+  const { name } = req.params;
+  
+  if (!name) {
+    return res.status(400).json({ success: false, message: 'Server name is required' });
+  }
+
+  const success = removeServer(name);
+  if (success) {
+    res.json({ success: true, message: 'Server removed successfully' });
+  } else {
+    res.status(404).json({ success: false, message: 'Server not found or failed to remove' });
+  }
 });
 
 app.get('/sse', async (_: Request, res: Response) => {

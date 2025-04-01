@@ -45,6 +45,18 @@ function loadSettings(): McpSettings {
   }
 }
 
+// Function to save settings to file
+export function saveSettings(settings: McpSettings): boolean {
+  const settingsPath = path.resolve(process.cwd(), 'mcp_settings.json');
+  try {
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf8');
+    return true;
+  } catch (error) {
+    console.error(`Failed to save settings to ${settingsPath}:`, error);
+    return false;
+  }
+}
+
 // Initialize clients and transports from settings
 function initializeClientsFromSettings(): {
   servers: string[];
@@ -98,7 +110,7 @@ function initializeClientsFromSettings(): {
 }
 
 // Initialize clients and transports
-const { servers, clients, transports } = initializeClientsFromSettings();
+let { servers, clients, transports } = initializeClientsFromSettings();
 
 // Keep track of connected clients and their tools
 const clientTools: { [clientIndex: number]: ToolInfo[] } = {};
@@ -147,6 +159,78 @@ export function getServersInfo(): ServerInfo[] {
     status: clientTools[index] ? 'connected' : 'disconnected',
     tools: clientTools[index] || [],
   }));
+}
+
+// Add function to get all server settings
+export function getServersSettings(): McpSettings {
+  return loadSettings();
+}
+
+// Add function to add a new server
+export async function addServer(mcpServer: McpServer, name: string, config: { url?: string; command?: string; args?: string[]; env?: Record<string, string> }): Promise<boolean> {
+  try {
+    // Load current settings
+    const settings = loadSettings();
+    
+    // Check if server with this name already exists
+    if (settings.mcpServers[name]) {
+      return false;
+    }
+    
+    // Add new server to settings
+    settings.mcpServers[name] = config;
+    
+    // Save updated settings
+    if (!saveSettings(settings)) {
+      return false;
+    }
+    
+    // Re-initialize clients with updated settings
+    const result = initializeClientsFromSettings();
+    servers = result.servers;
+    clients = result.clients;
+    transports = result.transports;
+    
+    // Register tools for the new server
+    await registerAllTools(mcpServer);
+    
+    return true;
+  } catch (error) {
+    console.error(`Failed to add server: ${name}`, error);
+    return false;
+  }
+}
+
+// Add function to remove a server
+export function removeServer(name: string): boolean {
+  try {
+    // Load current settings
+    const settings = loadSettings();
+    
+    // Check if server exists
+    if (!settings.mcpServers[name]) {
+      return false;
+    }
+    
+    // Remove server from settings
+    delete settings.mcpServers[name];
+    
+    // Save updated settings
+    if (!saveSettings(settings)) {
+      return false;
+    }
+    
+    // Re-initialize clients with updated settings
+    const result = initializeClientsFromSettings();
+    servers = result.servers;
+    clients = result.clients;
+    transports = result.transports;
+    
+    return true;
+  } catch (error) {
+    console.error(`Failed to remove server: ${name}`, error);
+    return false;
+  }
 }
 
 function cast(inputSchema: unknown): ZodRawShape {

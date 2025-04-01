@@ -201,35 +201,35 @@ export async function addServer(mcpServer: McpServer, name: string, config: { ur
   }
 }
 
-// Add function to remove a server
-export function removeServer(name: string): boolean {
+// 修改返回类型
+export function removeServer(name: string): { success: boolean; newServers?: string[]; newClients?: Client[]; newTransports?: (SSEClientTransport | StdioClientTransport)[] } {
   try {
-    // Load current settings
     const settings = loadSettings();
     
-    // Check if server exists
     if (!settings.mcpServers[name]) {
-      return false;
+      return { success: false };
     }
     
-    // Remove server from settings
     delete settings.mcpServers[name];
     
-    // Save updated settings
     if (!saveSettings(settings)) {
-      return false;
+      return { success: false };
     }
     
-    // Re-initialize clients with updated settings
     const result = initializeClientsFromSettings();
     servers = result.servers;
     clients = result.clients;
     transports = result.transports;
     
-    return true;
+    return {
+      success: true,
+      newServers: result.servers,
+      newClients: result.clients,
+      newTransports: result.transports
+    };
   } catch (error) {
     console.error(`Failed to remove server: ${name}`, error);
-    return false;
+    return { success: false };
   }
 }
 

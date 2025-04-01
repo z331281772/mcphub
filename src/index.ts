@@ -7,7 +7,7 @@ import path from 'path';
 
 dotenv.config();
 
-const server = new McpServer({
+let server = new McpServer({
   name: 'mcphub',
   version: '0.0.1',
 });
@@ -20,9 +20,6 @@ const PORT = process.env.PORT || 3000;
 
 // Serve static files from the public directory
 app.use(express.static('public'));
-
-// Remove this line
-// app.use(express.json());
 
 // Add conditional JSON parsing middleware
 app.use((req, res, next) => {
@@ -77,15 +74,21 @@ app.post('/api/servers', async (req: Request, res: Response) => {
 });
 
 // API endpoint to remove a server
-app.delete('/api/servers/:name', (req: Request, res: Response) => {
+app.delete('/api/servers/:name', async (req: Request, res: Response) => {
   const { name } = req.params;
   
   if (!name) {
     return res.status(400).json({ success: false, message: 'Server name is required' });
   }
 
-  const success = removeServer(name);
-  if (success) {
+  const result = removeServer(name);
+  if (result.success) {
+    server = new McpServer({
+      name: 'mcphub',
+      version: '0.0.1',
+    });
+    await registerAllTools(server);
+    
     res.json({ success: true, message: 'Server removed successfully' });
   } else {
     res.status(404).json({ success: false, message: 'Server not found or failed to remove' });

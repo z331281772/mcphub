@@ -27,9 +27,17 @@ function ToolCard({ tool }) {
       >
         <h3 className="text-lg font-medium text-gray-900">{tool.name}</h3>
         <button className="text-gray-400 hover:text-gray-600">
-          {isExpanded ? 
-            (ChevronDown ? <ChevronDown size={18} /> : '▼') : 
-            (ChevronRight ? <ChevronRight size={18} /> : '▶')}
+          {isExpanded ? (
+            ChevronDown ? (
+              <ChevronDown size={18} />
+            ) : (
+              '▼'
+            )
+          ) : ChevronRight ? (
+            <ChevronRight size={18} />
+          ) : (
+            '▶'
+          )}
         </button>
       </div>
       {isExpanded && (
@@ -79,13 +87,21 @@ function ServerCard({ server, onRemove }) {
             Delete
           </button>
           <button className="text-gray-400 hover:text-gray-600">
-            {isExpanded ? 
-              (ChevronDown ? <ChevronDown size={18} /> : '▼') : 
-              (ChevronRight ? <ChevronRight size={18} /> : '▶')}
+            {isExpanded ? (
+              ChevronDown ? (
+                <ChevronDown size={18} />
+              ) : (
+                '▼'
+              )
+            ) : ChevronRight ? (
+              <ChevronRight size={18} />
+            ) : (
+              '▶'
+            )}
           </button>
         </div>
       </div>
-      
+
       <DeleteDialog
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
@@ -108,7 +124,7 @@ function ServerCard({ server, onRemove }) {
 }
 
 function AddServerForm({ onAdd }) {
-  const [formVisible, setFormVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [serverType, setServerType] = useState('command');
   const [formData, setFormData] = useState({
     name: '',
@@ -137,8 +153,8 @@ function AddServerForm({ onAdd }) {
     }
   };
 
-  const toggleForm = () => {
-    setFormVisible(!formVisible);
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
     setError(null);
   };
 
@@ -174,7 +190,7 @@ function AddServerForm({ onAdd }) {
         command: 'npx',
         args: ['-y', ''],
       });
-      setFormVisible(false);
+      setModalVisible(false);
 
       onAdd();
     } catch (err) {
@@ -184,141 +200,143 @@ function AddServerForm({ onAdd }) {
 
   return (
     <div className="mb-6">
-      {!formVisible ? (
-        <button
-          onClick={toggleForm}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
-        >
-          Add New Server
-        </button>
-      ) : (
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Add New Server</h2>
-            <button onClick={toggleForm} className="text-gray-500 hover:text-gray-700">
-              ✕
-            </button>
-          </div>
+      <button
+        onClick={toggleModal}
+        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
+      >
+        Add New Server
+      </button>
 
-          {error && <div className="bg-red-50 text-red-700 p-3 rounded mb-4">{error}</div>}
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                Server Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                id="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="e.g., time-mcp"
-                required
-              />
+      {modalVisible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white shadow rounded-lg p-6 w-full max-w-xl max-h-screen overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Add New Server</h2>
+              <button onClick={toggleModal} className="text-gray-500 hover:text-gray-700">
+                ✕
+              </button>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Server Type</label>
-              <div className="flex space-x-4">
-                <div>
-                  <input
-                    type="radio"
-                    id="command"
-                    name="serverType"
-                    value="command"
-                    checked={serverType === 'command'}
-                    onChange={() => setServerType('command')}
-                    className="mr-1"
-                  />
-                  <label htmlFor="command">stdio</label>
-                </div>
-                <div>
-                  <input
-                    type="radio"
-                    id="url"
-                    name="serverType"
-                    value="url"
-                    checked={serverType === 'url'}
-                    onChange={() => setServerType('url')}
-                    className="mr-1"
-                  />
-                  <label htmlFor="url">sse</label>
-                </div>
-              </div>
-            </div>
+            {error && <div className="bg-red-50 text-red-700 p-3 rounded mb-4">{error}</div>}
 
-            {serverType === 'url' ? (
+            <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="url">
-                  Server URL
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+                  Server Name
                 </label>
                 <input
-                  type="url"
-                  name="url"
-                  id="url"
-                  value={formData.url}
+                  type="text"
+                  name="name"
+                  id="name"
+                  value={formData.name}
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="e.g., http://localhost:3000/sse"
-                  required={serverType === 'url'}
+                  placeholder="e.g., time-mcp"
+                  required
                 />
               </div>
-            ) : (
-              <Fragment>
+
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Server Type</label>
+                <div className="flex space-x-4">
+                  <div>
+                    <input
+                      type="radio"
+                      id="command"
+                      name="serverType"
+                      value="command"
+                      checked={serverType === 'command'}
+                      onChange={() => setServerType('command')}
+                      className="mr-1"
+                    />
+                    <label htmlFor="command">stdio</label>
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      id="url"
+                      name="serverType"
+                      value="url"
+                      checked={serverType === 'url'}
+                      onChange={() => setServerType('url')}
+                      className="mr-1"
+                    />
+                    <label htmlFor="url">sse</label>
+                  </div>
+                </div>
+              </div>
+
+              {serverType === 'url' ? (
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="command">
-                    Command
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="url">
+                    Server URL
                   </label>
                   <input
-                    type="text"
-                    name="command"
-                    id="command"
-                    value={formData.command}
+                    type="url"
+                    name="url"
+                    id="url"
+                    value={formData.url}
                     onChange={handleInputChange}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="e.g., npx"
-                    required={serverType === 'command'}
+                    placeholder="e.g., http://localhost:3000/sse"
+                    required={serverType === 'url'}
                   />
                 </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="args">
-                    Arguments
-                  </label>
-                  <input
-                    type="text"
-                    name="args"
-                    id="args"
-                    value={formData.args[1] || ''}
-                    onChange={(e) => handleArgsChange(e.target.value)}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="e.g., time-mcp"
-                    required={serverType === 'command'}
-                  />
-                  <p className="text-gray-500 text-xs mt-1">
-                    "-y" argument will be added automatically
-                  </p>
-                </div>
-              </Fragment>
-            )}
+              ) : (
+                <Fragment>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="command">
+                      Command
+                    </label>
+                    <input
+                      type="text"
+                      name="command"
+                      id="command"
+                      value={formData.command}
+                      onChange={handleInputChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      placeholder="e.g., npx"
+                      required={serverType === 'command'}
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="args">
+                      Arguments
+                    </label>
+                    <input
+                      type="text"
+                      name="args"
+                      id="args"
+                      value={formData.args[1] || ''}
+                      onChange={(e) => handleArgsChange(e.target.value)}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      placeholder="e.g., time-mcp"
+                      required={serverType === 'command'}
+                    />
+                    <p className="text-gray-500 text-xs mt-1">
+                      "-y" argument will be added automatically
+                    </p>
+                  </div>
+                </Fragment>
+              )}
 
-            <div className="flex justify-end mt-6">
-              <button
-                type="button"
-                onClick={toggleForm}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded mr-2"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
-              >
-                Add Server
-              </button>
-            </div>
-          </form>
+              <div className="flex justify-end mt-6">
+                <button
+                  type="button"
+                  onClick={toggleModal}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded mr-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
+                >
+                  Add Server
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

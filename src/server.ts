@@ -15,6 +15,7 @@ interface McpSettings {
       url?: string;
       command?: string;
       args?: string[];
+      env?: Record<string, string>;
     };
   };
 }
@@ -49,6 +50,7 @@ function initializeClientsFromSettings(): {
       transport = new StdioClientTransport({
         command: config.command,
         args: config.args,
+        env: config.env,
       });
     } else {
       console.warn(`Skipping server '${name}': missing required configuration`);

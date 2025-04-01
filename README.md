@@ -2,9 +2,11 @@
 
 A hub server for MCP servers.
 
-## Usage
+## Configuration
 
-1. Create a configuration file named `mcp_settings.json` with your MCP server settings:
+MCP Hub allows you to configure multiple MCP servers. You can add as many stdio/sse MCP servers as you want.
+
+The configuration file should be named `mcp_settings.json` and placed in the root directory of the project.
 
 ```json
 {
@@ -15,25 +17,49 @@ A hub server for MCP servers.
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ]
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     }
   }
 }
 ```
 
-2. Run MCP Hub using Docker:
+## Installation
+
+### Using Docker
+
+1. Add your `mcp_settings.json` file to the current directory.
+
+2. Run the following command to start the Docker container:
 
 ```bash
 docker run -p 3000:3000 -v ./mcp_settings.json:/app/mcp_settings.json samanhappy/mcphub
 ```
 
-This will:
-- Map port 3000 from the container to your local machine
-- Mount your local configuration file into the container
-- Start the MCP Hub server
+### Local Installation
 
-3. The server will be available at `http://localhost:3000/sse`
+1. Clone the repository:
 
+```bash
+git clone https://github.com/samanhappy/mcphub.git
+cd mcphub
+```
+
+2. Install dependencies:
+
+```bash
+pnpm install
+```
+
+3. Run the server:
+
+```bash
+pnpm dev
+```
+
+## Usage
+
+1. Visit Dashboard UI at `http://localhost:3000` to see the status of your MCP servers.
+   // image
+   ![Dashboard UI](https://raw.githubusercontent.com/samanhappy/mcphub/main/assets/dashboard.png)
+
+2. Use sse endpoint in any application: `http://localhost:3000/sse`

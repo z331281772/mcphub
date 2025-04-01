@@ -68,14 +68,24 @@ function initializeClientsFromSettings(): {
   const clients: Client[] = [];
   const transports: (SSEClientTransport | StdioClientTransport)[] = [];
 
+  function expandEnvVars(value: string) {
+    return value.replace(/\$\{([^}]+)\}/g, (_, key) => process.env[key] || '');
+  }
+
   Object.entries(settings.mcpServers).forEach(([name, config]) => {
     let transport;
 
     if (config.url) {
       transport = new SSEClientTransport(new URL(config.url));
     } else if (config.command && config.args) {
-      const env = config.env || {};
-      env.PATH = process.env.PATH || '';
+      const rawEnv = { ...process.env, ...(config.env || {}) };
+      const env: Record<string, string> = {};
+      for (const key in rawEnv) {
+        if (typeof rawEnv[key] === 'string') {
+          env[key] = expandEnvVars(rawEnv[key] as string);
+        }
+      }
+
       transport = new StdioClientTransport({
         command: config.command,
         args: config.args,

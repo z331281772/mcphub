@@ -199,7 +199,7 @@ function AddServerForm({ onAdd }) {
   };
 
   return (
-    <div className="mb-6">
+    <div>
       <button
         onClick={toggleModal}
         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
@@ -410,9 +410,10 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">MCP Hub Dashboard</h1>
-
-        <AddServerForm onAdd={handleServerAdd} />
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">MCP Hub Dashboard</h1>
+          <AddServerForm onAdd={handleServerAdd} />
+        </div>
 
         {servers.length === 0 ? (
           <div className="bg-white shadow rounded-lg p-6">

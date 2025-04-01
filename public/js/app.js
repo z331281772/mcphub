@@ -7,7 +7,9 @@ function Badge({ status }) {
   };
 
   return (
-    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${colors[status]}`}>
+    <span
+      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${colors[status]}`}
+    >
       {status}
     </span>
   );
@@ -18,11 +20,12 @@ function ToolCard({ tool }) {
 
   return (
     <div className="bg-white shadow rounded-lg p-4 mb-4">
-      <div className="flex justify-between items-center cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+      <div
+        className="flex justify-between items-center cursor-pointer"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
         <h3 className="text-lg font-medium text-gray-900">{tool.name}</h3>
-        <button className="text-gray-400 hover:text-gray-600">
-          {isExpanded ? '▼' : '▶'}
-        </button>
+        <button className="text-gray-400 hover:text-gray-600">{isExpanded ? '▼' : '▶'}</button>
       </div>
       {isExpanded && (
         <div className="mt-4">
@@ -44,14 +47,15 @@ function ServerCard({ server }) {
 
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6">
-      <div className="flex justify-between items-center cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+      <div
+        className="flex justify-between items-center cursor-pointer"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
         <div className="flex items-center space-x-3">
           <h2 className="text-xl font-semibold text-gray-900">{server.name}</h2>
           <Badge status={server.status} />
         </div>
-        <button className="text-gray-400 hover:text-gray-600">
-          {isExpanded ? '▼' : '▶'}
-        </button>
+        <button className="text-gray-400 hover:text-gray-600">{isExpanded ? '▼' : '▶'}</button>
       </div>
       {isExpanded && server.tools && (
         <div className="mt-6">
@@ -73,16 +77,16 @@ function App() {
 
   useEffect(() => {
     fetch('/api/servers')
-      .then(response => response.json())
-      .then(data => setServers(data))
-      .catch(err => setError(err.message));
+      .then((response) => response.json())
+      .then((data) => setServers(data))
+      .catch((err) => setError(err.message));
 
     // Poll for updates every 5 seconds
     const interval = setInterval(() => {
       fetch('/api/servers')
-        .then(response => response.json())
-        .then(data => setServers(data))
-        .catch(err => setError(err.message));
+        .then((response) => response.json())
+        .then((data) => setServers(data))
+        .catch((err) => setError(err.message));
     }, 5000);
 
     return () => clearInterval(interval);

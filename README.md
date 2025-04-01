@@ -60,6 +60,6 @@ pnpm dev
 
 1. Visit Dashboard UI at `http://localhost:3000` to see the status of your MCP servers.
    // image
-   ![Dashboard UI](https://raw.githubusercontent.com/samanhappy/mcphub/main/assets/dashboard.png)
+   ![Dashboard UI](./assets/dashboard.png)
 
 2. Use sse endpoint in any application: `http://localhost:3000/sse`

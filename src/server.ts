@@ -30,7 +30,7 @@ export interface ServerInfo {
 export interface ToolInfo {
   name: string;
   description: string;
-  inputSchema: Record<string, any>;
+  inputSchema: Record<string, unknown>;
 }
 
 // Function to read and parse the settings file
@@ -111,12 +111,12 @@ export const registerAllTools = async (server: McpServer) => {
       await client.connect(transports[index]);
       const tools = await client.listTools();
       // Transform the tools to match our ToolInfo interface
-      clientTools[index] = tools.tools.map(tool => ({
+      clientTools[index] = tools.tools.map((tool) => ({
         name: tool.name,
         description: tool.description || '',
-        inputSchema: tool.inputSchema.properties || {}
+        inputSchema: tool.inputSchema.properties || {},
       }));
-      
+
       for (const tool of tools.tools) {
         console.log(`Registering tool: ${JSON.stringify(tool)}`);
         await server.tool(
@@ -145,7 +145,7 @@ export function getServersInfo(): ServerInfo[] {
   return servers.map((name, index) => ({
     name,
     status: clientTools[index] ? 'connected' : 'disconnected',
-    tools: clientTools[index] || []
+    tools: clientTools[index] || [],
   }));
 }
 

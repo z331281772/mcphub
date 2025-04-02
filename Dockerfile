@@ -2,7 +2,7 @@
 FROM node:22-alpine
 
 # Use mirror for faster package installation
-RUN sed -i 's|https://registry.npmjs.org/|https://registry.npmmirror.com/|g' /etc/npmrc
+RUN npm config set registry https://registry.npmmirror.com
 
 # Set working directory
 WORKDIR /app

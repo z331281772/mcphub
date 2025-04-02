@@ -25,6 +25,8 @@ export interface ServerInfo {
   name: string;
   status: 'connected' | 'disconnected';
   tools: ToolInfo[];
+  client?: Client;
+  transport?: SSEClientTransport | StdioClientTransport;
 }
 
 export interface ToolInfo {
@@ -58,15 +60,9 @@ export function saveSettings(settings: McpSettings): boolean {
 }
 
 // Initialize clients and transports from settings
-function initializeClientsFromSettings(): {
-  servers: string[];
-  clients: Client[];
-  transports: (SSEClientTransport | StdioClientTransport)[];
-} {
+function initializeClientsFromSettings(): ServerInfo[] {
   const settings = loadSettings();
-  const servers = Object.keys(settings.mcpServers);
-  const clients: Client[] = [];
-  const transports: (SSEClientTransport | StdioClientTransport)[] = [];
+  const serverInfos: ServerInfo[] = [];
 
   function expandEnvVars(value: string) {
     return value.replace(/\$\{([^}]+)\}/g, (_, key) => process.env[key] || '');
@@ -93,6 +89,11 @@ function initializeClientsFromSettings(): {
       });
     } else {
       console.warn(`Skipping server '${name}': missing required configuration`);
+      serverInfos.push({
+        name,
+        status: 'disconnected',
+        tools: []
+      });
       return;
     }
 
@@ -110,32 +111,39 @@ function initializeClientsFromSettings(): {
       },
     );
 
-    clients.push(client);
-    transports.push(transport);
+    serverInfos.push({
+      name,
+      status: 'disconnected', // Initially disconnected
+      tools: [],
+      client,
+      transport
+    });
+    
     console.log(`Initialized client for server: ${name}`);
   });
 
-  return { servers, clients, transports };
+  return serverInfos;
 }
 
-// Initialize clients and transports
-let { servers, clients, transports } = initializeClientsFromSettings();
+// Initialize server info
+let serverInfos = initializeClientsFromSettings();
 
-// Keep track of connected clients and their tools
-const clientTools: { [clientIndex: number]: ToolInfo[] } = {};
-
+// Export the registerAllTools function
 export const registerAllTools = async (server: McpServer) => {
-  for (const client of clients) {
-    const index = clients.indexOf(client);
-    const serverName = servers[index];
+  for (const serverInfo of serverInfos) {
+    if (!serverInfo.client || !serverInfo.transport) continue;
+    
     try {
-      await client.connect(transports[index]);
-      const tools = await client.listTools();
-      clientTools[index] = tools.tools.map((tool) => ({
+      await serverInfo.client.connect(serverInfo.transport);
+      const tools = await serverInfo.client.listTools();
+      
+      serverInfo.tools = tools.tools.map((tool) => ({
         name: tool.name,
         description: tool.description || '',
         inputSchema: tool.inputSchema.properties || {},
       }));
+      
+      serverInfo.status = 'connected';
 
       for (const tool of tools.tools) {
         console.log(`Registering tool: ${JSON.stringify(tool)}`);
@@ -145,7 +153,7 @@ export const registerAllTools = async (server: McpServer) => {
           cast(tool.inputSchema.properties),
           async (params: Record<string, unknown>) => {
             console.log(`Calling tool: ${tool.name} with params: ${JSON.stringify(params)}`);
-            const result = await client.callTool({
+            const result = await serverInfo.client!.callTool({
               name: tool.name,
               arguments: params,
             });
@@ -155,17 +163,18 @@ export const registerAllTools = async (server: McpServer) => {
         );
       }
     } catch (error) {
-      console.error(`Failed to connect to server for client: ${serverName} by error: ${error}`);
+      console.error(`Failed to connect to server for client: ${serverInfo.name} by error: ${error}`);
+      serverInfo.status = 'disconnected';
     }
   }
 };
 
 // Add function to get current server status
 export function getServersInfo(): ServerInfo[] {
-  return servers.map((name, index) => ({
+  return serverInfos.map(({name, status, tools}) => ({
     name,
-    status: clientTools[index] ? 'connected' : 'disconnected',
-    tools: clientTools[index] || [],
+    status,
+    tools,
   }));
 }
 
@@ -192,11 +201,7 @@ export async function addServer(
       return { success: false, message: 'Failed to save settings' };
     }
 
-    const result = initializeClientsFromSettings();
-    servers = result.servers;
-    clients = result.clients;
-    transports = result.transports;
-
+    serverInfos = initializeClientsFromSettings();
     await registerAllTools(mcpServer);
 
     return { success: true, message: 'Server added successfully' };
@@ -208,9 +213,6 @@ export async function addServer(
 
 export function removeServer(name: string): {
   success: boolean;
-  newServers?: string[];
-  newClients?: Client[];
-  newTransports?: (SSEClientTransport | StdioClientTransport)[];
 } {
   try {
     const settings = loadSettings();
@@ -225,17 +227,9 @@ export function removeServer(name: string): {
       return { success: false };
     }
 
-    const result = initializeClientsFromSettings();
-    servers = result.servers;
-    clients = result.clients;
-    transports = result.transports;
+    serverInfos = initializeClientsFromSettings();
 
-    return {
-      success: true,
-      newServers: result.servers,
-      newClients: result.clients,
-      newTransports: result.transports,
-    };
+    return { success: true };
   } catch (error) {
     console.error(`Failed to remove server: ${name}`, error);
     return { success: false };

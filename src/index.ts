@@ -93,7 +93,8 @@ app.delete('/api/servers/:name', async (req: Request, res: Response) => {
       name: 'mcphub',
       version: '0.0.1',
     });
-    await registerAllTools(server);
+
+    registerAllTools(server);
 
     res.json({ success: true, message: 'Server removed successfully' });
   } else {

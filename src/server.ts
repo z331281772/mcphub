@@ -62,13 +62,18 @@ export function saveSettings(settings: McpSettings): boolean {
 // Initialize clients and transports from settings
 function initializeClientsFromSettings(): ServerInfo[] {
   const settings = loadSettings();
-  const serverInfos: ServerInfo[] = [];
 
   function expandEnvVars(value: string) {
     return value.replace(/\$\{([^}]+)\}/g, (_, key) => process.env[key] || '');
   }
 
-  Object.entries(settings.mcpServers).forEach(([name, config]) => {
+  for (const [name, config] of Object.entries(settings.mcpServers)) {
+    const serverInfo = serverInfos.find((info) => info.name === name);
+    if (serverInfo && serverInfo.status === 'connected') {
+      console.log(`Server '${name}' is already connected.`);
+      continue;
+    }
+
     let transport;
 
     if (config.url) {
@@ -94,7 +99,7 @@ function initializeClientsFromSettings(): ServerInfo[] {
         status: 'disconnected',
         tools: [],
       });
-      return;
+      continue;
     }
 
     const client = new Client(
@@ -120,13 +125,14 @@ function initializeClientsFromSettings(): ServerInfo[] {
     });
 
     console.log(`Initialized client for server: ${name}`);
-  });
+  }
 
   return serverInfos;
 }
 
 // Initialize server info
-let serverInfos = initializeClientsFromSettings();
+let serverInfos: ServerInfo[] = [];
+serverInfos = initializeClientsFromSettings();
 
 // Export the registerAllTools function
 export const registerAllTools = async (server: McpServer) => {
@@ -209,7 +215,7 @@ export async function addServer(
     }
 
     serverInfos = initializeClientsFromSettings();
-    await registerAllTools(mcpServer);
+    registerAllTools(mcpServer);
 
     return { success: true, message: 'Server added successfully' };
   } catch (error) {
@@ -234,8 +240,7 @@ export function removeServer(name: string): {
       return { success: false };
     }
 
-    serverInfos = initializeClientsFromSettings();
-
+    serverInfos = serverInfos.filter((serverInfo) => serverInfo.name !== name);
     return { success: true };
   } catch (error) {
     console.error(`Failed to remove server: ${name}`, error);

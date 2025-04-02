@@ -1,6 +1,9 @@
 # Use Node.js LTS image with Python support
 FROM node:22-alpine
 
+# Use mirror for faster package installation
+RUN sed -i 's|https://registry.npmjs.org/|https://registry.npmmirror.com/|g' /etc/npmrc
+
 # Set working directory
 WORKDIR /app
 

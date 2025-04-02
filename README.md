@@ -1,6 +1,6 @@
-# MCPHub: Multiple Servers, Single Endpoint, Zero Hassle
+# MCPHub: One Endpoint, Infinite MCP Servers
 
-MCPHub is a unified hub server that consolidates multiple MCP (Model Context Protocol) servers into a single SSE endpoint. It simplifies service management and provides a centralized interface for all your MCP needs.
+MCPHub is a unified hub server that consolidates multiple MCP (Model Context Protocol) servers into one single SSE endpoint. It simplifies service management and provides a centralized interface for all your MCP server needs.
 
 ![Dashboard Preview](assets/dashboard.png)
 

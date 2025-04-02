@@ -240,6 +240,11 @@ export function removeServer(name: string): {
       return { success: false };
     }
 
+    const serverInfo = serverInfos.find((serverInfo) => serverInfo.name === name);
+    if (serverInfo && serverInfo.client) {
+      serverInfo.client.close();
+      serverInfo.transport?.close();
+    }
     serverInfos = serverInfos.filter((serverInfo) => serverInfo.name !== name);
     return { success: true };
   } catch (error) {

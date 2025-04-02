@@ -3,6 +3,7 @@ const { ChevronDown, ChevronRight } = window.LucideIcons || {};
 
 function Badge({ status }) {
   const colors = {
+    connecting: 'bg-yellow-100 text-yellow-800',
     connected: 'bg-green-100 text-green-800',
     disconnected: 'bg-red-100 text-red-800',
   };

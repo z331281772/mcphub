@@ -23,7 +23,7 @@ interface McpSettings {
 // Add type definitions for API responses
 export interface ServerInfo {
   name: string;
-  status: 'connected' | 'disconnected';
+  status: 'connected' | 'connecting' | 'disconnected';
   tools: ToolInfo[];
   client?: Client;
   transport?: SSEClientTransport | StdioClientTransport;
@@ -92,7 +92,7 @@ function initializeClientsFromSettings(): ServerInfo[] {
       serverInfos.push({
         name,
         status: 'disconnected',
-        tools: []
+        tools: [],
       });
       return;
     }
@@ -113,12 +113,12 @@ function initializeClientsFromSettings(): ServerInfo[] {
 
     serverInfos.push({
       name,
-      status: 'disconnected', // Initially disconnected
+      status: 'connecting', // Set to connecting when client exists
       tools: [],
       client,
-      transport
+      transport,
     });
-    
+
     console.log(`Initialized client for server: ${name}`);
   });
 
@@ -131,19 +131,24 @@ let serverInfos = initializeClientsFromSettings();
 // Export the registerAllTools function
 export const registerAllTools = async (server: McpServer) => {
   for (const serverInfo of serverInfos) {
+    if (serverInfo.status === 'connected') continue;
     if (!serverInfo.client || !serverInfo.transport) continue;
-    
+
     try {
+      serverInfo.status = 'connecting';
+      console.log(`Connecting to server: ${serverInfo.name}...`);
+
       await serverInfo.client.connect(serverInfo.transport);
       const tools = await serverInfo.client.listTools();
-      
+
       serverInfo.tools = tools.tools.map((tool) => ({
         name: tool.name,
         description: tool.description || '',
         inputSchema: tool.inputSchema.properties || {},
       }));
-      
+
       serverInfo.status = 'connected';
+      console.log(`Successfully connected to server: ${serverInfo.name}`);
 
       for (const tool of tools.tools) {
         console.log(`Registering tool: ${JSON.stringify(tool)}`);
@@ -163,7 +168,9 @@ export const registerAllTools = async (server: McpServer) => {
         );
       }
     } catch (error) {
-      console.error(`Failed to connect to server for client: ${serverInfo.name} by error: ${error}`);
+      console.error(
+        `Failed to connect to server for client: ${serverInfo.name} by error: ${error}`,
+      );
       serverInfo.status = 'disconnected';
     }
   }
@@ -171,7 +178,7 @@ export const registerAllTools = async (server: McpServer) => {
 
 // Add function to get current server status
 export function getServersInfo(): ServerInfo[] {
-  return serverInfos.map(({name, status, tools}) => ({
+  return serverInfos.map(({ name, status, tools }) => ({
     name,
     status,
     tools,

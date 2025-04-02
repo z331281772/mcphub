@@ -179,17 +179,17 @@ export async function addServer(
   mcpServer: McpServer,
   name: string,
   config: { url?: string; command?: string; args?: string[]; env?: Record<string, string> },
-): Promise<boolean> {
+): Promise<{ success: boolean; message?: string }> {
   try {
     const settings = loadSettings();
     if (settings.mcpServers[name]) {
-      return false;
+      return { success: false, message: 'Server name already exists' };
     }
 
     settings.mcpServers[name] = config;
 
     if (!saveSettings(settings)) {
-      return false;
+      return { success: false, message: 'Failed to save settings' };
     }
 
     const result = initializeClientsFromSettings();
@@ -199,10 +199,10 @@ export async function addServer(
 
     await registerAllTools(mcpServer);
 
-    return true;
+    return { success: true, message: 'Server added successfully' };
   } catch (error) {
     console.error(`Failed to add server: ${name}`, error);
-    return false;
+    return { success: false, message: 'Failed to add server' };
   }
 }
 

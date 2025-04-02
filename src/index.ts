@@ -2,7 +2,13 @@ import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-import { registerAllTools, getServersInfo, getServersSettings, addServer, removeServer } from './server.js';
+import {
+  registerAllTools,
+  getServersInfo,
+  getServersSettings,
+  addServer,
+  removeServer,
+} from './server.js';
 import path from 'path';
 
 dotenv.config();
@@ -48,7 +54,7 @@ app.get('/api/settings', (req: Request, res: Response) => {
 // API endpoint to add a new server
 app.post('/api/servers', async (req: Request, res: Response) => {
   const { name, config } = req.body;
-  
+
   if (!name || typeof name !== 'string') {
     return res.status(400).json({ success: false, message: 'Server name is required' });
   }
@@ -65,18 +71,18 @@ app.post('/api/servers', async (req: Request, res: Response) => {
     });
   }
 
-  const success = await addServer(server, name, config);
+  const { success, message } = await addServer(server, name, config);
   if (success) {
     res.json({ success: true, message: 'Server added successfully' });
   } else {
-    res.status(400).json({ success: false, message: 'Failed to add server' });
+    res.status(400).json({ success: false, message: message || 'Failed to add server' });
   }
 });
 
 // API endpoint to remove a server
 app.delete('/api/servers/:name', async (req: Request, res: Response) => {
   const { name } = req.params;
-  
+
   if (!name) {
     return res.status(400).json({ success: false, message: 'Server name is required' });
   }
@@ -88,7 +94,7 @@ app.delete('/api/servers/:name', async (req: Request, res: Response) => {
       version: '0.0.1',
     });
     await registerAllTools(server);
-    
+
     res.json({ success: true, message: 'Server removed successfully' });
   } else {
     res.status(404).json({ success: false, message: 'Server not found or failed to remove' });

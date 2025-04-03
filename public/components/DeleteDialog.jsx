@@ -1,4 +1,5 @@
-function DeleteDialog({ isOpen, onClose, onConfirm, serverName }) {
+// 定义DeleteDialog组件并将其暴露为全局变量
+window.DeleteDialog = function DeleteDialog({ isOpen, onClose, onConfirm, serverName }) {
   return (
     <div className={`${isOpen ? 'block' : 'hidden'} fixed inset-0 bg-black bg-opacity-50 z-50`}>
       <div className="fixed inset-0 flex items-center justify-center">
@@ -28,5 +29,3 @@ function DeleteDialog({ isOpen, onClose, onConfirm, serverName }) {
     </div>
   );
 }
-
-module.exports = DeleteDialog;

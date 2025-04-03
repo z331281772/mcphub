@@ -421,14 +421,38 @@ function App() {
   useEffect(() => {
     fetch('/api/servers')
       .then((response) => response.json())
-      .then((data) => setServers(data))
+      .then((data) => {
+        // 处理API响应中的包装对象，提取data字段
+        if (data && data.success && Array.isArray(data.data)) {
+          setServers(data.data);
+        } else if (data && Array.isArray(data)) {
+          // 兼容性处理，如果API直接返回数组
+          setServers(data);
+        } else {
+          // 如果数据格式不符合预期，设置为空数组
+          console.error('Invalid server data format:', data);
+          setServers([]);
+        }
+      })
       .catch((err) => setError(err.message));
 
     // Poll for updates every 5 seconds
     const interval = setInterval(() => {
       fetch('/api/servers')
         .then((response) => response.json())
-        .then((data) => setServers(data))
+        .then((data) => {
+          // 处理API响应中的包装对象，提取data字段
+          if (data && data.success && Array.isArray(data.data)) {
+            setServers(data.data);
+          } else if (data && Array.isArray(data)) {
+            // 兼容性处理，如果API直接返回数组
+            setServers(data);
+          } else {
+            // 如果数据格式不符合预期，设置为空数组
+            console.error('Invalid server data format:', data);
+            setServers([]);
+          }
+        })
         .catch((err) => setError(err.message));
     }, 5000);
 

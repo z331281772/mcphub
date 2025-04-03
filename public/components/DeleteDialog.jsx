@@ -1,4 +1,9 @@
-// 定义DeleteDialog组件并将其暴露为全局变量
+// Reusable confirmation dialog component for server deletion
+// Props:
+// - isOpen: boolean - Controls dialog visibility
+// - onClose: () => void - Handler for dialog dismissal
+// - onConfirm: () => void - Handler for delete confirmation
+// - serverName: string - Name of the server to be deleted
 window.DeleteDialog = function DeleteDialog({ isOpen, onClose, onConfirm, serverName }) {
   return (
     <div className={`${isOpen ? 'block' : 'hidden'} fixed inset-0 bg-black bg-opacity-50 z-50`}>

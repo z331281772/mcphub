@@ -1,4 +1,7 @@
-// Simple implementation of Chevron icons without relying on the Lucide library
+// Lightweight implementation of Lucide icons without external dependencies
+// Each icon component accepts:
+// - size: number (default: 24) - Icon dimensions in pixels
+// - className: string - Additional CSS classes
 
 const ChevronDown = ({ size = 24, className = "" }) => (
   <svg 
@@ -34,7 +37,7 @@ const ChevronRight = ({ size = 24, className = "" }) => (
   </svg>
 );
 
-// Make icons available globally
+// Export icons to global scope for use in other components
 window.LucideIcons = {
   ChevronDown,
   ChevronRight

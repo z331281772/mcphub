@@ -1,6 +1,7 @@
 const { useState, useEffect, Fragment } = React;
 const { ChevronDown, ChevronRight } = window.LucideIcons || {};
 
+// Status badge component with predefined color schemes
 function Badge({ status }) {
   const colors = {
     connecting: 'bg-yellow-100 text-yellow-800',
@@ -17,6 +18,7 @@ function Badge({ status }) {
   );
 }
 
+// Displays tool details with expandable input schema
 function ToolCard({ tool }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -56,6 +58,7 @@ function ToolCard({ tool }) {
   );
 }
 
+// Main server card component for displaying server status and available tools
 function ServerCard({ server, onRemove }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -124,6 +127,7 @@ function ServerCard({ server, onRemove }) {
   );
 }
 
+// Form component for adding new MCP servers with stdio or SSE protocol support
 function AddServerForm({ onAdd }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [serverType, setServerType] = useState('stdio');
@@ -142,6 +146,7 @@ function AddServerForm({ onAdd }) {
     setFormData({ ...formData, [name]: value });
   };
 
+  // Transform space-separated arguments string into array
   const handleArgsChange = (value) => {
     let args = value.split(' ').filter((arg) => arg.trim() !== '');
     setFormData({ ...formData, arguments: value, args });
@@ -171,12 +176,12 @@ function AddServerForm({ onAdd }) {
     }
   };
 
+  // Submit handler for server configuration
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
-      // Convert env vars array to object format
       const env = {};
       envVars.forEach(({ key, value }) => {
         if (key.trim()) {
@@ -413,6 +418,7 @@ function AddServerForm({ onAdd }) {
   );
 }
 
+// Root application component managing server state and UI
 function App() {
   const [servers, setServers] = useState([]);
   const [error, setError] = useState(null);

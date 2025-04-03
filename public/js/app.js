@@ -353,34 +353,36 @@ function AddServerForm({ onAdd }) {
                       <button
                         type="button"
                         onClick={addEnvVar}
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded text-sm"
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-2 rounded text-sm flex items-center"
                       >
                         + Add
                       </button>
                     </div>
                     {envVars.map((envVar, index) => (
-                      <div key={index} className="flex items-center space-x-2 mb-2">
-                        <input
-                          type="text"
-                          value={envVar.key}
-                          onChange={(e) => handleEnvVarChange(index, 'key', e.target.value)}
-                          className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-2/5"
-                          placeholder="key"
-                        />
-                        <span>=</span>
-                        <input
-                          type="text"
-                          value={envVar.value}
-                          onChange={(e) => handleEnvVarChange(index, 'value', e.target.value)}
-                          className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-2/5"
-                          placeholder="value"
-                        />
+                      <div key={index} className="flex items-center mb-2">
+                        <div className="flex items-center space-x-2 flex-grow">
+                          <input
+                            type="text"
+                            value={envVar.key}
+                            onChange={(e) => handleEnvVarChange(index, 'key', e.target.value)}
+                            className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-2/5"
+                            placeholder="key"
+                          />
+                          <span className="flex items-center">:</span>
+                          <input
+                            type="text"
+                            value={envVar.value}
+                            onChange={(e) => handleEnvVarChange(index, 'value', e.target.value)}
+                            className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-2/5"
+                            placeholder="value"
+                          />
+                        </div>
                         <button
                           type="button"
                           onClick={() => removeEnvVar(index)}
-                          className="text-red-600 hover:text-red-800"
+                          className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-2 rounded text-sm flex items-center justify-center min-w-[56px] ml-2"
                         >
-                          ✕
+                          × Rem
                         </button>
                       </div>
                     ))}

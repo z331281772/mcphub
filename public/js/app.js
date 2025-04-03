@@ -346,9 +346,18 @@ function AddServerForm({ onAdd }) {
                   </div>
                   
                   <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Environment Variables
-                    </label>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-gray-700 text-sm font-bold">
+                        Environment Variables
+                      </label>
+                      <button
+                        type="button"
+                        onClick={addEnvVar}
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded text-sm"
+                      >
+                        + Add
+                      </button>
+                    </div>
                     {envVars.map((envVar, index) => (
                       <div key={index} className="flex items-center space-x-2 mb-2">
                         <input
@@ -375,13 +384,6 @@ function AddServerForm({ onAdd }) {
                         </button>
                       </div>
                     ))}
-                    <button
-                      type="button"
-                      onClick={addEnvVar}
-                      className="mt-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded text-sm"
-                    >
-                      + Add Environment Variable
-                    </button>
                   </div>
                 </Fragment>
               )}

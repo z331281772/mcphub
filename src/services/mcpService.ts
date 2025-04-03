@@ -173,7 +173,10 @@ export const addServer = async (
 };
 
 // Remove server
-export const removeServer = (name: string): { success: boolean; message?: string } => {
+export const removeServer = (
+  name: string,
+  mcpServer?: McpServer
+): { success: boolean; message?: string } => {
   try {
     const settings = loadSettings();
 
@@ -196,6 +199,14 @@ export const removeServer = (name: string): { success: boolean; message?: string
 
     // Remove from list
     serverInfos = serverInfos.filter((serverInfo) => serverInfo.name !== name);
+
+    // Re-create and initialize the McpServer if provided
+    if (mcpServer) {
+      console.log(`Re-initializing McpServer after removing ${name}`);
+      registerAllTools(mcpServer).catch(error => {
+        console.error(`Error re-initializing McpServer after removing ${name}:`, error);
+      });
+    }
 
     return { success: true, message: 'Server removed successfully' };
   } catch (error) {

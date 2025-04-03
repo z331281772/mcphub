@@ -1,13 +1,40 @@
 import { Request, Response } from 'express';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ApiResponse, AddServerRequest } from '../types/index.js';
-import { getServersInfo, addServer, removeServer } from '../services/mcpService.js';
+import { getServersInfo, addServer, removeServer, createMcpServer, registerAllTools } from '../services/mcpService.js';
 import { loadSettings } from '../config/index.js';
+import config from '../config/index.js';
 
 let mcpServerInstance: McpServer;
 
 export const setMcpServerInstance = (server: McpServer): void => {
   mcpServerInstance = server;
+};
+
+// 重新创建 McpServer 实例
+export const recreateMcpServerInstance = async (): Promise<McpServer> => {
+  console.log('Re-creating McpServer instance');
+  
+  // 如果存在旧的实例，尝试关闭它（如果有相关的关闭方法）
+  if (mcpServerInstance && typeof mcpServerInstance.close === 'function') {
+    try {
+      await mcpServerInstance.close();
+    } catch (error) {
+      console.error('Error closing existing McpServer instance:', error);
+    }
+  }
+  
+  // 创建新的 McpServer 实例
+  const newServer = createMcpServer(config.mcpHubName, config.mcpHubVersion);
+  
+  // 更新全局实例
+  mcpServerInstance = newServer;
+  
+  // 重新注册所有工具
+  await registerAllTools(mcpServerInstance);
+  
+  console.log('McpServer instance successfully re-created');
+  return mcpServerInstance;
 };
 
 export const getAllServers = (_: Request, res: Response): void => {
@@ -103,13 +130,24 @@ export const deleteServer = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
+    // 先删除服务器
     const result = removeServer(name);
 
     if (result.success) {
-      res.json({
-        success: true,
-        message: 'Server removed successfully',
-      });
+      // 重新创建 McpServer 实例
+      try {
+        await recreateMcpServerInstance();
+        res.json({
+          success: true,
+          message: 'Server removed successfully and McpServer re-created'
+        });
+      } catch (error) {
+        console.error('Failed to re-create McpServer after removing server:', error);
+        res.json({
+          success: true,
+          message: 'Server removed successfully but failed to re-create McpServer'
+        });
+      }
     } else {
       res.status(404).json({
         success: false,

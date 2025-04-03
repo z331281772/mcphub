@@ -134,6 +134,7 @@ function AddServerForm({ onAdd }) {
     arguments: '',
     args: [],
   });
+  const [envVars, setEnvVars] = useState([]);
   const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
@@ -146,9 +147,28 @@ function AddServerForm({ onAdd }) {
     setFormData({ ...formData, arguments: value, args });
   };
 
+  const handleEnvVarChange = (index, field, value) => {
+    const newEnvVars = [...envVars];
+    newEnvVars[index][field] = value;
+    setEnvVars(newEnvVars);
+  };
+
+  const addEnvVar = () => {
+    setEnvVars([...envVars, { key: '', value: '' }]);
+  };
+
+  const removeEnvVar = (index) => {
+    const newEnvVars = [...envVars];
+    newEnvVars.splice(index, 1);
+    setEnvVars(newEnvVars);
+  };
+
   const toggleModal = () => {
     setModalVisible(!modalVisible);
     setError(null);
+    if (!modalVisible) {
+      setEnvVars([]);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -156,12 +176,24 @@ function AddServerForm({ onAdd }) {
     setError(null);
 
     try {
+      // Convert env vars array to object format
+      const env = {};
+      envVars.forEach(({ key, value }) => {
+        if (key.trim()) {
+          env[key.trim()] = value;
+        }
+      });
+
       const payload = {
         name: formData.name,
         config:
           serverType === 'sse'
             ? { url: formData.url }
-            : { command: formData.command, args: formData.args },
+            : { 
+                command: formData.command, 
+                args: formData.args,
+                env: Object.keys(env).length > 0 ? env : undefined
+              },
       };
 
       const response = await fetch('/api/servers', {
@@ -184,6 +216,7 @@ function AddServerForm({ onAdd }) {
         arguments: '',
         args: [],
       });
+      setEnvVars([]);
       setModalVisible(false);
 
       onAdd();
@@ -310,6 +343,45 @@ function AddServerForm({ onAdd }) {
                       placeholder="e.g., -y time-mcp"
                       required={serverType === 'stdio'}
                     />
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Environment Variables
+                    </label>
+                    {envVars.map((envVar, index) => (
+                      <div key={index} className="flex items-center space-x-2 mb-2">
+                        <input
+                          type="text"
+                          value={envVar.key}
+                          onChange={(e) => handleEnvVarChange(index, 'key', e.target.value)}
+                          className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-2/5"
+                          placeholder="key"
+                        />
+                        <span>=</span>
+                        <input
+                          type="text"
+                          value={envVar.value}
+                          onChange={(e) => handleEnvVarChange(index, 'value', e.target.value)}
+                          className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-2/5"
+                          placeholder="value"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeEnvVar(index)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addEnvVar}
+                      className="mt-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded text-sm"
+                    >
+                      + Add Environment Variable
+                    </button>
                   </div>
                 </Fragment>
               )}

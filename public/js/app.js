@@ -130,8 +130,8 @@ function AddServerForm({ onAdd }) {
   const [formData, setFormData] = useState({
     name: '',
     url: '',
-    command: 'npx',
-    args: ['-y', ''],
+    command: '',
+    args: [],
   });
   const [error, setError] = useState(null);
 
@@ -146,11 +146,11 @@ function AddServerForm({ onAdd }) {
       if (value.trim().startsWith('[')) {
         args = JSON.parse(value);
       } else {
-        args = ['-y', value];
+        args = [value];
       }
       setFormData({ ...formData, args });
     } catch (err) {
-      setFormData({ ...formData, args: ['-y', value] });
+      setFormData({ ...formData, args: [value] });
     }
   };
 
@@ -189,7 +189,7 @@ function AddServerForm({ onAdd }) {
         name: '',
         url: '',
         command: 'npx',
-        args: ['-y', ''],
+        args: [''],
       });
       setModalVisible(false);
 
@@ -308,15 +308,12 @@ function AddServerForm({ onAdd }) {
                       type="text"
                       name="args"
                       id="args"
-                      value={formData.args[1] || ''}
+                      value={formData.args[0] || ''}
                       onChange={(e) => handleArgsChange(e.target.value)}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      placeholder="e.g., time-mcp"
+                      placeholder="e.g., -y time-mcp"
                       required={serverType === 'command'}
                     />
-                    <p className="text-gray-500 text-xs mt-1">
-                      "-y" argument will be added automatically
-                    </p>
                   </div>
                 </Fragment>
               )}

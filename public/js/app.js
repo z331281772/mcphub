@@ -131,6 +131,7 @@ function AddServerForm({ onAdd }) {
     name: '',
     url: '',
     command: '',
+    arguments: '',
     args: [],
   });
   const [error, setError] = useState(null);
@@ -141,17 +142,8 @@ function AddServerForm({ onAdd }) {
   };
 
   const handleArgsChange = (value) => {
-    try {
-      let args;
-      if (value.trim().startsWith('[')) {
-        args = JSON.parse(value);
-      } else {
-        args = [value];
-      }
-      setFormData({ ...formData, args });
-    } catch (err) {
-      setFormData({ ...formData, args: [value] });
-    }
+    let args = value.split(' ').filter((arg) => arg.trim() !== '');
+    setFormData({ ...formData, arguments: value, args });
   };
 
   const toggleModal = () => {
@@ -188,8 +180,9 @@ function AddServerForm({ onAdd }) {
       setFormData({
         name: '',
         url: '',
-        command: 'npx',
-        args: [''],
+        command: '',
+        arguments: '',
+        args: [],
       });
       setModalVisible(false);
 
@@ -301,14 +294,17 @@ function AddServerForm({ onAdd }) {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="args">
+                    <label
+                      className="block text-gray-700 text-sm font-bold mb-2"
+                      htmlFor="arguments"
+                    >
                       Arguments
                     </label>
                     <input
                       type="text"
-                      name="args"
-                      id="args"
-                      value={formData.args[0] || ''}
+                      name="arguments"
+                      id="arguments"
+                      value={formData.arguments}
                       onChange={(e) => handleArgsChange(e.target.value)}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       placeholder="e.g., -y time-mcp"

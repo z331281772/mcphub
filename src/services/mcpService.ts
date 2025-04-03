@@ -5,7 +5,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import * as z from 'zod';
 import { ZodType, ZodRawShape } from 'zod';
-import { ServerInfo, ServerConfig, ToolInfo } from '../types/index.js';
+import { ServerInfo, ServerConfig } from '../types/index.js';
 import { loadSettings, saveSettings, expandEnvVars } from '../config/index.js';
 
 // Store all server information
@@ -19,7 +19,9 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
 
   for (const [name, config] of Object.entries(settings.mcpServers)) {
     // Check if server is already connected
-    const existingServer = existingServerInfos.find(s => s.name === name && s.status === 'connected');
+    const existingServer = existingServerInfos.find(
+      (s) => s.name === name && s.status === 'connected',
+    );
     if (existingServer) {
       serverInfos.push(existingServer);
       console.log(`Server '${name}' is already connected.`);
@@ -32,13 +34,13 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
     } else if (config.command && config.args) {
       const rawEnv = { ...process.env, ...(config.env || {}) };
       const env: Record<string, string> = {};
-      
+
       for (const key in rawEnv) {
         if (typeof rawEnv[key] === 'string') {
           env[key] = expandEnvVars(rawEnv[key] as string);
         }
       }
-      
+
       transport = new StdioClientTransport({
         command: config.command,
         args: config.args,
@@ -83,6 +85,7 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
 
 // Register all MCP tools
 export const registerAllTools = async (server: McpServer): Promise<void> => {
+  initializeClientsFromSettings();
   for (const serverInfo of serverInfos) {
     if (serverInfo.status === 'connected') continue;
     if (!serverInfo.client || !serverInfo.transport) continue;
@@ -90,41 +93,43 @@ export const registerAllTools = async (server: McpServer): Promise<void> => {
     try {
       serverInfo.status = 'connecting';
       console.log(`Connecting to server: ${serverInfo.name}...`);
-      
+
       await serverInfo.client.connect(serverInfo.transport);
       const tools = await serverInfo.client.listTools();
-      
+
       serverInfo.tools = tools.tools.map((tool) => ({
         name: tool.name,
         description: tool.description || '',
         inputSchema: tool.inputSchema.properties || {},
       }));
-      
+
       serverInfo.status = 'connected';
       console.log(`Successfully connected to server: ${serverInfo.name}`);
-      
+
       for (const tool of tools.tools) {
         console.log(`Registering tool: ${JSON.stringify(tool)}`);
-        
+
         await server.tool(
           tool.name,
           tool.description || '',
           cast(tool.inputSchema.properties),
           async (params: Record<string, unknown>) => {
             console.log(`Calling tool: ${tool.name} with params: ${JSON.stringify(params)}`);
-            
+
             const result = await serverInfo.client!.callTool({
               name: tool.name,
               arguments: params,
             });
-            
+
             console.log(`Tool result: ${JSON.stringify(result)}`);
             return result as CallToolResult;
           },
         );
       }
     } catch (error) {
-      console.error(`Failed to connect to server for client: ${serverInfo.name} by error: ${error}`);
+      console.error(
+        `Failed to connect to server for client: ${serverInfo.name} by error: ${error}`,
+      );
       serverInfo.status = 'disconnected';
     }
   }
@@ -143,25 +148,23 @@ export const getServersInfo = (): Omit<ServerInfo, 'client' | 'transport'>[] => 
 export const addServer = async (
   mcpServer: McpServer,
   name: string,
-  config: ServerConfig
+  config: ServerConfig,
 ): Promise<{ success: boolean; message?: string }> => {
   try {
     const settings = loadSettings();
-    
+
     if (settings.mcpServers[name]) {
       return { success: false, message: 'Server name already exists' };
     }
-    
+
     settings.mcpServers[name] = config;
-    
+
     if (!saveSettings(settings)) {
       return { success: false, message: 'Failed to save settings' };
     }
-    
-    // Reinitialize clients and register tools
-    serverInfos = initializeClientsFromSettings();
-    await registerAllTools(mcpServer);
-    
+
+    registerAllTools(mcpServer);
+
     return { success: true, message: 'Server added successfully' };
   } catch (error) {
     console.error(`Failed to add server: ${name}`, error);
@@ -173,27 +176,27 @@ export const addServer = async (
 export const removeServer = (name: string): { success: boolean; message?: string } => {
   try {
     const settings = loadSettings();
-    
+
     if (!settings.mcpServers[name]) {
       return { success: false, message: 'Server not found' };
     }
-    
+
     delete settings.mcpServers[name];
-    
+
     if (!saveSettings(settings)) {
       return { success: false, message: 'Failed to save settings' };
     }
-    
+
     // Close existing connections
     const serverInfo = serverInfos.find((serverInfo) => serverInfo.name === name);
     if (serverInfo && serverInfo.client) {
       serverInfo.client.close();
       serverInfo.transport?.close();
     }
-    
+
     // Remove from list
     serverInfos = serverInfos.filter((serverInfo) => serverInfo.name !== name);
-    
+
     return { success: true, message: 'Server removed successfully' };
   } catch (error) {
     console.error(`Failed to remove server: ${name}`, error);
@@ -211,18 +214,18 @@ function cast(inputSchema: unknown): ZodRawShape {
   if (typeof inputSchema !== 'object' || inputSchema === null) {
     throw new Error('Invalid input schema');
   }
-  
+
   const properties = inputSchema as Record<string, { type: string; description?: string }>;
   const processedSchema: ZodRawShape = {};
-  
+
   for (const key in properties) {
     const prop = properties[key];
-    
+
     if (prop instanceof ZodType) {
       processedSchema[key] = prop.optional();
     } else if (typeof prop === 'object' && prop !== null) {
       let zodType: ZodType;
-      
+
       switch (prop.type) {
         case 'string':
           zodType = z.string();
@@ -245,14 +248,14 @@ function cast(inputSchema: unknown): ZodRawShape {
         default:
           zodType = z.any();
       }
-      
+
       if (prop.description) {
         zodType = zodType.describe(prop.description);
       }
-      
+
       processedSchema[key] = zodType.optional();
     }
   }
-  
+
   return processedSchema;
 }

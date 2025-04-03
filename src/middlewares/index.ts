@@ -8,15 +8,15 @@ export const errorHandler = (
   _next: NextFunction
 ): void => {
   console.error('Unhandled error:', err);
-  res.status(500).json({ 
-    success: false, 
-    message: 'Internal server error' 
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
   });
 };
 
 export const initMiddlewares = (app: express.Application): void => {
   app.use(express.static('public'));
-  
+
   app.use((req, res, next) => {
     if (req.path !== '/sse' && req.path !== '/messages') {
       express.json()(req, res, next);

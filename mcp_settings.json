@@ -1,17 +1,17 @@
 {
   "mcpServers": {
-    "time-mcp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "time-mcp"
-      ]
-    },
     "sequential-thinking": {
       "command": "npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "time-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "time-mcp"
       ]
     }
   }

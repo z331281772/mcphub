@@ -209,6 +209,8 @@ export const createMcpServer = (name: string, version: string): McpServer => {
   return new McpServer({ name, version });
 };
 
+// Optimized comments to focus on key details and removed redundant explanations
+
 // Helper function: Convert JSON Schema to Zod Schema
 function cast(inputSchema: unknown): ZodRawShape {
   if (typeof inputSchema !== 'object' || inputSchema === null) {
@@ -250,7 +252,7 @@ function cast(inputSchema: unknown): ZodRawShape {
       }
 
       if (prop.description) {
-        zodType = zodType.describe(prop.description);
+        zodType = zodType.describe(prop.description); // Add description to the schema
       }
 
       processedSchema[key] = zodType.optional();

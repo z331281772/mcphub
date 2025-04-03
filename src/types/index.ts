@@ -2,40 +2,46 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
+// Represents the settings for MCP servers
 export interface McpSettings {
   mcpServers: {
-    [key: string]: ServerConfig;
+    [key: string]: ServerConfig; // Key-value pairs of server names and their configurations
   };
 }
 
+// Configuration details for an individual server
 export interface ServerConfig {
-  url?: string;
-  command?: string;
-  args?: string[];
-  env?: Record<string, string>;
+  url?: string; // URL for SSE-based servers
+  command?: string; // Command to execute for stdio-based servers
+  args?: string[]; // Arguments for the command
+  env?: Record<string, string>; // Environment variables
 }
 
+// Information about a server's status and tools
 export interface ServerInfo {
-  name: string;
-  status: 'connected' | 'connecting' | 'disconnected';
-  tools: ToolInfo[];
-  client?: Client;
-  transport?: SSEClientTransport | StdioClientTransport;
+  name: string; // Unique name of the server
+  status: 'connected' | 'connecting' | 'disconnected'; // Current connection status
+  tools: ToolInfo[]; // List of tools available on the server
+  client?: Client; // Client instance for communication
+  transport?: SSEClientTransport | StdioClientTransport; // Transport mechanism used
 }
 
+// Details about a tool available on the server
 export interface ToolInfo {
-  name: string;
-  description: string;
-  inputSchema: Record<string, unknown>;
+  name: string; // Name of the tool
+  description: string; // Brief description of the tool
+  inputSchema: Record<string, unknown>; // Input schema for the tool
 }
 
-export interface ApiResponse<T = any> {
-  success: boolean;
-  message?: string;
-  data?: T;
+// Standardized API response structure
+export interface ApiResponse<T = unknown> {
+  success: boolean; // Indicates if the operation was successful
+  message?: string; // Optional message providing additional details
+  data?: T; // Optional data payload
 }
 
+// Request payload for adding a new server
 export interface AddServerRequest {
-  name: string;
-  config: ServerConfig;
+  name: string; // Name of the server to add
+  config: ServerConfig; // Configuration details for the server
 }

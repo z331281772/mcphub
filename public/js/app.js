@@ -126,7 +126,7 @@ function ServerCard({ server, onRemove }) {
 
 function AddServerForm({ onAdd }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [serverType, setServerType] = useState('command');
+  const [serverType, setServerType] = useState('stdio');
   const [formData, setFormData] = useState({
     name: '',
     url: '',
@@ -159,7 +159,7 @@ function AddServerForm({ onAdd }) {
       const payload = {
         name: formData.name,
         config:
-          serverType === 'url'
+          serverType === 'sse'
             ? { url: formData.url }
             : { command: formData.command, args: formData.args },
       };
@@ -239,8 +239,8 @@ function AddServerForm({ onAdd }) {
                       id="command"
                       name="serverType"
                       value="command"
-                      checked={serverType === 'command'}
-                      onChange={() => setServerType('command')}
+                      checked={serverType === 'stdio'}
+                      onChange={() => setServerType('stdio')}
                       className="mr-1"
                     />
                     <label htmlFor="command">stdio</label>
@@ -251,8 +251,8 @@ function AddServerForm({ onAdd }) {
                       id="url"
                       name="serverType"
                       value="url"
-                      checked={serverType === 'url'}
-                      onChange={() => setServerType('url')}
+                      checked={serverType === 'sse'}
+                      onChange={() => setServerType('sse')}
                       className="mr-1"
                     />
                     <label htmlFor="url">sse</label>
@@ -260,7 +260,7 @@ function AddServerForm({ onAdd }) {
                 </div>
               </div>
 
-              {serverType === 'url' ? (
+              {serverType === 'sse' ? (
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="url">
                     Server URL
@@ -273,7 +273,7 @@ function AddServerForm({ onAdd }) {
                     onChange={handleInputChange}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     placeholder="e.g., http://localhost:3000/sse"
-                    required={serverType === 'url'}
+                    required={serverType === 'sse'}
                   />
                 </div>
               ) : (
@@ -290,7 +290,7 @@ function AddServerForm({ onAdd }) {
                       onChange={handleInputChange}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       placeholder="e.g., npx"
-                      required={serverType === 'command'}
+                      required={serverType === 'stdio'}
                     />
                   </div>
                   <div className="mb-4">
@@ -308,7 +308,7 @@ function AddServerForm({ onAdd }) {
                       onChange={(e) => handleArgsChange(e.target.value)}
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       placeholder="e.g., -y time-mcp"
-                      required={serverType === 'command'}
+                      required={serverType === 'stdio'}
                     />
                   </div>
                 </Fragment>

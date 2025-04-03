@@ -365,7 +365,7 @@ function AddServerForm({ onAdd }) {
                             type="text"
                             value={envVar.key}
                             onChange={(e) => handleEnvVarChange(index, 'key', e.target.value)}
-                            className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-2/5"
+                            className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-1/2"
                             placeholder="key"
                           />
                           <span className="flex items-center">:</span>
@@ -373,7 +373,7 @@ function AddServerForm({ onAdd }) {
                             type="text"
                             value={envVar.value}
                             onChange={(e) => handleEnvVarChange(index, 'value', e.target.value)}
-                            className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-2/5"
+                            className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-1/2"
                             placeholder="value"
                           />
                         </div>
@@ -382,7 +382,7 @@ function AddServerForm({ onAdd }) {
                           onClick={() => removeEnvVar(index)}
                           className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-2 rounded text-sm flex items-center justify-center min-w-[56px] ml-2"
                         >
-                          × Rem
+                          - Del
                         </button>
                       </div>
                     ))}

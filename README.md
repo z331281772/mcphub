@@ -2,50 +2,55 @@
 
 English | [中文版](README.zh.md)
 
-MCPHub is a unified hub server that consolidates multiple MCP (Model Context Protocol) servers into one single SSE endpoint. It simplifies service management and provides a centralized interface for all your MCP server needs.
+MCPHub is a unified hub server that consolidates multiple MCP (Model Context Protocol) servers into a single SSE endpoint. It streamlines service management by offering a centralized interface for all your MCP server needs.
 
 ![Dashboard Preview](assets/dashboard.png)
 
 ## Features
 
-- **Centralized Management**: Manage multiple MCP servers from a single hub
-- **Protocol Support**: Compatible with stdio and SSE MCP protocols
-- **Dashboard UI**: Monitor server status and dynamically manage servers through a web interface
-- **Dynamic Management**: Add, remove, or reconfigure MCP servers without restarting the hub
+- **Centralized Management**: Oversee multiple MCP servers from one convenient hub.
+- **Broad Protocol Support**: Works seamlessly with both stdio and SSE MCP protocols.
+- **Intuitive Dashboard UI**: Monitor server status and manage servers dynamically via a web interface.
+- **Flexible Server Management**: Add, remove, or reconfigure MCP servers without restarting the hub.
 
 ## Quick Start
 
-### Docker
+### Using Docker
+
+Run the following command to quickly launch MCPHub:
 
 ```bash
 docker run -p 3000:3000 samanhappy/mcphub
 ```
 
-### Dashboard
+### Dashboard Access
 
-Access the interactive management UI at `http://localhost:3000`
+Open your web browser and navigate to:  
+`http://localhost:3000`
 
 The dashboard provides:
+- **Real-Time Monitoring**: Keep an eye on the status of all MCP servers.
+- **Service Status Indicators**: Quickly see which services are online.
+- **Dynamic Server Management**: Add or remove MCP servers on the fly without needing to restart.
 
-- Real-time monitoring of all MCP servers
-- Status indicators for all connected services
-- Dynamic addition or removal of new MCP servers without restarting
+### SSE Endpoint
 
-### SSE endpoint
-
-Connect your Host App, such as Claude Desktop, Cursor, Cherry Studio, and more, seamlessly to `http://localhost:3000/sse`.
+Seamlessly connect your host applications (e.g., Claude Desktop, Cursor, Cherry Studio, etc.) to the MCPHub SSE endpoint at:  
+`http://localhost:3000/sse`
 
 ## Local Development
 
 ### Clone the Repository
 
+Clone MCPHub from GitHub:
+
 ```bash
 git clone https://github.com/samanhappy/mcphub.git
 ```
 
-### Configuration (Optional)
+### Optional Configuration
 
-Edit the `mcp_settings.json` file:
+Customize your MCP server settings by editing the `mcp_settings.json` file. For example:
 
 ```json
 {
@@ -62,7 +67,9 @@ Edit the `mcp_settings.json` file:
 }
 ```
 
-### Start the Server
+### Start the Development Server
+
+Install dependencies and launch MCPHub:
 
 ```bash
 cd mcphub && pnpm install && pnpm dev
@@ -70,4 +77,4 @@ cd mcphub && pnpm install && pnpm dev
 
 ## License
 
-[MIT License](LICENSE)
+This project is licensed under the [MIT License](LICENSE).

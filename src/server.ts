@@ -19,7 +19,7 @@ export class AppServer {
 
   async initialize(): Promise<void> {
     try {
-      registerAllTools(this.mcpServer);
+      await registerAllTools(this.mcpServer);
       initMiddlewares(this.app);
       initRoutes(this.app, this.mcpServer);
       this.app.get('/sse', (req, res) => handleSseConnection(req, res, this.mcpServer));

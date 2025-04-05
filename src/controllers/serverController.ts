@@ -1,7 +1,14 @@
 import { Request, Response } from 'express';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ApiResponse, AddServerRequest } from '../types/index.js';
-import { getServersInfo, addServer, removeServer, createMcpServer, registerAllTools } from '../services/mcpService.js';
+import {
+  getServersInfo,
+  addServer,
+  removeServer,
+  createMcpServer,
+  registerAllTools,
+  updateMcpServer,
+} from '../services/mcpService.js';
 import { loadSettings } from '../config/index.js';
 import config from '../config/index.js';
 
@@ -14,25 +21,16 @@ export const setMcpServerInstance = (server: McpServer): void => {
 // 重新创建 McpServer 实例
 export const recreateMcpServerInstance = async (): Promise<McpServer> => {
   console.log('Re-creating McpServer instance');
-  
-  // 如果存在旧的实例，尝试关闭它（如果有相关的关闭方法）
-  if (mcpServerInstance && typeof mcpServerInstance.close === 'function') {
-    try {
-      await mcpServerInstance.close();
-    } catch (error) {
-      console.error('Error closing existing McpServer instance:', error);
-    }
-  }
-  
+
   // 创建新的 McpServer 实例
   const newServer = createMcpServer(config.mcpHubName, config.mcpHubVersion);
-  
-  // 更新全局实例
-  mcpServerInstance = newServer;
-  
+
   // 重新注册所有工具
-  await registerAllTools(mcpServerInstance);
-  
+  await registerAllTools(newServer);
+
+  // 更新全局实例
+  mcpServerInstance.close();
+  mcpServerInstance = newServer;
   console.log('McpServer instance successfully re-created');
   return mcpServerInstance;
 };
@@ -135,19 +133,11 @@ export const deleteServer = async (req: Request, res: Response): Promise<void> =
 
     if (result.success) {
       // 重新创建 McpServer 实例
-      try {
-        await recreateMcpServerInstance();
-        res.json({
-          success: true,
-          message: 'Server removed successfully and McpServer re-created'
-        });
-      } catch (error) {
-        console.error('Failed to re-create McpServer after removing server:', error);
-        res.json({
-          success: true,
-          message: 'Server removed successfully but failed to re-create McpServer'
-        });
-      }
+      recreateMcpServerInstance();
+      res.json({
+        success: true,
+        message: 'Server removed successfully',
+      });
     } else {
       res.status(404).json({
         success: false,
@@ -158,6 +148,92 @@ export const deleteServer = async (req: Request, res: Response): Promise<void> =
     res.status(500).json({
       success: false,
       message: 'Internal server error',
+    });
+  }
+};
+
+export const updateServer = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name } = req.params;
+    const { config } = req.body;
+
+    if (!name) {
+      res.status(400).json({
+        success: false,
+        message: 'Server name is required',
+      });
+      return;
+    }
+
+    if (!config || typeof config !== 'object') {
+      res.status(400).json({
+        success: false,
+        message: 'Server configuration is required',
+      });
+      return;
+    }
+
+    if (!config.url && (!config.command || !config.args)) {
+      res.status(400).json({
+        success: false,
+        message: 'Server configuration must include either a URL or command with arguments',
+      });
+      return;
+    }
+
+    const result = await updateMcpServer(mcpServerInstance, name, config);
+
+    if (result.success) {
+      recreateMcpServerInstance();
+      res.json({
+        success: true,
+        message: 'Server updated successfully',
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: result.message || 'Server not found or failed to update',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+export const getServerConfig = (req: Request, res: Response): void => {
+  try {
+    const { name } = req.params;
+    const settings = loadSettings();
+
+    if (!settings.mcpServers || !settings.mcpServers[name]) {
+      res.status(404).json({
+        success: false,
+        message: 'Server not found',
+      });
+      return;
+    }
+
+    const serverInfo = getServersInfo().find((s) => s.name === name);
+    const serverConfig = settings.mcpServers[name];
+
+    const response: ApiResponse = {
+      success: true,
+      data: {
+        name,
+        status: serverInfo ? serverInfo.status : 'disconnected',
+        tools: serverInfo ? serverInfo.tools : [],
+        config: serverConfig,
+      },
+    };
+
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get server configuration',
     });
   }
 };

@@ -3,6 +3,7 @@ import {
   getAllServers, 
   getAllSettings, 
   createServer, 
+  updateServer,
   deleteServer,
   setMcpServerInstance
 } from '../controllers/serverController.js';
@@ -16,6 +17,7 @@ export const initRoutes = (app: express.Application, server: McpServer): void =>
   router.get('/servers', getAllServers);
   router.get('/settings', getAllSettings);
   router.post('/servers', createServer);
+  router.put('/servers/:name', updateServer);
   router.delete('/servers/:name', deleteServer);
 
   app.use('/api', router);

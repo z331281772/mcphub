@@ -24,6 +24,7 @@ export interface ServerInfo {
   tools: ToolInfo[]; // List of tools available on the server
   client?: Client; // Client instance for communication
   transport?: SSEClientTransport | StdioClientTransport; // Transport mechanism used
+  createTime: number; // Timestamp of when the server was created
 }
 
 // Details about a tool available on the server

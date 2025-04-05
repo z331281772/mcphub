@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { ZodType, ZodRawShape } from 'zod';
 import { ServerInfo, ServerConfig } from '../types/index.js';
 import { loadSettings, saveSettings, expandEnvVars } from '../config/index.js';
+import { exec } from 'child_process';
 
 // Store all server information
 let serverInfos: ServerInfo[] = [];
@@ -32,15 +33,8 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
     if (config.url) {
       transport = new SSEClientTransport(new URL(config.url));
     } else if (config.command && config.args) {
-      const rawEnv = { ...process.env, ...(config.env || {}) };
-      const env: Record<string, string> = {};
-
-      for (const key in rawEnv) {
-        if (typeof rawEnv[key] === 'string') {
-          env[key] = expandEnvVars(rawEnv[key] as string);
-        }
-      }
-
+      const env: Record<string, string> = config.env || {};
+      env['PATH'] = expandEnvVars(process.env.PATH as string) || '';
       transport = new StdioClientTransport({
         command: config.command,
         args: config.args,
@@ -52,6 +46,7 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
         name,
         status: 'disconnected',
         tools: [],
+        createTime: Date.now(),
       });
       continue;
     }
@@ -69,13 +64,20 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
         },
       },
     );
-
+    client.connect(transport).catch((error) => {
+      console.error(`Failed to connect client for server ${name} by error: ${error}`);
+      const serverInfo = getServerInfoByName(name);
+      if (serverInfo) {
+        serverInfo.status = 'disconnected';
+      }
+    });
     serverInfos.push({
       name,
       status: 'connecting',
       tools: [],
       client,
       transport,
+      createTime: Date.now(),
     });
     console.log(`Initialized client for server: ${name}`);
   }
@@ -94,9 +96,7 @@ export const registerAllTools = async (server: McpServer): Promise<void> => {
       serverInfo.status = 'connecting';
       console.log(`Connecting to server: ${serverInfo.name}...`);
 
-      await serverInfo.client.connect(serverInfo.transport);
       const tools = await serverInfo.client.listTools();
-
       serverInfo.tools = tools.tools.map((tool) => ({
         name: tool.name,
         description: tool.description || '',
@@ -114,14 +114,13 @@ export const registerAllTools = async (server: McpServer): Promise<void> => {
           tool.description || '',
           cast(tool.inputSchema.properties),
           async (params: Record<string, unknown>) => {
+            const currentServer = getServerInfoByName(serverInfo.name)!;
             console.log(`Calling tool: ${tool.name} with params: ${JSON.stringify(params)}`);
-
-            const result = await serverInfo.client!.callTool({
+            const result = await currentServer.client!.callTool({
               name: tool.name,
               arguments: params,
             });
-
-            console.log(`Tool result: ${JSON.stringify(result)}`);
+            console.log(`Tool call result: ${JSON.stringify(result)}`);
             return result as CallToolResult;
           },
         );
@@ -137,11 +136,17 @@ export const registerAllTools = async (server: McpServer): Promise<void> => {
 
 // Get all server information
 export const getServersInfo = (): Omit<ServerInfo, 'client' | 'transport'>[] => {
-  return serverInfos.map(({ name, status, tools }) => ({
+  return serverInfos.map(({ name, status, tools, createTime }) => ({
     name,
     status,
     tools,
+    createTime,
   }));
+};
+
+// Get server information by name
+const getServerInfoByName = (name: string): ServerInfo | undefined => {
+  return serverInfos.find((serverInfo) => serverInfo.name === name);
 };
 
 // Add new server
@@ -175,7 +180,7 @@ export const addServer = async (
 // Remove server
 export const removeServer = (
   name: string,
-  mcpServer?: McpServer
+  mcpServer?: McpServer,
 ): { success: boolean; message?: string } => {
   try {
     const settings = loadSettings();
@@ -203,7 +208,7 @@ export const removeServer = (
     // Re-create and initialize the McpServer if provided
     if (mcpServer) {
       console.log(`Re-initializing McpServer after removing ${name}`);
-      registerAllTools(mcpServer).catch(error => {
+      registerAllTools(mcpServer).catch((error) => {
         console.error(`Error re-initializing McpServer after removing ${name}:`, error);
       });
     }
@@ -213,6 +218,72 @@ export const removeServer = (
     console.error(`Failed to remove server: ${name}`, error);
     return { success: false, message: `Failed to remove server: ${error}` };
   }
+};
+
+// Update existing server
+export const updateMcpServer = async (
+  mcpServer: McpServer,
+  name: string,
+  config: ServerConfig,
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const settings = loadSettings();
+
+    if (!settings.mcpServers[name]) {
+      return { success: false, message: 'Server not found' };
+    }
+
+    // Update server configuration
+    settings.mcpServers[name] = config;
+
+    if (!saveSettings(settings)) {
+      return { success: false, message: 'Failed to save settings' };
+    }
+
+    // Close existing connections if any
+    const serverInfo = serverInfos.find((serverInfo) => serverInfo.name === name);
+    if (serverInfo && serverInfo.client) {
+      serverInfo.transport?.close();
+      // serverInfo.transport = undefined;
+      serverInfo.client.close();
+      // serverInfo.client = undefined;
+      console.log(`Closed existing connection for server: ${name}`);
+
+      // kill process
+      // await killProcess(serverInfo);
+    }
+
+    // Remove from list
+    serverInfos = serverInfos.filter((serverInfo) => serverInfo.name !== name);
+    console.log(`Server Infos after removing: ${JSON.stringify(serverInfos)}`);
+
+    return { success: true, message: 'Server updated successfully' };
+  } catch (error) {
+    console.error(`Failed to update server: ${name}`, error);
+    return { success: false, message: 'Failed to update server' };
+  }
+};
+
+// Kill process by name
+export const killProcess = (serverInfo: ServerInfo): Promise<void> => {
+  return new Promise((resolve, _) => {
+    exec(`pkill -9 "${serverInfo.name}"`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error killing process ${serverInfo.name}:`, error);
+        // Don't reject on error since pkill returns error if no process is found
+        resolve();
+        return;
+      }
+      if (stderr) {
+        console.error(`Error killing process ${serverInfo.name}:`, stderr);
+        // Don't reject on stderr output as it might just be warnings
+        resolve();
+        return;
+      }
+      console.log(`Process ${serverInfo.name} killed successfully`);
+      resolve();
+    });
+  });
 };
 
 // Create McpServer instance

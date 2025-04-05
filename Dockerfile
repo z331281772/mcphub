@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y curl gnupg \
 
 RUN npm install -g pnpm
 
-RUN pnpm install @amap/amap-maps-mcp-server @playwright/mcp@latest tavily-mcp@latest @modelcontextprotocol/server-github @modelcontextprotocol/server-slack
+RUN npm install -g @amap/amap-maps-mcp-server @playwright/mcp@latest tavily-mcp@latest @modelcontextprotocol/server-github @modelcontextprotocol/server-slack
 RUN pip install mcp-server-fetch
 
 WORKDIR /app

@@ -9,13 +9,14 @@ RUN apt-get update && apt-get install -y curl gnupg \
 
 RUN npm install -g pnpm
 
-RUN npm install -g @amap/amap-maps-mcp-server @playwright/mcp@latest tavily-mcp@latest @modelcontextprotocol/server-github @modelcontextprotocol/server-slack
 RUN pip install mcp-server-fetch
 
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install
+
+RUN pnpm install @amap/amap-maps-mcp-server @playwright/mcp@latest tavily-mcp@latest @modelcontextprotocol/server-github @modelcontextprotocol/server-slack
 
 COPY . .
 

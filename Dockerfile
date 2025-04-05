@@ -1,19 +1,25 @@
-FROM python:3.12-slim-bookworm
+FROM python:3.12-slim-bookworm AS base
+
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-FROM node:22-alpine
+RUN apt-get update && apt-get install -y curl gnupg \
+  && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+  && apt-get install -y nodejs \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN npm install -g pnpm
 
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install
+RUN pnpm install
 
 COPY . .
 
 RUN pnpm build
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 3000
 

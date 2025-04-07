@@ -1,39 +1,13 @@
 import { Request, Response } from 'express';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ApiResponse, AddServerRequest } from '../types/index.js';
 import {
   getServersInfo,
   addServer,
   removeServer,
-  createMcpServer,
-  registerAllTools,
   updateMcpServer,
+  recreateMcpServer,
 } from '../services/mcpService.js';
 import { loadSettings } from '../config/index.js';
-import config from '../config/index.js';
-
-let mcpServerInstance: McpServer;
-
-export const setMcpServerInstance = (server: McpServer): void => {
-  mcpServerInstance = server;
-};
-
-// 重新创建 McpServer 实例
-export const recreateMcpServerInstance = async (): Promise<McpServer> => {
-  console.log('Re-creating McpServer instance');
-
-  // 创建新的 McpServer 实例
-  const newServer = createMcpServer(config.mcpHubName, config.mcpHubVersion);
-
-  // 重新注册所有工具
-  await registerAllTools(newServer);
-
-  // 更新全局实例
-  mcpServerInstance.close();
-  mcpServerInstance = newServer;
-  console.log('McpServer instance successfully re-created');
-  return mcpServerInstance;
-};
 
 export const getAllServers = (_: Request, res: Response): void => {
   try {
@@ -70,7 +44,6 @@ export const getAllSettings = (_: Request, res: Response): void => {
 export const createServer = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, config } = req.body as AddServerRequest;
-
     if (!name || typeof name !== 'string') {
       res.status(400).json({
         success: false,
@@ -95,9 +68,9 @@ export const createServer = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    const result = await addServer(mcpServerInstance, name, config);
-
+    const result = await addServer(name, config);
     if (result.success) {
+      recreateMcpServer();
       res.json({
         success: true,
         message: 'Server added successfully',
@@ -128,12 +101,10 @@ export const deleteServer = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    // 先删除服务器
     const result = removeServer(name);
 
     if (result.success) {
-      // 重新创建 McpServer 实例
-      recreateMcpServerInstance();
+      recreateMcpServer();
       res.json({
         success: true,
         message: 'Server removed successfully',
@@ -181,10 +152,9 @@ export const updateServer = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    const result = await updateMcpServer(mcpServerInstance, name, config);
-
+    const result = await updateMcpServer(name, config);
     if (result.success) {
-      recreateMcpServerInstance();
+      recreateMcpServer();
       res.json({
         success: true,
         message: 'Server updated successfully',

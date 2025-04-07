@@ -1,33 +1,26 @@
 import { Request, Response } from 'express';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { getMcpServer } from './mcpService.js';
 
 const transports: { [sessionId: string]: SSEServerTransport } = {};
 
-export const handleSseConnection = async (
-  req: Request, 
-  res: Response, 
-  server: McpServer
-): Promise<void> => {
+export const handleSseConnection = async (req: Request, res: Response): Promise<void> => {
   const transport = new SSEServerTransport('/messages', res);
   transports[transport.sessionId] = transport;
-  
+
   res.on('close', () => {
     delete transports[transport.sessionId];
     console.log(`SSE connection closed: ${transport.sessionId}`);
   });
-  
+
   console.log(`New SSE connection established: ${transport.sessionId}`);
-  await server.connect(transport);
+  await getMcpServer().connect(transport);
 };
 
-export const handleSseMessage = async (
-  req: Request, 
-  res: Response
-): Promise<void> => {
+export const handleSseMessage = async (req: Request, res: Response): Promise<void> => {
   const sessionId = req.query.sessionId as string;
   const transport = transports[sessionId];
-  
+
   if (transport) {
     await transport.handlePostMessage(req, res);
   } else {

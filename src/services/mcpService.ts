@@ -8,6 +8,32 @@ import { ZodType, ZodRawShape } from 'zod';
 import { ServerInfo, ServerConfig } from '../types/index.js';
 import { loadSettings, saveSettings, expandEnvVars } from '../config/index.js';
 import { exec } from 'child_process';
+import config from '../config/index.js';
+
+let mcpServer: McpServer;
+
+export const initMcpServer = (name: string, version: string): McpServer => {
+  mcpServer = new McpServer({ name, version });
+  return mcpServer;
+};
+
+export const setMcpServer = (server: McpServer): void => {
+  mcpServer = server;
+};
+
+export const getMcpServer = (): McpServer => {
+  return mcpServer;
+};
+
+export const recreateMcpServer = async () => {
+  console.log('Re-creating McpServer instance');
+  const newServer = createMcpServer(config.mcpHubName, config.mcpHubVersion);
+  await registerAllTools(newServer, true);
+  let oldServer = getMcpServer();
+  setMcpServer(newServer);
+  oldServer.close();
+  console.log('McpServer instance successfully re-created');
+};
 
 // Store all server information
 let serverInfos: ServerInfo[] = [];
@@ -86,10 +112,10 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
 };
 
 // Register all MCP tools
-export const registerAllTools = async (server: McpServer): Promise<void> => {
+export const registerAllTools = async (server: McpServer, forceInit: boolean): Promise<void> => {
   initializeClientsFromSettings();
   for (const serverInfo of serverInfos) {
-    if (serverInfo.status === 'connected') continue;
+    if (serverInfo.status === 'connected' && !forceInit) continue;
     if (!serverInfo.client || !serverInfo.transport) continue;
 
     try {
@@ -108,7 +134,6 @@ export const registerAllTools = async (server: McpServer): Promise<void> => {
 
       for (const tool of tools.tools) {
         console.log(`Registering tool: ${JSON.stringify(tool)}`);
-
         await server.tool(
           tool.name,
           tool.description || '',
@@ -151,25 +176,21 @@ const getServerInfoByName = (name: string): ServerInfo | undefined => {
 
 // Add new server
 export const addServer = async (
-  mcpServer: McpServer,
   name: string,
   config: ServerConfig,
 ): Promise<{ success: boolean; message?: string }> => {
   try {
     const settings = loadSettings();
-
     if (settings.mcpServers[name]) {
       return { success: false, message: 'Server name already exists' };
     }
 
     settings.mcpServers[name] = config;
-
     if (!saveSettings(settings)) {
       return { success: false, message: 'Failed to save settings' };
     }
 
-    registerAllTools(mcpServer);
-
+    registerAllTools(mcpServer, false);
     return { success: true, message: 'Server added successfully' };
   } catch (error) {
     console.error(`Failed to add server: ${name}`, error);
@@ -178,10 +199,7 @@ export const addServer = async (
 };
 
 // Remove server
-export const removeServer = (
-  name: string,
-  mcpServer?: McpServer,
-): { success: boolean; message?: string } => {
+export const removeServer = (name: string): { success: boolean; message?: string } => {
   try {
     const settings = loadSettings();
 
@@ -195,24 +213,7 @@ export const removeServer = (
       return { success: false, message: 'Failed to save settings' };
     }
 
-    // Close existing connections
-    const serverInfo = serverInfos.find((serverInfo) => serverInfo.name === name);
-    if (serverInfo && serverInfo.client) {
-      serverInfo.client.close();
-      serverInfo.transport?.close();
-    }
-
-    // Remove from list
     serverInfos = serverInfos.filter((serverInfo) => serverInfo.name !== name);
-
-    // Re-create and initialize the McpServer if provided
-    if (mcpServer) {
-      console.log(`Re-initializing McpServer after removing ${name}`);
-      registerAllTools(mcpServer).catch((error) => {
-        console.error(`Error re-initializing McpServer after removing ${name}:`, error);
-      });
-    }
-
     return { success: true, message: 'Server removed successfully' };
   } catch (error) {
     console.error(`Failed to remove server: ${name}`, error);
@@ -222,41 +223,27 @@ export const removeServer = (
 
 // Update existing server
 export const updateMcpServer = async (
-  mcpServer: McpServer,
   name: string,
   config: ServerConfig,
 ): Promise<{ success: boolean; message?: string }> => {
   try {
     const settings = loadSettings();
-
     if (!settings.mcpServers[name]) {
       return { success: false, message: 'Server not found' };
     }
 
-    // Update server configuration
     settings.mcpServers[name] = config;
-
     if (!saveSettings(settings)) {
       return { success: false, message: 'Failed to save settings' };
     }
 
-    // Close existing connections if any
     const serverInfo = serverInfos.find((serverInfo) => serverInfo.name === name);
     if (serverInfo && serverInfo.client) {
-      serverInfo.transport?.close();
-      // serverInfo.transport = undefined;
-      serverInfo.client.close();
-      // serverInfo.client = undefined;
-      console.log(`Closed existing connection for server: ${name}`);
-
       // kill process
       // await killProcess(serverInfo);
     }
 
-    // Remove from list
     serverInfos = serverInfos.filter((serverInfo) => serverInfo.name !== name);
-    console.log(`Server Infos after removing: ${JSON.stringify(serverInfos)}`);
-
     return { success: true, message: 'Server updated successfully' };
   } catch (error) {
     console.error(`Failed to update server: ${name}`, error);
@@ -290,8 +277,6 @@ export const killProcess = (serverInfo: ServerInfo): Promise<void> => {
 export const createMcpServer = (name: string, version: string): McpServer => {
   return new McpServer({ name, version });
 };
-
-// Optimized comments to focus on key details and removed redundant explanations
 
 // Helper function: Convert JSON Schema to Zod Schema
 function cast(inputSchema: unknown): ZodRawShape {

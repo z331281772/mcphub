@@ -8,7 +8,7 @@ MCPHub 是一款统一的中心服务，可以将多个 MCP（Model Context Prot
 
 ## 功能
 
-- **内置 MCP 服务**：提供 `amap-maps`、`github`、`slack` 等热门服务。
+- **内置精选 MCP 服务**：默认安装 `amap-maps`、`playwright`、`slack` 等热门服务，开箱即用。
 - **集中管理**：通过单一中心轻松管理多个 MCP 服务。
 - **协议兼容**：同时支持 stdio 与 SSE MCP 协议，确保无缝对接。
 - **直观仪表盘**：通过 Web 界面实时监控服务状态，并动态管理服务。

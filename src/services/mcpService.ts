@@ -299,7 +299,10 @@ function cast(inputSchema: unknown): ZodRawShape {
     throw new Error('Invalid input schema');
   }
 
-  const properties = inputSchema as Record<string, { type: string; description?: string }>;
+  const properties = inputSchema as Record<
+    string,
+    { type: string; description?: string; items?: { type: string } }
+  >;
   const processedSchema: ZodRawShape = {};
 
   for (const key in properties) {
@@ -334,7 +337,19 @@ function cast(inputSchema: unknown): ZodRawShape {
       }
 
       if (prop.description) {
-        zodType = zodType.describe(prop.description); // Add description to the schema
+        zodType = zodType.describe(prop.description);
+      }
+
+      if (prop.items) {
+        if (prop.items.type === 'string') {
+          zodType = z.array(z.string());
+        } else if (prop.items.type === 'number') {
+          zodType = z.array(z.number());
+        } else if (prop.items.type === 'boolean') {
+          zodType = z.array(z.boolean());
+        } else {
+          zodType = z.array(z.any());
+        }
       }
 
       processedSchema[key] = zodType.optional();

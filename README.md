@@ -1,4 +1,4 @@
-# MCPHub: One Endpoint, Infinite MCP Servers
+# MCPHub: Deploy Your Own MCP Servers in Minutes
 
 English | [中文版](README.zh.md)
 
@@ -8,6 +8,7 @@ MCPHub is a unified hub server that consolidates multiple MCP (Model Context Pro
 
 ## Features
 
+- **Built-in MCP Servers**: Comes with featured MCP servers like `amap-maps`, `github`, `slack`, and more.
 - **Centralized Management**: Oversee multiple MCP servers from one convenient hub.
 - **Broad Protocol Support**: Works seamlessly with both stdio and SSE MCP protocols.
 - **Intuitive Dashboard UI**: Monitor server status and manage servers dynamically via a web interface.

@@ -7,7 +7,6 @@ import * as z from 'zod';
 import { ZodType, ZodRawShape } from 'zod';
 import { ServerInfo, ServerConfig } from '../types/index.js';
 import { loadSettings, saveSettings, expandEnvVars } from '../config/index.js';
-import { exec } from 'child_process';
 import config from '../config/index.js';
 
 let mcpServer: McpServer;
@@ -238,9 +237,11 @@ export const updateMcpServer = async (
     }
 
     const serverInfo = serverInfos.find((serverInfo) => serverInfo.name === name);
-    if (serverInfo && serverInfo.client) {
-      // kill process
-      // await killProcess(serverInfo);
+    if (serverInfo) {
+      serverInfo.client!.close();
+      serverInfo.transport!.close();
+      console.log(`Closed client and transport for server: ${name}`);
+      // TODO kill process
     }
 
     serverInfos = serverInfos.filter((serverInfo) => serverInfo.name !== name);
@@ -249,28 +250,6 @@ export const updateMcpServer = async (
     console.error(`Failed to update server: ${name}`, error);
     return { success: false, message: 'Failed to update server' };
   }
-};
-
-// Kill process by name
-export const killProcess = (serverInfo: ServerInfo): Promise<void> => {
-  return new Promise((resolve, _) => {
-    exec(`pkill -9 "${serverInfo.name}"`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error killing process ${serverInfo.name}:`, error);
-        // Don't reject on error since pkill returns error if no process is found
-        resolve();
-        return;
-      }
-      if (stderr) {
-        console.error(`Error killing process ${serverInfo.name}:`, stderr);
-        // Don't reject on stderr output as it might just be warnings
-        resolve();
-        return;
-      }
-      console.log(`Process ${serverInfo.name} killed successfully`);
-      resolve();
-    });
-  });
 };
 
 // Create McpServer instance

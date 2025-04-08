@@ -29,7 +29,7 @@ export const recreateMcpServer = async () => {
   console.log('Re-creating McpServer instance');
   const newServer = createMcpServer(config.mcpHubName, config.mcpHubVersion);
   await registerAllTools(newServer, true);
-  let oldServer = getMcpServer();
+  const oldServer = getMcpServer();
   setMcpServer(newServer);
   oldServer.close();
   console.log('McpServer instance successfully re-created');

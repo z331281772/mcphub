@@ -90,7 +90,7 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
         },
       },
     );
-    client.connect(transport).catch((error) => {
+    client.connect(transport, { timeout: 120000 }).catch((error) => {
       console.error(`Failed to connect client for server ${name} by error: ${error}`);
       const serverInfo = getServerInfoByName(name);
       if (serverInfo) {

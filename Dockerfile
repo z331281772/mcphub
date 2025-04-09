@@ -9,7 +9,11 @@ RUN apt-get update && apt-get install -y curl gnupg \
 
 RUN npm install -g pnpm
 
-RUN pip install mcp-server-fetch
+ARG REQUEST_TIMEOUT=120000
+ENV REQUEST_TIMEOUT=$REQUEST_TIMEOUT
+
+RUN uv tool install mcp-server-fetch
+RUN uv tool update-shell
 
 WORKDIR /app
 

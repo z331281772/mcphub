@@ -43,7 +43,7 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
   const existingServerInfos = serverInfos;
   serverInfos = [];
 
-  for (const [name, config] of Object.entries(settings.mcpServers)) {
+  for (const [name, conf] of Object.entries(settings.mcpServers)) {
     // Check if server is already connected
     const existingServer = existingServerInfos.find(
       (s) => s.name === name && s.status === 'connected',
@@ -55,14 +55,14 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
     }
 
     let transport;
-    if (config.url) {
-      transport = new SSEClientTransport(new URL(config.url));
-    } else if (config.command && config.args) {
-      const env: Record<string, string> = config.env || {};
+    if (conf.url) {
+      transport = new SSEClientTransport(new URL(conf.url));
+    } else if (conf.command && conf.args) {
+      const env: Record<string, string> = conf.env || {};
       env['PATH'] = expandEnvVars(process.env.PATH as string) || '';
       transport = new StdioClientTransport({
-        command: config.command,
-        args: config.args,
+        command: conf.command,
+        args: conf.args,
         env: env,
       });
     } else {
@@ -89,7 +89,7 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
         },
       },
     );
-    client.connect(transport, { timeout: 120000 }).catch((error) => {
+    client.connect(transport, { timeout: Number(config.timeout) }).catch((error) => {
       console.error(`Failed to connect client for server ${name} by error: ${error}`);
       const serverInfo = getServerInfoByName(name);
       if (serverInfo) {
@@ -121,7 +121,7 @@ export const registerAllTools = async (server: McpServer, forceInit: boolean): P
       serverInfo.status = 'connecting';
       console.log(`Connecting to server: ${serverInfo.name}...`);
 
-      const tools = await serverInfo.client.listTools();
+      const tools = await serverInfo.client.listTools({}, { timeout: Number(config.timeout) });
       serverInfo.tools = tools.tools.map((tool) => ({
         name: tool.name,
         description: tool.description || '',

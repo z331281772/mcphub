@@ -7,6 +7,7 @@ dotenv.config();
 
 const defaultConfig = {
   port: process.env.PORT || 3000,
+  timeout: process.env.REQUEST_TIMEOUT || 120000,
   mcpHubName: 'mcphub',
   mcpHubVersion: '0.0.1',
 };

@@ -15,7 +15,7 @@ export const errorHandler = (
 };
 
 export const initMiddlewares = (app: express.Application): void => {
-  app.use(express.static('public'));
+  app.use(express.static('frontend/dist'));
 
   app.use((req, res, next) => {
     if (req.path !== '/sse' && req.path !== '/messages') {
@@ -26,7 +26,7 @@ export const initMiddlewares = (app: express.Application): void => {
   });
 
   app.get('/', (_req: Request, res: Response) => {
-    res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'frontend', 'dist', 'index.html'));
   });
 
   app.use(errorHandler);

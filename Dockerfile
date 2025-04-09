@@ -20,7 +20,7 @@ RUN pnpm install @amap/amap-maps-mcp-server @playwright/mcp@latest tavily-mcp@la
 
 COPY . .
 
-RUN pnpm build
+RUN pnpm frontend:build && pnpm build
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

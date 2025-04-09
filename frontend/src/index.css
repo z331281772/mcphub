@@ -1,0 +1,20 @@
+/* Use standard Tailwind directives */
+@import "tailwindcss";
+
+/* Add some custom styles to verify CSS is working correctly */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bg-custom-blue {
+  background-color: #4a90e2; 
+}
+
+.text-custom-white {
+  color: #ffffff;
+}

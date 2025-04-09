@@ -13,7 +13,6 @@ ARG REQUEST_TIMEOUT=120000
 ENV REQUEST_TIMEOUT=$REQUEST_TIMEOUT
 
 RUN uv tool install mcp-server-fetch
-RUN uv tool update-shell
 
 WORKDIR /app
 

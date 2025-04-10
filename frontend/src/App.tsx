@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Server, ApiResponse } from './types'
 import ServerCard from './components/ServerCard'
 import AddServerForm from './components/AddServerForm'
 import EditServerForm from './components/EditServerForm'
 
 function App() {
+  const { t } = useTranslation()
   const [servers, setServers] = useState<Server[]>([])
   const [error, setError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
@@ -67,7 +69,7 @@ function App() {
           setEditingServer(fullServerData)
         } else {
           console.error('Failed to get server config from settings:', settingsData)
-          setError(`Could not find configuration data for ${server.name}`)
+          setError(t('server.invalidConfig', { serverName: server.name }))
         }
       })
       .catch(err => {
@@ -89,13 +91,13 @@ function App() {
       const result = await response.json()
 
       if (!response.ok) {
-        setError(result.message || `Failed to delete server ${serverName}`)
+        setError(result.message || t('server.deleteError', { serverName }))
         return
       }
 
       setRefreshKey(prevKey => prevKey + 1)
     } catch (err) {
-      setError('Error: ' + (err instanceof Error ? err.message : String(err)))
+      setError(t('errors.general') + ': ' + (err instanceof Error ? err.message : String(err)))
     }
   }
 
@@ -104,13 +106,13 @@ function App() {
       <div className="min-h-screen bg-red-50 p-8">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-red-600 text-xl font-semibold">Error</h2>
+            <h2 className="text-red-600 text-xl font-semibold">{t('app.error')}</h2>
             <p className="text-gray-600 mt-2">{error}</p>
             <button
               onClick={() => setError(null)}
               className="mt-4 bg-red-100 text-red-800 py-1 px-3 rounded hover:bg-red-200"
             >
-              Close
+              {t('app.closeButton')}
             </button>
           </div>
         </div>
@@ -122,12 +124,12 @@ function App() {
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-3xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">MCP Hub Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('app.title')}</h1>
           <AddServerForm onAdd={handleServerAdd} />
         </div>
         {servers.length === 0 ? (
           <div className="bg-white shadow rounded-lg p-6">
-            <p className="text-gray-600">No MCP servers available</p>
+            <p className="text-gray-600">{t('app.noServers')}</p>
           </div>
         ) : (
           <div className="space-y-6">

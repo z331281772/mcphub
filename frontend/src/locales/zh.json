@@ -1,0 +1,41 @@
+{
+  "app": {
+    "title": "MCP Hub 控制面板",
+    "error": "错误",
+    "closeButton": "关闭",
+    "noServers": "没有可用的 MCP 服务器"
+  },
+  "server": {
+    "addServer": "添加服务器",
+    "add": "添加",
+    "edit": "编辑",
+    "delete": "删除",
+    "confirmDelete": "您确定要删除此服务器吗？",
+    "status": "状态",
+    "tools": "工具",
+    "name": "服务器名称",
+    "url": "服务器 URL",
+    "apiKey": "API 密钥",
+    "save": "保存更改",
+    "cancel": "取消",
+    "invalidConfig": "无法找到 {{serverName}} 的配置数据",
+    "deleteError": "删除服务器 {{serverName}} 失败",
+    "updateError": "更新服务器失败",
+    "editTitle": "编辑服务器: {{serverName}}",
+    "type": "服务器类型",
+    "command": "命令",
+    "arguments": "参数",
+    "envVars": "环境变量",
+    "key": "键",
+    "value": "值",
+    "remove": "移除"
+  },
+  "status": {
+    "online": "在线",
+    "offline": "离线",
+    "connecting": "连接中"
+  },
+  "errors": {
+    "general": "发生错误"
+  }
+}

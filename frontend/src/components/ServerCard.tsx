@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Server } from '@/types'
 import { ChevronDown, ChevronRight } from '@/components/icons/LucideIcons'
 import Badge from '@/components/ui/Badge'
@@ -12,6 +13,7 @@ interface ServerCardProps {
 }
 
 const ServerCard = ({ server, onRemove, onEdit }: ServerCardProps) => {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
@@ -45,13 +47,13 @@ const ServerCard = ({ server, onRemove, onEdit }: ServerCardProps) => {
             onClick={handleEdit}
             className="px-3 py-1 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 text-sm"
           >
-            Edit
+            {t('server.edit')}
           </button>
           <button
             onClick={handleRemove}
             className="px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 text-sm"
           >
-            Delete
+            {t('server.delete')}
           </button>
           <button className="text-gray-400 hover:text-gray-600">
             {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
@@ -68,7 +70,7 @@ const ServerCard = ({ server, onRemove, onEdit }: ServerCardProps) => {
 
       {isExpanded && server.tools && (
         <div className="mt-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Available Tools</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">{t('server.tools')}</h3>
           <div className="space-y-4">
             {server.tools.map((tool, index) => (
               <ToolCard key={index} tool={tool} />

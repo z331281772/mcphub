@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import ServerForm from './ServerForm'
 
 interface AddServerFormProps {
@@ -6,6 +7,7 @@ interface AddServerFormProps {
 }
 
 const AddServerForm = ({ onAdd }: AddServerFormProps) => {
+  const { t } = useTranslation()
   const [modalVisible, setModalVisible] = useState(false)
 
   const toggleModal = () => {
@@ -40,12 +42,12 @@ const AddServerForm = ({ onAdd }: AddServerFormProps) => {
         onClick={toggleModal}
         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
       >
-        Add New Server
+        {t('server.addServer')}
       </button>
 
       {modalVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <ServerForm onSubmit={handleSubmit} onCancel={toggleModal} modalTitle="Add New Server" />
+          <ServerForm onSubmit={handleSubmit} onCancel={toggleModal} modalTitle={t('server.addServer')} />
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Server, EnvVar, ServerFormData } from '@/types'
 
 interface ServerFormProps {
@@ -9,6 +10,7 @@ interface ServerFormProps {
 }
 
 const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: ServerFormProps) => {
+  const { t } = useTranslation()
   const [serverType, setServerType] = useState<'sse' | 'stdio'>(
     initialData && initialData.config && initialData.config.url ? 'sse' : 'stdio',
   )
@@ -107,7 +109,7 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-            Server Name
+            {t('server.name')}
           </label>
           <input
             type="text"
@@ -123,7 +125,7 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Server Type</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">{t('server.type')}</label>
           <div className="flex space-x-4">
             <div>
               <input
@@ -155,7 +157,7 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
         {serverType === 'sse' ? (
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="url">
-              Server URL
+              {t('server.url')}
             </label>
             <input
               type="url"
@@ -172,7 +174,7 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
           <>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="command">
-                Command
+                {t('server.command')}
               </label>
               <input
                 type="text"
@@ -187,7 +189,7 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="arguments">
-                Arguments
+                {t('server.arguments')}
               </label>
               <input
                 type="text"
@@ -204,14 +206,14 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
             <div className="mb-4">
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-gray-700 text-sm font-bold">
-                  Environment Variables
+                  {t('server.envVars')}
                 </label>
                 <button
                   type="button"
                   onClick={addEnvVar}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-2 rounded text-sm flex items-center"
                 >
-                  + Add
+                  + {t('server.add')}
                 </button>
               </div>
               {envVars.map((envVar, index) => (
@@ -222,7 +224,7 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
                       value={envVar.key}
                       onChange={(e) => handleEnvVarChange(index, 'key', e.target.value)}
                       className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-1/2"
-                      placeholder="key"
+                      placeholder={t('server.key')}
                     />
                     <span className="flex items-center">:</span>
                     <input
@@ -230,7 +232,7 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
                       value={envVar.value}
                       onChange={(e) => handleEnvVarChange(index, 'value', e.target.value)}
                       className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-1/2"
-                      placeholder="value"
+                      placeholder={t('server.value')}
                     />
                   </div>
                   <button
@@ -238,7 +240,7 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
                     onClick={() => removeEnvVar(index)}
                     className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-2 rounded text-sm flex items-center justify-center min-w-[56px] ml-2"
                   >
-                    - Remove
+                    - {t('server.remove')}
                   </button>
                 </div>
               ))}
@@ -252,13 +254,13 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
             onClick={onCancel}
             className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded mr-2"
           >
-            Cancel
+            {t('server.cancel')}
           </button>
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
           >
-            {isEdit ? 'Save Changes' : 'Add Server'}
+            {isEdit ? t('server.save') : t('server.add')}
           </button>
         </div>
       </form>

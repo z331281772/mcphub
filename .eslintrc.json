@@ -19,6 +19,7 @@
         "varsIgnorePattern": "^_"
       }
     ],
-    "no-undef": "off"
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-undef": "off",
   }
 }

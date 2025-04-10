@@ -1,0 +1,41 @@
+{
+  "app": {
+    "title": "MCP Hub Dashboard",
+    "error": "Error",
+    "closeButton": "Close",
+    "noServers": "No MCP servers available"
+  },
+  "server": {
+    "addServer": "Add Server",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this server?",
+    "status": "Status",
+    "tools": "Tools",
+    "name": "Server Name",
+    "url": "Server URL",
+    "apiKey": "API Key",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "invalidConfig": "Could not find configuration data for {{serverName}}",
+    "deleteError": "Failed to delete server {{serverName}}",
+    "updateError": "Failed to update server",
+    "editTitle": "Edit Server: {{serverName}}",
+    "type": "Server Type",
+    "command": "Command",
+    "arguments": "Arguments",
+    "envVars": "Environment Variables",
+    "key": "key",
+    "value": "value",
+    "remove": "Remove"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "connecting": "Connecting"
+  },
+  "errors": {
+    "general": "Something went wrong"
+  }
+}

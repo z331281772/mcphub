@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Server } from '@/types'
 import ServerForm from './ServerForm'
 
@@ -8,6 +9,8 @@ interface EditServerFormProps {
 }
 
 const EditServerForm = ({ server, onEdit, onCancel }: EditServerFormProps) => {
+  const { t } = useTranslation()
+  
   const handleSubmit = async (payload: any) => {
     try {
       const response = await fetch(`/api/servers/${server.name}`, {
@@ -19,13 +22,13 @@ const EditServerForm = ({ server, onEdit, onCancel }: EditServerFormProps) => {
       const result = await response.json()
 
       if (!response.ok) {
-        alert(result.message || 'Failed to update server')
+        alert(result.message || t('server.updateError', 'Failed to update server'))
         return
       }
 
       onEdit()
     } catch (err) {
-      alert(`Error: ${err instanceof Error ? err.message : String(err)}`)
+      alert(`${t('errors.general')}: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
@@ -35,7 +38,7 @@ const EditServerForm = ({ server, onEdit, onCancel }: EditServerFormProps) => {
         onSubmit={handleSubmit}
         onCancel={onCancel}
         initialData={server}
-        modalTitle={`Edit Server: ${server.name}`}
+        modalTitle={t('server.editTitle', {serverName: server.name})}
       />
     </div>
   )

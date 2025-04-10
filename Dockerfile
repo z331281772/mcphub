@@ -13,6 +13,7 @@ ARG REQUEST_TIMEOUT=120000
 ENV REQUEST_TIMEOUT=$REQUEST_TIMEOUT
 
 RUN uv tool install mcp-server-fetch
+ENV UV_PYTHON_INSTALL_MIRROR="http://mirrors.aliyun.com/pypi/simple/"
 
 WORKDIR /app
 

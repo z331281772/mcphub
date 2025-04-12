@@ -1,0 +1,33 @@
+name: GitHub Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract Release Notes
+        id: extract-release-notes
+        run: |
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          git log $(git describe --tags --abbrev=0 HEAD^1 2>/dev/null || echo HEAD^1)..HEAD --pretty=format:"- %s%n%b" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          body: |
+            # MCPHub ${{ github.ref_name }}
+
+            ${{ env.RELEASE_NOTES }}
+
+          draft: false
+          prerelease: false
+          generate_release_notes: true

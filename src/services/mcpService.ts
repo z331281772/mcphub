@@ -136,7 +136,7 @@ export const registerAllTools = async (server: McpServer, forceInit: boolean): P
         await server.tool(
           tool.name,
           tool.description || '',
-          cast(tool.inputSchema.properties),
+          json2zod(tool.inputSchema.properties, tool.inputSchema.required),
           async (params: Record<string, unknown>) => {
             const currentServer = getServerInfoByName(serverInfo.name)!;
             console.log(`Calling tool: ${tool.name} with params: ${JSON.stringify(params)}`);
@@ -258,28 +258,50 @@ export const createMcpServer = (name: string, version: string): McpServer => {
 };
 
 // Helper function: Convert JSON Schema to Zod Schema
-function cast(inputSchema: unknown): ZodRawShape {
+function json2zod(inputSchema: unknown, required: unknown): ZodRawShape {
   if (typeof inputSchema !== 'object' || inputSchema === null) {
     throw new Error('Invalid input schema');
   }
 
-  const properties = inputSchema as Record<
-    string,
-    { type: string; description?: string; items?: { type: string } }
-  >;
+  const properties = inputSchema as Record<string, any>;
   const processedSchema: ZodRawShape = {};
 
   for (const key in properties) {
     const prop = properties[key];
 
     if (prop instanceof ZodType) {
-      processedSchema[key] = prop.optional();
-    } else if (typeof prop === 'object' && prop !== null) {
-      let zodType: ZodType;
+      processedSchema[key] = prop;
+      continue;
+    }
 
+    if (typeof prop !== 'object' || prop === null) {
+      throw new Error(`Invalid property definition for ${key}`);
+    }
+
+    let zodType: ZodType;
+
+    if (prop.type === 'array' && prop.items) {
+      if (prop.items.type === 'string') {
+        zodType = z.array(z.string());
+      } else if (prop.items.type === 'number') {
+        zodType = z.array(z.number());
+      } else if (prop.items.type === 'integer') {
+        zodType = z.array(z.number().int());
+      } else if (prop.items.type === 'boolean') {
+        zodType = z.array(z.boolean());
+      } else if (prop.items.type === 'object' && prop.items.properties) {
+        zodType = z.array(z.object(json2zod(prop.items.properties, prop.items.required)));
+      } else {
+        zodType = z.array(z.any());
+      }
+    } else {
       switch (prop.type) {
         case 'string':
-          zodType = z.string();
+          if (prop.enum && Array.isArray(prop.enum)) {
+            zodType = z.enum(prop.enum as [string, ...string[]]);
+          } else {
+            zodType = z.string();
+          }
           break;
         case 'number':
           zodType = z.number();
@@ -290,32 +312,30 @@ function cast(inputSchema: unknown): ZodRawShape {
         case 'integer':
           zodType = z.number().int();
           break;
-        case 'array':
-          zodType = z.array(z.any());
-          break;
         case 'object':
-          zodType = z.record(z.any());
+          if (prop.properties) {
+            zodType = z.object(json2zod(prop.properties, prop.required));
+          } else {
+            zodType = z.record(z.any());
+          }
           break;
         default:
           zodType = z.any();
       }
+    }
 
-      if (prop.description) {
-        zodType = zodType.describe(prop.description);
-      }
+    if (prop.description) {
+      zodType = zodType.describe(prop.description);
+    }
 
-      if (prop.items) {
-        if (prop.items.type === 'string') {
-          zodType = z.array(z.string());
-        } else if (prop.items.type === 'number') {
-          zodType = z.array(z.number());
-        } else if (prop.items.type === 'boolean') {
-          zodType = z.array(z.boolean());
-        } else {
-          zodType = z.array(z.any());
-        }
-      }
+    if (prop.default !== undefined) {
+      zodType = zodType.default(prop.default);
+    }
 
+    required = Array.isArray(required) ? required : [];
+    if (Array.isArray(required) && required.includes(key)) {
+      processedSchema[key] = zodType;
+    } else {
       processedSchema[key] = zodType.optional();
     }
   }

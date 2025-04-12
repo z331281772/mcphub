@@ -1,11 +1,4 @@
 {
-  "users": [
-    {
-      "username": "admin",
-      "password": "$2b$10$Vt7krIvjNgyN67LXqly0uOcTpN0LI55cYRbcKC71pUDAP0nJ7RPa.",
-      "isAdmin": true
-    }
-  ],
   "mcpServers": {
     "amap-maps": {
       "command": "npx",
@@ -24,31 +17,11 @@
         "--headless"
       ]
     },
-    "tavily-mcp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "tavily-mcp@latest"
-      ],
-      "env": {
-        "TAVILY_API_KEY": "your-api-key"
-      }
-    },
     "fetch": {
       "command": "uvx",
       "args": [
         "mcp-server-fetch"
       ]
-    },
-    "github": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-github"
-      ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your-access-token"
-      }
     },
     "slack": {
       "command": "npx",
@@ -61,5 +34,12 @@
         "SLACK_TEAM_ID": "your-team-id"
       }
     }
-  }
+  },
+  "users": [
+    {
+      "username": "admin",
+      "password": "$2b$10$Vt7krIvjNgyN67LXqly0uOcTpN0LI55cYRbcKC71pUDAP0nJ7RPa.",
+      "isAdmin": true
+    }
+  ]
 }

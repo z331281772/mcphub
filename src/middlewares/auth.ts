@@ -1,0 +1,28 @@
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+
+// Default secret key - in production, use an environment variable
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+
+// Middleware to authenticate JWT token
+export const auth = (req: Request, res: Response, next: NextFunction): void => {
+  // Get token from header
+  const token = req.header('x-auth-token');
+
+  // Check if no token
+  if (!token) {
+    res.status(401).json({ success: false, message: 'No token, authorization denied' });
+    return;
+  }
+
+  // Verify token
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Add user from payload to request
+    (req as any).user = (decoded as any).user;
+    next();
+  } catch (error) {
+    res.status(401).json({ success: false, message: 'Token is not valid' });
+  }
+};

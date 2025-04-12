@@ -4,6 +4,8 @@ import { initMcpServer, registerAllTools } from './services/mcpService.js';
 import { initMiddlewares } from './middlewares/index.js';
 import { initRoutes } from './routes/index.js';
 import { handleSseConnection, handleSseMessage } from './services/sseService.js';
+import { migrateUserData } from './utils/migration.js';
+import { initializeDefaultUser } from './models/User.js';
 
 export class AppServer {
   private app: express.Application;
@@ -16,6 +18,12 @@ export class AppServer {
 
   async initialize(): Promise<void> {
     try {
+      // Migrate user data from users.json to mcp_settings.json if needed
+      migrateUserData();
+      
+      // Initialize default admin user if no users exist
+      await initializeDefaultUser();
+      
       const mcpServer = await initMcpServer(config.mcpHubName, config.mcpHubVersion);
       await registerAllTools(mcpServer, true);
       initMiddlewares(this.app);

@@ -1,5 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
+import { auth } from './auth.js';
+import { initializeDefaultUser } from '../models/User.js';
 
 export const errorHandler = (
   err: Error, 
@@ -24,6 +26,14 @@ export const initMiddlewares = (app: express.Application): void => {
       next();
     }
   });
+
+  // Initialize default admin user if no users exist
+  initializeDefaultUser().catch(err => {
+    console.error('Error initializing default user:', err);
+  });
+
+  // Protect all API routes with authentication middleware
+  app.use('/api', auth);
 
   app.get('/', (_req: Request, res: Response) => {
     res.sendFile(path.join(process.cwd(), 'frontend', 'dist', 'index.html'));

@@ -3,7 +3,28 @@
     "title": "MCP Hub Dashboard",
     "error": "Error",
     "closeButton": "Close",
-    "noServers": "No MCP servers available"
+    "noServers": "No MCP servers available",
+    "loading": "Loading...",
+    "logout": "Logout",
+    "profile": "Profile",
+    "changePassword": "Change Password"
+  },
+  "auth": {
+    "login": "Login",
+    "loginTitle": "Login to MCP Hub",
+    "username": "Username",
+    "password": "Password",
+    "loggingIn": "Logging in...",
+    "emptyFields": "Username and password cannot be empty",
+    "loginFailed": "Login failed, please check your username and password",
+    "loginError": "An error occurred during login",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordsNotMatch": "New password and confirmation do not match",
+    "changePasswordSuccess": "Password changed successfully",
+    "changePasswordError": "Failed to change password",
+    "changePassword": "Change Password"
   },
   "server": {
     "addServer": "Add Server",
@@ -45,5 +66,9 @@
     "serverUpdate": "Failed to edit server {{serverName}}. Please check the server status",
     "serverFetch": "Failed to retrieve server data. Please try again later",
     "initialStartup": "The server might be starting up. Please wait a moment as this process can take some time on first launch..."
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel"
   }
 }

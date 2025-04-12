@@ -2,8 +2,16 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
+// User interface
+export interface IUser {
+  username: string;
+  password: string;
+  isAdmin?: boolean;
+}
+
 // Represents the settings for MCP servers
 export interface McpSettings {
+  users?: IUser[]; // Array of user credentials and permissions
   mcpServers: {
     [key: string]: ServerConfig; // Key-value pairs of server names and their configurations
   };

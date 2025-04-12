@@ -53,3 +53,39 @@ export interface ApiResponse<T> {
   data: T;
   message?: string;
 }
+
+// Auth types
+export interface IUser {
+  username: string;
+  isAdmin?: boolean;
+}
+
+export interface AuthState {
+  token: string | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  user: IUser | null;
+  error: string | null;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface RegisterCredentials extends LoginCredentials {
+  isAdmin?: boolean;
+}
+
+export interface ChangePasswordCredentials {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  token?: string;
+  user?: IUser;
+  message?: string;
+  errors?: Array<{ msg: string }>;
+}

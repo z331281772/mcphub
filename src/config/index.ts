@@ -23,7 +23,7 @@ export const loadSettings = (): McpSettings => {
     return JSON.parse(settingsData);
   } catch (error) {
     console.error(`Failed to load settings from ${settingsPath}:`, error);
-    return { mcpServers: {} };
+    return { mcpServers: {}, users: [] };
   }
 };
 

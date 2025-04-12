@@ -3,7 +3,28 @@
     "title": "MCP Hub 控制面板",
     "error": "错误",
     "closeButton": "关闭",
-    "noServers": "没有可用的 MCP 服务器"
+    "noServers": "没有可用的 MCP 服务器",
+    "loading": "加载中...",
+    "logout": "退出登录",
+    "profile": "个人资料",
+    "changePassword": "修改密码"
+  },
+  "auth": {
+    "login": "登录",
+    "loginTitle": "登录 MCP Hub",
+    "username": "用户名",
+    "password": "密码",
+    "loggingIn": "登录中...",
+    "emptyFields": "用户名和密码不能为空",
+    "loginFailed": "登录失败，请检查用户名和密码",
+    "loginError": "登录过程中出现错误",
+    "currentPassword": "当前密码",
+    "newPassword": "新密码",
+    "confirmPassword": "确认密码",
+    "passwordsNotMatch": "新密码与确认密码不一致",
+    "changePasswordSuccess": "密码修改成功",
+    "changePasswordError": "修改密码失败",
+    "changePassword": "修改密码"
   },
   "server": {
     "addServer": "添加服务器",
@@ -45,5 +66,9 @@
     "serverUpdate": "编辑服务器 {{serverName}} 失败，请检查服务器状态",
     "serverFetch": "获取服务器数据失败，请稍后重试",
     "initialStartup": "服务器可能正在启动中。首次启动可能需要一些时间，请耐心等候..."
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "取消"
   }
 }

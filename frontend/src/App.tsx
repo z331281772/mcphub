@@ -1,9 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom'
 import { Server, ApiResponse } from './types'
 import ServerCard from './components/ServerCard'
 import AddServerForm from './components/AddServerForm'
 import EditServerForm from './components/EditServerForm'
+import LoginPage from './pages/LoginPage'
+import ChangePasswordPage from './pages/ChangePasswordPage'
+import ProtectedRoute from './components/ProtectedRoute'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 
 // 配置选项
 const CONFIG = {
@@ -18,7 +23,8 @@ const CONFIG = {
   }
 }
 
-function App() {
+// Dashboard component that contains the main application
+const Dashboard = () => {
   const { t } = useTranslation()
   const [servers, setServers] = useState<Server[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -26,6 +32,8 @@ function App() {
   const [editingServer, setEditingServer] = useState<Server | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [fetchAttempts, setFetchAttempts] = useState(0)
+  const { auth, logout } = useAuth()
+  const navigate = useNavigate()
   
   // 轮询定时器引用
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -47,7 +55,12 @@ function App() {
     
     const fetchServers = async () => {
       try {
-        const response = await fetch('/api/servers')
+        const token = localStorage.getItem('mcphub_token');
+        const response = await fetch('/api/servers', {
+          headers: {
+            'x-auth-token': token || ''
+          }
+        });
         const data = await response.json()
         
         if (data && data.success && Array.isArray(data.data)) {
@@ -95,7 +108,12 @@ function App() {
     // 初始化加载阶段的请求函数
     const fetchInitialData = async () => {
       try {
-        const response = await fetch('/api/servers')
+        const token = localStorage.getItem('mcphub_token');
+        const response = await fetch('/api/servers', {
+          headers: {
+            'x-auth-token': token || ''
+          }
+        });
         const data = await response.json()
         
         // 处理API响应中的包装对象，提取data字段
@@ -194,7 +212,12 @@ function App() {
 
   const handleServerEdit = (server: Server) => {
     // Fetch settings to get the full server config before editing
-    fetch(`/api/settings`)
+    const token = localStorage.getItem('mcphub_token');
+    fetch(`/api/settings`, {
+      headers: {
+        'x-auth-token': token || ''
+      }
+    })
       .then(response => response.json())
       .then((settingsData: ApiResponse<{ mcpServers: Record<string, any> }>) => {
         if (
@@ -232,8 +255,12 @@ function App() {
 
   const handleServerRemove = async (serverName: string) => {
     try {
+      const token = localStorage.getItem('mcphub_token');
       const response = await fetch(`/api/servers/${serverName}`, {
         method: 'DELETE',
+        headers: {
+          'x-auth-token': token || ''
+        }
       })
       const result = await response.json()
 
@@ -246,6 +273,11 @@ function App() {
     } catch (err) {
       setError(t('errors.general') + ': ' + (err instanceof Error ? err.message : String(err)))
     }
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
   }
 
   return (
@@ -273,7 +305,21 @@ function App() {
 
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">{t('app.title')}</h1>
-          <AddServerForm onAdd={handleServerAdd} />
+          <div className="flex items-center">
+            <AddServerForm onAdd={handleServerAdd} />
+            <button
+              onClick={() => navigate('/change-password')}
+              className="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              {t('app.changePassword')}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              {t('app.logout')}
+            </button>
+          </div>
         </div>
         {servers.length === 0 ? (
           <div className="bg-white shadow rounded-lg p-6">
@@ -300,6 +346,23 @@ function App() {
         )}
       </div>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/change-password" element={<ChangePasswordPage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   )
 }
 

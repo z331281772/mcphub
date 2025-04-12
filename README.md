@@ -26,8 +26,7 @@ docker run -p 3000:3000 samanhappy/mcphub
 
 ### Dashboard Access
 
-Open your web browser and navigate to:  
-`http://localhost:3000`
+Open your web browser and navigate to: `http://localhost:3000`
 
 The dashboard provides:
 - **Real-Time Monitoring**: Keep an eye on the status of all MCP servers.
@@ -36,8 +35,7 @@ The dashboard provides:
 
 ### SSE Endpoint
 
-Seamlessly connect your host applications (e.g., Claude Desktop, Cursor, Cherry Studio, etc.) to the MCPHub SSE endpoint at:  
-`http://localhost:3000/sse`
+Seamlessly connect your host applications (e.g., Claude Desktop, Cursor, Cherry Studio, etc.) to the MCPHub SSE endpoint at: `http://localhost:3000/sse`
 
 ## Local Development
 
@@ -76,6 +74,16 @@ Install dependencies and launch MCPHub:
 cd mcphub && pnpm install && pnpm dev
 ```
 
+## Community and Contributions
+
+MCPHub started as a small side project that I developed on a whim, and I'm amazed at the attention it has received. Thank you all for your support! 
+
+Currently, MCPHub still has many areas that need optimization and improvement. I've created a dedicated WeChat group for discussions and feedback. If you're interested in this project, you're welcome to join us and contribute!
+
+![WeChat Group](assets/wegroup.jpg)
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+

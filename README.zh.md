@@ -26,8 +26,7 @@ docker run -p 3000:3000 samanhappy/mcphub
 
 ### 仪表盘访问
 
-在浏览器中打开以下地址：  
-`http://localhost:3000`
+在浏览器中打开以下地址： `http://localhost:3000`
 
 仪表盘提供以下功能：
 - **实时监控**：随时查看所有 MCP 服务的运行状态。
@@ -36,8 +35,7 @@ docker run -p 3000:3000 samanhappy/mcphub
 
 ### SSE 端点
 
-您可以将主机应用（如 Claude Desktop、Cursor、Cherry Studio 等）无缝连接至 MCPHub 的 SSE 端点：  
-`http://localhost:3000/sse`
+您可以将主机应用（如 Claude Desktop、Cursor、Cherry Studio 等）无缝连接至 MCPHub 的 SSE 端点： `http://localhost:3000/sse`
 
 ## 本地开发
 
@@ -75,6 +73,12 @@ git clone https://github.com/samanhappy/mcphub.git
 ```bash
 cd mcphub && pnpm install && pnpm dev
 ```
+
+## 社区与共建
+
+MCPHub 只是我一时兴起开发的小项目，没想到竟收获了这么多关注，非常感谢大家的支持！目前 MCPHub 还有不少地方需要优化和完善，我也专门建了个交流群，方便大家交流反馈。如果你也对这个项目感兴趣，欢迎一起参与建设！
+
+![微信交流群](assets/wegroup.jpg)
 
 ## 许可证
 

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Server } from '@/types'
 import ServerForm from './ServerForm'
@@ -10,9 +11,11 @@ interface EditServerFormProps {
 
 const EditServerForm = ({ server, onEdit, onCancel }: EditServerFormProps) => {
   const { t } = useTranslation()
+  const [error, setError] = useState<string | null>(null)
   
   const handleSubmit = async (payload: any) => {
     try {
+      setError(null)
       const response = await fetch(`/api/servers/${server.name}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -22,13 +25,34 @@ const EditServerForm = ({ server, onEdit, onCancel }: EditServerFormProps) => {
       const result = await response.json()
 
       if (!response.ok) {
-        alert(result.message || t('server.updateError', 'Failed to update server'))
+        // Use specific error message from the response if available
+        if (result && result.message) {
+          setError(result.message)
+        } else if (response.status === 404) {
+          setError(t('server.notFound', { serverName: server.name }))
+        } else if (response.status === 400) {
+          setError(t('server.invalidData'))
+        } else {
+          setError(t('server.updateError', { serverName: server.name }))
+        }
         return
       }
 
       onEdit()
     } catch (err) {
-      alert(`${t('errors.general')}: ${err instanceof Error ? err.message : String(err)}`)
+      console.error('Error updating server:', err)
+      
+      // Use friendly error messages based on error type
+      if (!navigator.onLine) {
+        setError(t('errors.network'))
+      } else if (err instanceof TypeError && (
+        err.message.includes('NetworkError') || 
+        err.message.includes('Failed to fetch')
+      )) {
+        setError(t('errors.serverConnection'))
+      } else {
+        setError(t('errors.serverUpdate', { serverName: server.name }))
+      }
     }
   }
 
@@ -39,6 +63,7 @@ const EditServerForm = ({ server, onEdit, onCancel }: EditServerFormProps) => {
         onCancel={onCancel}
         initialData={server}
         modalTitle={t('server.editTitle', {serverName: server.name})}
+        formError={error}
       />
     </div>
   )

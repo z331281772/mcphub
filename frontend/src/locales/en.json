@@ -19,6 +19,8 @@
     "save": "Save Changes",
     "cancel": "Cancel",
     "invalidConfig": "Could not find configuration data for {{serverName}}",
+    "addError": "Failed to add server",
+    "editError": "Failed to edit server {{serverName}}",
     "deleteError": "Failed to delete server {{serverName}}",
     "updateError": "Failed to update server",
     "editTitle": "Edit Server: {{serverName}}",
@@ -36,6 +38,12 @@
     "connecting": "Connecting"
   },
   "errors": {
-    "general": "Something went wrong"
+    "general": "Something went wrong",
+    "network": "Network connection error. Please check your internet connection",
+    "serverConnection": "Unable to connect to the server. Please check if the server is running",
+    "serverAdd": "Failed to add server. Please check the server status",
+    "serverUpdate": "Failed to edit server {{serverName}}. Please check the server status",
+    "serverFetch": "Failed to retrieve server data. Please try again later",
+    "initialStartup": "The server might be starting up. Please wait a moment as this process can take some time on first launch..."
   }
 }

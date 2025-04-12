@@ -7,9 +7,10 @@ interface ServerFormProps {
   onCancel: () => void
   initialData?: Server | null
   modalTitle: string
+  formError?: string | null
 }
 
-const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: ServerFormProps) => {
+const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle, formError = null }: ServerFormProps) => {
   const { t } = useTranslation()
   const [serverType, setServerType] = useState<'sse' | 'stdio'>(
     initialData && initialData.config && initialData.config.url ? 'sse' : 'stdio',
@@ -104,7 +105,11 @@ const ServerForm = ({ onSubmit, onCancel, initialData = null, modalTitle }: Serv
         </button>
       </div>
 
-      {error && <div className="bg-red-50 text-red-700 p-3 rounded mb-4">{error}</div>}
+      {(error || formError) && (
+        <div className="bg-red-50 text-red-700 p-3 rounded mb-4">
+          {formError || error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="mb-4">

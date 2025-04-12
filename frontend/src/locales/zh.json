@@ -18,6 +18,8 @@
     "apiKey": "API 密钥",
     "save": "保存更改",
     "cancel": "取消",
+    "addError": "添加服务器失败",
+    "editError": "编辑服务器 {{serverName}} 失败",
     "invalidConfig": "无法找到 {{serverName}} 的配置数据",
     "deleteError": "删除服务器 {{serverName}} 失败",
     "updateError": "更新服务器失败",
@@ -36,6 +38,12 @@
     "connecting": "连接中"
   },
   "errors": {
-    "general": "发生错误"
+    "general": "发生错误",
+    "network": "网络连接错误，请检查您的互联网连接",
+    "serverConnection": "无法连接到服务器，请检查服务器是否正在运行",
+    "serverAdd": "添加服务器失败，请检查服务器状态",
+    "serverUpdate": "编辑服务器 {{serverName}} 失败，请检查服务器状态",
+    "serverFetch": "获取服务器数据失败，请稍后重试",
+    "initialStartup": "服务器可能正在启动中。首次启动可能需要一些时间，请耐心等候..."
   }
 }

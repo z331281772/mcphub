@@ -9,13 +9,16 @@ interface AddServerFormProps {
 const AddServerForm = ({ onAdd }: AddServerFormProps) => {
   const { t } = useTranslation()
   const [modalVisible, setModalVisible] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const toggleModal = () => {
     setModalVisible(!modalVisible)
+    setError(null) // Clear any previous errors when toggling modal
   }
 
   const handleSubmit = async (payload: any) => {
     try {
+      setError(null)
       const response = await fetch('/api/servers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -25,14 +28,35 @@ const AddServerForm = ({ onAdd }: AddServerFormProps) => {
       const result = await response.json()
 
       if (!response.ok) {
-        alert(result.message || 'Failed to add server')
+        // Use specific error message from the response if available
+        if (result && result.message) {
+          setError(result.message)
+        } else if (response.status === 400) {
+          setError(t('server.invalidData'))
+        } else if (response.status === 409) {
+          setError(t('server.alreadyExists', { serverName: payload.name }))
+        } else {
+          setError(t('server.addError'))
+        }
         return
       }
 
       setModalVisible(false)
       onAdd()
     } catch (err) {
-      alert(`Error: ${err instanceof Error ? err.message : String(err)}`)
+      console.error('Error adding server:', err)
+      
+      // Use friendly error messages based on error type
+      if (!navigator.onLine) {
+        setError(t('errors.network'))
+      } else if (err instanceof TypeError && (
+        err.message.includes('NetworkError') || 
+        err.message.includes('Failed to fetch')
+      )) {
+        setError(t('errors.serverConnection'))
+      } else {
+        setError(t('errors.serverAdd'))
+      }
     }
   }
 
@@ -47,7 +71,12 @@ const AddServerForm = ({ onAdd }: AddServerFormProps) => {
 
       {modalVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <ServerForm onSubmit={handleSubmit} onCancel={toggleModal} modalTitle={t('server.addServer')} />
+          <ServerForm 
+            onSubmit={handleSubmit} 
+            onCancel={toggleModal} 
+            modalTitle={t('server.addServer')}
+            formError={error}
+          />
         </div>
       )}
     </div>

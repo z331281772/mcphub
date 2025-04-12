@@ -7,6 +7,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,7 +29,6 @@ jobs:
             # MCPHub ${{ github.ref_name }}
 
             ${{ env.RELEASE_NOTES }}
-
           draft: false
           prerelease: false
           generate_release_notes: true

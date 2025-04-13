@@ -12,7 +12,9 @@ RUN npm install -g pnpm
 ARG REQUEST_TIMEOUT=60000
 ENV REQUEST_TIMEOUT=$REQUEST_TIMEOUT
 
-RUN pnpm setup && \
+ENV PNPM_HOME=/usr/local/share/pnpm
+ENV PATH=$PNPM_HOME:$PATH
+RUN mkdir -p $PNPM_HOME && \
     pnpm add -g @amap/amap-maps-mcp-server @playwright/mcp@latest tavily-mcp@latest @modelcontextprotocol/server-github @modelcontextprotocol/server-slack
 
 RUN uv tool install mcp-server-fetch

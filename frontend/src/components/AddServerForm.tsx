@@ -19,9 +19,13 @@ const AddServerForm = ({ onAdd }: AddServerFormProps) => {
   const handleSubmit = async (payload: any) => {
     try {
       setError(null)
+      const token = localStorage.getItem('mcphub_token');
       const response = await fetch('/api/servers', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        },
         body: JSON.stringify(payload),
       })
 
@@ -45,12 +49,12 @@ const AddServerForm = ({ onAdd }: AddServerFormProps) => {
       onAdd()
     } catch (err) {
       console.error('Error adding server:', err)
-      
+
       // Use friendly error messages based on error type
       if (!navigator.onLine) {
         setError(t('errors.network'))
       } else if (err instanceof TypeError && (
-        err.message.includes('NetworkError') || 
+        err.message.includes('NetworkError') ||
         err.message.includes('Failed to fetch')
       )) {
         setError(t('errors.serverConnection'))
@@ -71,9 +75,9 @@ const AddServerForm = ({ onAdd }: AddServerFormProps) => {
 
       {modalVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <ServerForm 
-            onSubmit={handleSubmit} 
-            onCancel={toggleModal} 
+          <ServerForm
+            onSubmit={handleSubmit}
+            onCancel={toggleModal}
             modalTitle={t('server.addServer')}
             formError={error}
           />

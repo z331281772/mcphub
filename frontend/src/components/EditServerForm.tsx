@@ -12,13 +12,17 @@ interface EditServerFormProps {
 const EditServerForm = ({ server, onEdit, onCancel }: EditServerFormProps) => {
   const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
-  
+
   const handleSubmit = async (payload: any) => {
     try {
       setError(null)
+      const token = localStorage.getItem('mcphub_token');
       const response = await fetch(`/api/servers/${server.name}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        },
         body: JSON.stringify(payload),
       })
 
@@ -41,12 +45,12 @@ const EditServerForm = ({ server, onEdit, onCancel }: EditServerFormProps) => {
       onEdit()
     } catch (err) {
       console.error('Error updating server:', err)
-      
+
       // Use friendly error messages based on error type
       if (!navigator.onLine) {
         setError(t('errors.network'))
       } else if (err instanceof TypeError && (
-        err.message.includes('NetworkError') || 
+        err.message.includes('NetworkError') ||
         err.message.includes('Failed to fetch')
       )) {
         setError(t('errors.serverConnection'))
@@ -62,7 +66,7 @@ const EditServerForm = ({ server, onEdit, onCancel }: EditServerFormProps) => {
         onSubmit={handleSubmit}
         onCancel={onCancel}
         initialData={server}
-        modalTitle={t('server.editTitle', {serverName: server.name})}
+        modalTitle={t('server.editTitle', { serverName: server.name })}
         formError={error}
       />
     </div>

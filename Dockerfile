@@ -19,7 +19,7 @@ RUN mkdir -p $PNPM_HOME && \
 
 ARG INSTALL_EXT=false
 RUN if [ "$INSTALL_EXT" = "true" ]; then \
-    npx -y playwright install-deps && npx -y playwright install firefox; \
+    npx -y playwright install --with-deps chromium; \
     fi
 
 RUN uv tool install mcp-server-fetch

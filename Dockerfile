@@ -19,7 +19,12 @@ RUN mkdir -p $PNPM_HOME && \
 
 ARG INSTALL_EXT=false
 RUN if [ "$INSTALL_EXT" = "true" ]; then \
-    npx -y playwright install --with-deps chrome; \
+    ARCH=$(uname -m); \
+    if [ "$ARCH" = "x86_64" ]; then \
+        npx -y playwright install --with-deps chrome; \
+    else \
+        echo "Skipping Chrome installation on non-amd64 architecture: $ARCH"; \
+    fi; \
     fi
 
 RUN uv tool install mcp-server-fetch

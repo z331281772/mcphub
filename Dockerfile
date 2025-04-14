@@ -19,10 +19,8 @@ RUN mkdir -p $PNPM_HOME && \
 
 ARG INSTALL_EXT=false
 RUN if [ "$INSTALL_EXT" = "true" ]; then \
-    npx -y playwright install --with-deps chromium; \
+    npx -y playwright install --with-deps chrome; \
     fi
-
-ENV PATH=$PATH:~/.cache/ms-playwright/chromium-*/chrome-linux/
 
 RUN uv tool install mcp-server-fetch
 ENV UV_PYTHON_INSTALL_MIRROR="http://mirrors.aliyun.com/pypi/simple/"

@@ -6,6 +6,7 @@ import {
   createServer,
   updateServer,
   deleteServer,
+  toggleServer,
 } from '../controllers/serverController.js';
 import {
   login,
@@ -24,6 +25,7 @@ export const initRoutes = (app: express.Application): void => {
   router.post('/servers', createServer);
   router.put('/servers/:name', updateServer);
   router.delete('/servers/:name', deleteServer);
+  router.post('/servers/:name/toggle', toggleServer);
   
   // Auth routes (these will NOT be protected by auth middleware)
   app.post('/auth/login', [

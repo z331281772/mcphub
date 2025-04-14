@@ -10,12 +10,14 @@ interface ServerCardProps {
   server: Server
   onRemove: (serverName: string) => void
   onEdit: (server: Server) => void
+  onToggle?: (server: Server, enabled: boolean) => void
 }
 
-const ServerCard = ({ server, onRemove, onEdit }: ServerCardProps) => {
+const ServerCard = ({ server, onRemove, onEdit, onToggle }: ServerCardProps) => {
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isToggling, setIsToggling] = useState(false)
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -25,6 +27,19 @@ const ServerCard = ({ server, onRemove, onEdit }: ServerCardProps) => {
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation()
     onEdit(server)
+  }
+
+  const handleToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isToggling || !onToggle) return
+    
+    setIsToggling(true)
+    try {
+      // Toggle the server's enabled status
+      await onToggle(server, !(server.enabled !== false))
+    } finally {
+      setIsToggling(false)
+    }
   }
 
   const handleConfirmDelete = () => {
@@ -55,6 +70,26 @@ const ServerCard = ({ server, onRemove, onEdit }: ServerCardProps) => {
           >
             {t('server.delete')}
           </button>
+          <div className="flex items-center">
+            <button
+              onClick={handleToggle}
+              className={`px-3 py-1 text-sm rounded transition-colors ${
+                isToggling 
+                  ? 'bg-gray-200 text-gray-500' 
+                  : server.enabled !== false
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+              }`}
+              disabled={isToggling}
+            >
+              {isToggling 
+                ? t('common.processing')
+                : server.enabled !== false 
+                  ? t('server.disable') 
+                  : t('server.enable')
+              }
+            </button>
+          </div>
           <button className="text-gray-400 hover:text-gray-600">
             {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
           </button>

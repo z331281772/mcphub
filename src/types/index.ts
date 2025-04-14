@@ -23,6 +23,7 @@ export interface ServerConfig {
   command?: string; // Command to execute for stdio-based servers
   args?: string[]; // Arguments for the command
   env?: Record<string, string>; // Environment variables
+  enabled?: boolean; // Flag to enable/disable the server
 }
 
 // Information about a server's status and tools
@@ -33,6 +34,7 @@ export interface ServerInfo {
   client?: Client; // Client instance for communication
   transport?: SSEClientTransport | StdioClientTransport; // Transport mechanism used
   createTime: number; // Timestamp of when the server was created
+  enabled?: boolean; // Flag to indicate if the server is enabled
 }
 
 // Details about a tool available on the server

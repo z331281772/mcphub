@@ -177,7 +177,7 @@ export const registerAllTools = async (server: McpServer, forceInit: boolean): P
 // Get all server information
 export const getServersInfo = (): Omit<ServerInfo, 'client' | 'transport'>[] => {
   const settings = loadSettings();
-  return serverInfos.map(({ name, status, tools, createTime }) => {
+  const infos = serverInfos.map(({ name, status, tools, createTime }) => {
     const serverConfig = settings.mcpServers[name];
     const enabled = serverConfig ? (serverConfig.enabled !== false) : true;
     return {
@@ -188,6 +188,11 @@ export const getServersInfo = (): Omit<ServerInfo, 'client' | 'transport'>[] => 
       enabled,
     };
   });
+  infos.sort((a, b) => {
+    if (a.enabled === b.enabled) return 0;
+    return a.enabled ? -1 : 1;
+  });
+  return infos;
 };
 
 // Get server information by name

@@ -3,7 +3,7 @@
     "title": "MCP Hub Dashboard",
     "error": "Error",
     "closeButton": "Close",
-    "noServers": "No servers found. Add a new server to get started.",
+    "noServers": "No MCP servers available",
     "loading": "Loading...",
     "logout": "Logout",
     "profile": "Profile",
@@ -24,14 +24,7 @@
     "passwordsNotMatch": "New password and confirmation do not match",
     "changePasswordSuccess": "Password changed successfully",
     "changePasswordError": "Failed to change password",
-    "changePassword": "Change Password",
-    "confirmNewPassword": "Confirm New Password",
-    "loginButton": "Login",
-    "changePasswordTitle": "Change Password",
-    "changePasswordButton": "Change Password",
-    "passwordsMustMatch": "Passwords must match",
-    "changeSuccess": "Password changed successfully",
-    "invalidCredentials": "Invalid username or password"
+    "changePassword": "Change Password"
   },
   "server": {
     "addServer": "Add Server",
@@ -40,34 +33,27 @@
     "delete": "Delete",
     "confirmDelete": "Are you sure you want to delete this server?",
     "status": "Status",
-    "tools": "Available Tools",
-    "name": "Name",
-    "url": "URL",
+    "tools": "Tools",
+    "name": "Server Name",
+    "url": "Server URL",
     "apiKey": "API Key",
-    "save": "Save",
+    "save": "Save Changes",
     "cancel": "Cancel",
-    "invalidConfig": "Failed to get configuration for '{{serverName}}'",
+    "invalidConfig": "Could not find configuration data for {{serverName}}",
     "addError": "Failed to add server",
     "editError": "Failed to edit server {{serverName}}",
     "deleteError": "Failed to delete server {{serverName}}",
-    "updateError": "Failed to update server '{{serverName}}'",
+    "updateError": "Failed to update server",
     "editTitle": "Edit Server: {{serverName}}",
-    "type": "Type",
+    "type": "Server Type",
     "command": "Command",
     "arguments": "Arguments",
     "envVars": "Environment Variables",
-    "key": "Key",
-    "value": "Value",
-    "remove": "Remove",
-    "deleteTitle": "Delete Server",
-    "deleteConfirm": "Are you sure you want to delete {{serverName}}?",
-    "deleteWarning": "This action cannot be undone.",
+    "key": "key",
+    "value": "value",
     "enable": "Enable",
     "disable": "Disable",
-    "toggleError": "Failed to toggle server: {{serverName}}",
-    "invalidData": "Invalid server data",
-    "alreadyExists": "Server '{{serverName}}' already exists",
-    "notFound": "Server '{{serverName}}' not found"
+    "remove": "Remove"
   },
   "status": {
     "online": "Online",
@@ -75,17 +61,17 @@
     "connecting": "Connecting"
   },
   "errors": {
-    "general": "An error occurred",
-    "network": "Network connection error. Please check your internet connection.",
-    "serverConnection": "Could not connect to server. Please try again later.",
-    "serverAdd": "Failed to add server.",
-    "serverUpdate": "Failed to update server '{{serverName}}'.",
-    "serverFetch": "Failed to fetch servers data.",
-    "initialStartup": "Server is starting up. Please wait..."
+    "general": "Something went wrong",
+    "network": "Network connection error. Please check your internet connection",
+    "serverConnection": "Unable to connect to the server. Please check if the server is running",
+    "serverAdd": "Failed to add server. Please check the server status",
+    "serverUpdate": "Failed to edit server {{serverName}}. Please check the server status",
+    "serverFetch": "Failed to retrieve server data. Please try again later",
+    "initialStartup": "The server might be starting up. Please wait a moment as this process can take some time on first launch..."
   },
   "common": {
+    "processing": "Processing...",
     "save": "Save",
-    "cancel": "Cancel",
-    "processing": "Processing..."
+    "cancel": "Cancel"
   }
 }

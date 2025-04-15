@@ -6,6 +6,7 @@ import {
   removeServer,
   updateMcpServer,
   recreateMcpServer,
+  toggleServerStatus,
 } from '../services/mcpService.js';
 import { loadSettings } from '../config/index.js';
 
@@ -204,6 +205,49 @@ export const getServerConfig = (req: Request, res: Response): void => {
     res.status(500).json({
       success: false,
       message: 'Failed to get server configuration',
+    });
+  }
+};
+
+export const toggleServer = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name } = req.params;
+    const { enabled } = req.body;
+
+    if (!name) {
+      res.status(400).json({
+        success: false,
+        message: 'Server name is required',
+      });
+      return;
+    }
+
+    if (typeof enabled !== 'boolean') {
+      res.status(400).json({
+        success: false,
+        message: 'Enabled status must be a boolean',
+      });
+      return;
+    }
+
+    const result = await toggleServerStatus(name, enabled);
+    
+    if (result.success) {
+      recreateMcpServer();
+      res.json({
+        success: true,
+        message: result.message || `Server ${enabled ? 'enabled' : 'disabled'} successfully`,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: result.message || 'Server not found or failed to toggle status',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
     });
   }
 };

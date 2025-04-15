@@ -44,12 +44,28 @@ export const initializeClientsFromSettings = (): ServerInfo[] => {
   serverInfos = [];
 
   for (const [name, conf] of Object.entries(settings.mcpServers)) {
+    // Skip disabled servers
+    if (conf.enabled === false) {
+      console.log(`Skipping disabled server: ${name}`);
+      serverInfos.push({
+        name,
+        status: 'disconnected',
+        tools: [],
+        createTime: Date.now(),
+        enabled: false
+      });
+      continue;
+    }
+    
     // Check if server is already connected
     const existingServer = existingServerInfos.find(
       (s) => s.name === name && s.status === 'connected',
     );
     if (existingServer) {
-      serverInfos.push(existingServer);
+      serverInfos.push({
+        ...existingServer,
+        enabled: conf.enabled === undefined ? true : conf.enabled
+      });
       console.log(`Server '${name}' is already connected.`);
       continue;
     }
@@ -160,12 +176,23 @@ export const registerAllTools = async (server: McpServer, forceInit: boolean): P
 
 // Get all server information
 export const getServersInfo = (): Omit<ServerInfo, 'client' | 'transport'>[] => {
-  return serverInfos.map(({ name, status, tools, createTime }) => ({
-    name,
-    status,
-    tools,
-    createTime,
-  }));
+  const settings = loadSettings();
+  const infos = serverInfos.map(({ name, status, tools, createTime }) => {
+    const serverConfig = settings.mcpServers[name];
+    const enabled = serverConfig ? (serverConfig.enabled !== false) : true;
+    return {
+      name,
+      status,
+      tools,
+      createTime,
+      enabled,
+    };
+  });
+  infos.sort((a, b) => {
+    if (a.enabled === b.enabled) return 0;
+    return a.enabled ? -1 : 1;
+  });
+  return infos;
 };
 
 // Get server information by name
@@ -249,6 +276,51 @@ export const updateMcpServer = async (
   } catch (error) {
     console.error(`Failed to update server: ${name}`, error);
     return { success: false, message: 'Failed to update server' };
+  }
+};
+
+// Toggle server enabled status
+export const toggleServerStatus = async (
+  name: string,
+  enabled: boolean
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const settings = loadSettings();
+    if (!settings.mcpServers[name]) {
+      return { success: false, message: 'Server not found' };
+    }
+
+    // Update the enabled status in settings
+    settings.mcpServers[name].enabled = enabled;
+    
+    if (!saveSettings(settings)) {
+      return { success: false, message: 'Failed to save settings' };
+    }
+
+    // If disabling, disconnect the server and remove from active servers
+    if (!enabled) {
+      const serverInfo = serverInfos.find((serverInfo) => serverInfo.name === name);
+      if (serverInfo && serverInfo.client && serverInfo.transport) {
+        serverInfo.client.close();
+        serverInfo.transport.close();
+        console.log(`Closed client and transport for server: ${name}`);
+      }
+      
+      // Update the server info to show as disconnected and disabled
+      const index = serverInfos.findIndex(s => s.name === name);
+      if (index !== -1) {
+        serverInfos[index] = {
+          ...serverInfos[index],
+          status: 'disconnected',
+          enabled: false,
+        };
+      }
+    }
+
+    return { success: true, message: `Server ${enabled ? 'enabled' : 'disabled'} successfully` };
+  } catch (error) {
+    console.error(`Failed to toggle server status: ${name}`, error);
+    return { success: false, message: 'Failed to toggle server status' };
   }
 };
 

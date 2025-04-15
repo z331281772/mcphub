@@ -30,6 +30,7 @@ export interface Server {
   status: ServerStatus;
   tools?: Tool[];
   config?: ServerConfig;
+  enabled?: boolean;
 }
 
 // 环境变量类型

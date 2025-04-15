@@ -51,6 +51,8 @@
     "envVars": "环境变量",
     "key": "键",
     "value": "值",
+    "enable": "启用",
+    "disable": "禁用",
     "remove": "移除"
   },
   "status": {
@@ -68,6 +70,7 @@
     "initialStartup": "服务器可能正在启动中。首次启动可能需要一些时间，请耐心等候..."
   },
   "common": {
+    "processing": "处理中...",
     "save": "保存",
     "cancel": "取消"
   }

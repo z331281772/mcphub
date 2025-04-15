@@ -275,6 +275,34 @@ const Dashboard = () => {
     }
   }
 
+  const handleServerToggle = async (server: Server, enabled: boolean) => {
+    try {
+      const token = localStorage.getItem('mcphub_token');
+      const response = await fetch(`/api/servers/${server.name}/toggle`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        },
+        body: JSON.stringify({ enabled }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('Failed to toggle server:', result);
+        setError(t('server.toggleError', { serverName: server.name }));
+        return;
+      }
+
+      // Update the UI immediately to reflect the change
+      setRefreshKey(prevKey => prevKey + 1);
+    } catch (err) {
+      console.error('Error toggling server:', err);
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
   const handleLogout = () => {
     logout()
     navigate('/login')
@@ -333,6 +361,7 @@ const Dashboard = () => {
                 server={server}
                 onRemove={handleServerRemove}
                 onEdit={handleServerEdit}
+                onToggle={handleServerToggle}
               />
             ))}
           </div>

@@ -51,6 +51,8 @@
     "envVars": "Environment Variables",
     "key": "key",
     "value": "value",
+    "enable": "Enable",
+    "disable": "Disable",
     "remove": "Remove"
   },
   "status": {
@@ -68,6 +70,7 @@
     "initialStartup": "The server might be starting up. Please wait a moment as this process can take some time on first launch..."
   },
   "common": {
+    "processing": "Processing...",
     "save": "Save",
     "cancel": "Cancel"
   }

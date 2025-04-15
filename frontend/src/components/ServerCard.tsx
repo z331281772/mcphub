@@ -35,7 +35,6 @@ const ServerCard = ({ server, onRemove, onEdit, onToggle }: ServerCardProps) => 
     
     setIsToggling(true)
     try {
-      // Toggle the server's enabled status
       await onToggle(server, !(server.enabled !== false))
     } finally {
       setIsToggling(false)
@@ -48,13 +47,13 @@ const ServerCard = ({ server, onRemove, onEdit, onToggle }: ServerCardProps) => 
   }
 
   return (
-    <div className="bg-white shadow rounded-lg p-6 mb-6">
+    <div className={`bg-white shadow rounded-lg p-6 mb-6 ${server.enabled === false ? 'opacity-60' : ''}`}>
       <div
         className="flex justify-between items-center cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center space-x-3">
-          <h2 className="text-xl font-semibold text-gray-900">{server.name}</h2>
+          <h2 className={`text-xl font-semibold ${server.enabled === false ? 'text-gray-600' : 'text-gray-900'}`}>{server.name}</h2>
           <Badge status={server.status} />
         </div>
         <div className="flex space-x-2">
@@ -105,7 +104,7 @@ const ServerCard = ({ server, onRemove, onEdit, onToggle }: ServerCardProps) => 
 
       {isExpanded && server.tools && (
         <div className="mt-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">{t('server.tools')}</h3>
+          <h3 className={`text-lg font-medium ${server.enabled === false ? 'text-gray-600' : 'text-gray-900'} mb-4`}>{t('server.tools')}</h3>
           <div className="space-y-4">
             {server.tools.map((tool, index) => (
               <ToolCard key={index} tool={tool} />

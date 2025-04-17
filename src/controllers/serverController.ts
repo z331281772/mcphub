@@ -5,7 +5,7 @@ import {
   addServer,
   removeServer,
   updateMcpServer,
-  recreateMcpServer,
+  notifyToolChanged,
   toggleServerStatus,
 } from '../services/mcpService.js';
 import { loadSettings } from '../config/index.js';
@@ -71,7 +71,7 @@ export const createServer = async (req: Request, res: Response): Promise<void> =
 
     const result = await addServer(name, config);
     if (result.success) {
-      recreateMcpServer();
+      notifyToolChanged();
       res.json({
         success: true,
         message: 'Server added successfully',
@@ -93,7 +93,6 @@ export const createServer = async (req: Request, res: Response): Promise<void> =
 export const deleteServer = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name } = req.params;
-
     if (!name) {
       res.status(400).json({
         success: false,
@@ -103,9 +102,8 @@ export const deleteServer = async (req: Request, res: Response): Promise<void> =
     }
 
     const result = removeServer(name);
-
     if (result.success) {
-      recreateMcpServer();
+      notifyToolChanged();
       res.json({
         success: true,
         message: 'Server removed successfully',
@@ -128,7 +126,6 @@ export const updateServer = async (req: Request, res: Response): Promise<void> =
   try {
     const { name } = req.params;
     const { config } = req.body;
-
     if (!name) {
       res.status(400).json({
         success: false,
@@ -155,7 +152,7 @@ export const updateServer = async (req: Request, res: Response): Promise<void> =
 
     const result = await updateMcpServer(name, config);
     if (result.success) {
-      recreateMcpServer();
+      notifyToolChanged();
       res.json({
         success: true,
         message: 'Server updated successfully',
@@ -178,7 +175,6 @@ export const getServerConfig = (req: Request, res: Response): void => {
   try {
     const { name } = req.params;
     const settings = loadSettings();
-
     if (!settings.mcpServers || !settings.mcpServers[name]) {
       res.status(404).json({
         success: false,
@@ -189,7 +185,6 @@ export const getServerConfig = (req: Request, res: Response): void => {
 
     const serverInfo = getServersInfo().find((s) => s.name === name);
     const serverConfig = settings.mcpServers[name];
-
     const response: ApiResponse = {
       success: true,
       data: {
@@ -213,7 +208,6 @@ export const toggleServer = async (req: Request, res: Response): Promise<void> =
   try {
     const { name } = req.params;
     const { enabled } = req.body;
-
     if (!name) {
       res.status(400).json({
         success: false,
@@ -231,9 +225,8 @@ export const toggleServer = async (req: Request, res: Response): Promise<void> =
     }
 
     const result = await toggleServerStatus(name, enabled);
-    
     if (result.success) {
-      recreateMcpServer();
+      notifyToolChanged();
       res.json({
         success: true,
         message: result.message || `Server ${enabled ? 'enabled' : 'disabled'} successfully`,

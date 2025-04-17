@@ -27,8 +27,14 @@ export const getMcpServer = (): Server => {
 
 export const notifyToolChanged = async () => {
   await registerAllTools(currentServer, true);
-  currentServer.sendToolListChanged();
-  console.log('Tool list changed notification sent');
+  currentServer
+    .sendToolListChanged()
+    .catch((error) => {
+      console.error('Failed to send tool list changed notification:', error);
+    })
+    .then(() => {
+      console.log('Tool list changed notification sent successfully');
+    });
 };
 
 // Store all server information

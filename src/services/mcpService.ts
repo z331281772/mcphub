@@ -9,31 +9,36 @@ import config from '../config/index.js';
 import { getGroup } from './sseService.js';
 import { getServersInGroup } from './groupService.js';
 
-let currentServer: Server;
+const servers: { [sessionId: string]: Server } = {};
 
 export const initMcpServer = async (name: string, version: string): Promise<void> => {
-  currentServer = createMcpServer(name, version);
-  await registerAllTools(currentServer, true, true);
+  await registerAllTools(true);
 };
 
-export const setMcpServer = (server: Server): void => {
-  currentServer = server;
+export const getMcpServer = (sessionId: string): Server => {
+  if (!servers[sessionId]) {
+    const server = createMcpServer(config.mcpHubName, config.mcpHubVersion);
+    servers[sessionId] = server;
+  }
+  return servers[sessionId];
 };
 
-export const getMcpServer = (): Server => {
-  return currentServer;
+export const deleteMcpServer = (sessionId: string): void => {
+  delete servers[sessionId];
 };
 
 export const notifyToolChanged = async () => {
-  await registerAllTools(currentServer, true, false);
-  currentServer
-    .sendToolListChanged()
-    .catch((error) => {
-      console.warn('Failed to send tool list changed notification:', error.message);
-    })
-    .then(() => {
-      console.log('Tool list changed notification sent successfully');
-    });
+  await registerAllTools(false);
+  Object.values(servers).forEach((server) => {
+    server
+      .sendToolListChanged()
+      .catch((error) => {
+        console.warn('Failed to send tool list changed notification:', error.message);
+      })
+      .then(() => {
+        console.log('Tool list changed notification sent successfully');
+      });
+  });
 };
 
 // Store all server information
@@ -79,13 +84,13 @@ export const initializeClientsFromSettings = (isInit: boolean): ServerInfo[] => 
     } else if (conf.command && conf.args) {
       const env: Record<string, string> = conf.env || {};
       env['PATH'] = expandEnvVars(process.env.PATH as string) || '';
-      
+
       // Add UV_DEFAULT_INDEX from settings if available (for Python packages)
       const settings = loadSettings();
       if (settings.systemConfig?.install?.pythonIndexUrl && conf.command === 'uvx') {
         env['UV_DEFAULT_INDEX'] = settings.systemConfig.install.pythonIndexUrl;
       }
-      
+
       transport = new StdioClientTransport({
         command: conf.command,
         args: conf.args,
@@ -180,11 +185,7 @@ export const initializeClientsFromSettings = (isInit: boolean): ServerInfo[] => 
 };
 
 // Register all MCP tools
-export const registerAllTools = async (
-  server: Server,
-  forceInit: boolean,
-  isInit: boolean,
-): Promise<void> => {
+export const registerAllTools = async (isInit: boolean): Promise<void> => {
   initializeClientsFromSettings(isInit);
 };
 
@@ -236,7 +237,7 @@ export const addServer = async (
       return { success: false, message: 'Failed to save settings' };
     }
 
-    registerAllTools(currentServer, false, false);
+    registerAllTools(false);
     return { success: true, message: 'Server added successfully' };
   } catch (error) {
     console.error(`Failed to add server: ${name}`, error);
@@ -343,59 +344,62 @@ export const toggleServerStatus = async (
   }
 };
 
+const handleListToolsRequest = async (_: any, extra: any) => {
+  const sessionId = extra.sessionId || '';
+  const group = getGroup(sessionId);
+  console.log(`Handling ListToolsRequest for group: ${group}`);
+  const allServerInfos = serverInfos.filter((serverInfo) => {
+    if (serverInfo.enabled === false) return false;
+    if (!group) return true;
+    const serversInGroup = getServersInGroup(group);
+    if (!serversInGroup || serversInGroup.length === 0) return serverInfo.name === group;
+    return serversInGroup.includes(serverInfo.name);
+  });
+
+  const allTools = [];
+  for (const serverInfo of allServerInfos) {
+    if (serverInfo.tools && serverInfo.tools.length > 0) {
+      allTools.push(...serverInfo.tools);
+    }
+  }
+
+  return {
+    tools: allTools,
+  };
+};
+
+const handleCallToolRequest = async (request: any, extra: any) => {
+  console.log(`Handling CallToolRequest for tool: ${request.params.name}`);
+  try {
+    const serverInfo = getServerByTool(request.params.name);
+    if (!serverInfo) {
+      throw new Error(`Server not found: ${request.params.name}`);
+    }
+    const client = serverInfo.client;
+    if (!client) {
+      throw new Error(`Client not found for server: ${request.params.name}`);
+    }
+    const result = await client.callTool(request.params);
+    console.log(`Tool call result: ${JSON.stringify(result)}`);
+    return result;
+  } catch (error) {
+    console.error(`Error handling CallToolRequest: ${error}`);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `Error: ${error}`,
+        },
+      ],
+      isError: true,
+    };
+  }
+};
+
 // Create McpServer instance
 export const createMcpServer = (name: string, version: string): Server => {
   const server = new Server({ name, version }, { capabilities: { tools: {} } });
-  server.setRequestHandler(ListToolsRequestSchema, async (_, extra) => {
-    const sessionId = extra.sessionId || '';
-    const group = getGroup(sessionId);
-    console.log(`Handling ListToolsRequest for group: ${group}`);
-    const allServerInfos = serverInfos.filter((serverInfo) => {
-      if (serverInfo.enabled === false) return false;
-      if (!group) return true;
-      const serversInGroup = getServersInGroup(group);
-      if (!serversInGroup || serversInGroup.length === 0) return serverInfo.name === group;
-      return serversInGroup.includes(serverInfo.name);
-    });
-
-    const allTools = [];
-    for (const serverInfo of allServerInfos) {
-      if (serverInfo.tools && serverInfo.tools.length > 0) {
-        allTools.push(...serverInfo.tools);
-      }
-    }
-
-    return {
-      tools: allTools,
-    };
-  });
-
-  server.setRequestHandler(CallToolRequestSchema, async (request, _) => {
-    console.log(`Handling CallToolRequest for tool: ${request.params.name}`);
-    try {
-      const serverInfo = getServerByTool(request.params.name);
-      if (!serverInfo) {
-        throw new Error(`Server not found: ${request.params.name}`);
-      }
-      const client = serverInfo.client;
-      if (!client) {
-        throw new Error(`Client not found for server: ${request.params.name}`);
-      }
-      const result = await client.callTool(request.params);
-      console.log(`Tool call result: ${JSON.stringify(result)}`);
-      return result;
-    } catch (error) {
-      console.error(`Error handling CallToolRequest: ${error}`);
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Error: ${error}`,
-          },
-        ],
-        isError: true,
-      };
-    }
-  });
+  server.setRequestHandler(ListToolsRequestSchema, handleListToolsRequest);
+  server.setRequestHandler(CallToolRequestSchema, handleCallToolRequest);
   return server;
 };

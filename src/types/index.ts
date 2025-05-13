@@ -86,6 +86,7 @@ export interface McpSettings {
     };
     install?: {
       pythonIndexUrl?: string; // Python package repository URL (UV_DEFAULT_INDEX)
+      npmRegistry?: string; // NPM registry URL (npm_config_registry)
     };
     // Add other system configuration sections here in the future
   };

@@ -248,6 +248,9 @@
     "pythonIndexUrl": "Python 包仓库地址",
     "pythonIndexUrlDescription": "设置 UV_DEFAULT_INDEX 环境变量，用于 Python 包安装",
     "pythonIndexUrlPlaceholder": "例如: https://mirrors.aliyun.com/pypi/simple",
+    "npmRegistry": "NPM 仓库地址",
+    "npmRegistryDescription": "设置 npm_config_registry 环境变量，用于 NPM 包安装",
+    "npmRegistryPlaceholder": "例如: https://registry.npmmirror.com/",
     "installConfig": "安装配置",
     "systemConfigUpdated": "系统配置更新成功"
   }

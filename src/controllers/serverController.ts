@@ -289,7 +289,8 @@ export const updateSystemConfig = (req: Request, res: Response): void => {
       (!routing ||
         (typeof routing.enableGlobalRoute !== 'boolean' &&
           typeof routing.enableGroupNameRoute !== 'boolean')) &&
-      (!install || typeof install.pythonIndexUrl !== 'string')
+      (!install ||
+        (typeof install.pythonIndexUrl !== 'string' && typeof install.npmRegistry !== 'string'))
     ) {
       res.status(400).json({
         success: false,
@@ -321,6 +322,7 @@ export const updateSystemConfig = (req: Request, res: Response): void => {
     if (!settings.systemConfig.install) {
       settings.systemConfig.install = {
         pythonIndexUrl: '',
+        npmRegistry: '',
       };
     }
 
@@ -333,10 +335,12 @@ export const updateSystemConfig = (req: Request, res: Response): void => {
         settings.systemConfig.routing.enableGroupNameRoute = routing.enableGroupNameRoute;
       }
     }
-
     if (install) {
       if (typeof install.pythonIndexUrl === 'string') {
         settings.systemConfig.install.pythonIndexUrl = install.pythonIndexUrl;
+      }
+      if (typeof install.npmRegistry === 'string') {
+        settings.systemConfig.install.npmRegistry = install.npmRegistry;
       }
     }
 

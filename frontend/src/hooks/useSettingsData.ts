@@ -11,6 +11,7 @@ interface RoutingConfig {
 
 interface InstallConfig {
   pythonIndexUrl: string;
+  npmRegistry: string;
 }
 
 interface SystemSettings {
@@ -28,9 +29,9 @@ export const useSettingsData = () => {
     enableGlobalRoute: true,
     enableGroupNameRoute: true,
   });
-
   const [installConfig, setInstallConfig] = useState<InstallConfig>({
     pythonIndexUrl: '',
+    npmRegistry: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -67,10 +68,10 @@ export const useSettingsData = () => {
           enableGroupNameRoute: data.data.systemConfig.routing.enableGroupNameRoute ?? true,
         });
       }
-
       if (data.success && data.data?.systemConfig?.install) {
         setInstallConfig({
           pythonIndexUrl: data.data.systemConfig.install.pythonIndexUrl || '',
+          npmRegistry: data.data.systemConfig.install.npmRegistry || '',
         });
       }
     } catch (error) {

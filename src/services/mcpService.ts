@@ -5,7 +5,7 @@ import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { ServerInfo, ServerConfig } from '../types/index.js';
-import { loadSettings, saveSettings, expandEnvVars } from '../config/index.js';
+import { loadSettings, saveSettings, expandEnvVars, replaceEnvVars } from '../config/index.js';
 import config from '../config/index.js';
 import { getGroup } from './sseService.js';
 import { getServersInGroup } from './groupService.js';
@@ -95,7 +95,7 @@ export const initializeClientsFromSettings = (isInit: boolean): ServerInfo[] => 
       transport = new SSEClientTransport(new URL(conf.url));
     } else if (conf.command && conf.args) {
       // If type is stdio or if command and args are provided without type
-      const env: Record<string, string> = conf.env || {};
+      const env: Record<string, string> = replaceEnvVars(conf.env || {});
       env['PATH'] = expandEnvVars(process.env.PATH as string) || '';
 
       // Add UV_DEFAULT_INDEX from settings if available (for Python packages)

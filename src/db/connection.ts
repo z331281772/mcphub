@@ -9,6 +9,25 @@ import { registerPostgresVectorType } from './types/postgresVectorType.js';
 import { VectorEmbeddingSubscriber } from './subscribers/VectorEmbeddingSubscriber.js';
 import { loadSettings } from '../config/index.js';
 
+// Helper function to create required PostgreSQL extensions
+const createRequiredExtensions = async (dataSource: DataSource): Promise<void> => {
+  try {
+    await dataSource.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
+    console.log('UUID extension created or already exists.');
+  } catch (err: any) {
+    console.warn('Failed to create uuid-ossp extension:', err.message);
+    console.warn('UUID generation functionality may not be available.');
+  }
+
+  try {
+    await dataSource.query('CREATE EXTENSION IF NOT EXISTS vector;');
+    console.log('Vector extension created or already exists.');
+  } catch (err: any) {
+    console.warn('Failed to create vector extension:', err.message);
+    console.warn('Vector functionality may not be available.');
+  }
+};
+
 // Get database URL from smart routing config or fallback to environment variable
 const getDatabaseUrl = (): string => {
   try {
@@ -90,21 +109,15 @@ export const initializeDatabase = async (): Promise<DataSource> => {
 
     if (!AppDataSource.isInitialized) {
       console.log('Initializing database connection...');
-      await AppDataSource.initialize();
-
       // Register the vector type with TypeORM
+      await AppDataSource.initialize();
       registerPostgresVectorType(AppDataSource);
 
-      // Create pgvector extension if it doesn't exist
-      await AppDataSource.query('CREATE EXTENSION IF NOT EXISTS vector;').catch((err) => {
-        console.warn('Failed to create vector extension:', err.message);
-        console.warn('Vector functionality may not be available.');
-      });
+      // Create required PostgreSQL extensions
+      await createRequiredExtensions(AppDataSource);
 
       // Set up vector column and index with a more direct approach
       try {
-        // First, create the extension
-        await AppDataSource.query(`CREATE EXTENSION IF NOT EXISTS vector;`);
 
         // Check if table exists first
         const tableExists = await AppDataSource.query(`

@@ -107,6 +107,11 @@ export const createServer = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
+    // Set default keep-alive interval for SSE servers if not specified
+    if ((config.type === 'sse' || (!config.type && config.url)) && !config.keepAliveInterval) {
+      config.keepAliveInterval = 60000; // Default 60 seconds for SSE servers
+    }
+
     const result = await addServer(name, config);
     if (result.success) {
       notifyToolChanged();
@@ -222,6 +227,11 @@ export const updateServer = async (req: Request, res: Response): Promise<void> =
         message: 'Headers are not supported for stdio server type',
       });
       return;
+    }
+
+    // Set default keep-alive interval for SSE servers if not specified
+    if ((config.type === 'sse' || (!config.type && config.url)) && !config.keepAliveInterval) {
+      config.keepAliveInterval = 60000; // Default 60 seconds for SSE servers
     }
 
     const result = await updateMcpServer(name, config);

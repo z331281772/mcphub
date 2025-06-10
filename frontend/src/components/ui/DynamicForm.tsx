@@ -24,6 +24,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
   const { t } = useTranslation();
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isJsonMode, setIsJsonMode] = useState<boolean>(false);
+  const [jsonText, setJsonText] = useState<string>('');
+  const [jsonError, setJsonError] = useState<string>('');
 
   // Convert ToolInputSchema to JsonSchema - memoized to prevent infinite re-renders
   const jsonSchema = useMemo(() => {
@@ -77,7 +80,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
           } else if (propSchema.type === 'array') {
             values[key] = [];
           } else if (propSchema.type === 'object') {
-            values[key] = initializeValues(propSchema, fullPath);
+            // For objects with properties, recursively initialize
+            if (propSchema.properties) {
+              values[key] = initializeValues(propSchema, fullPath);
+            } else {
+              // For objects without properties, initialize as empty object
+              values[key] = {};
+            }
           }
         });
       }
@@ -103,6 +112,58 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
 
     setFormValues(initialValues);
   }, [jsonSchema, storageKey]);
+
+  // Sync JSON text with form values when switching modes
+  useEffect(() => {
+    if (isJsonMode && Object.keys(formValues).length > 0) {
+      setJsonText(JSON.stringify(formValues, null, 2));
+      setJsonError('');
+    }
+  }, [isJsonMode, formValues]);
+
+  const handleJsonTextChange = (text: string) => {
+    setJsonText(text);
+    setJsonError('');
+
+    try {
+      const parsedJson = JSON.parse(text);
+      setFormValues(parsedJson);
+
+      // Save to localStorage if storageKey is provided
+      if (storageKey) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(parsedJson));
+        } catch (error) {
+          console.warn('Failed to save form data to localStorage:', error);
+        }
+      }
+    } catch (error) {
+      setJsonError(t('tool.invalidJsonFormat'));
+    }
+  };
+
+  const switchToJsonMode = () => {
+    setJsonText(JSON.stringify(formValues, null, 2));
+    setJsonError('');
+    setIsJsonMode(true);
+  };
+
+  const switchToFormMode = () => {
+    // Validate JSON before switching
+    if (jsonText.trim()) {
+      try {
+        const parsedJson = JSON.parse(jsonText);
+        setFormValues(parsedJson);
+        setJsonError('');
+        setIsJsonMode(false);
+      } catch (error) {
+        setJsonError(t('tool.fixJsonBeforeSwitching'));
+        return;
+      }
+    } else {
+      setIsJsonMode(false);
+    }
+  };
 
   const handleInputChange = (path: string, value: any) => {
     setFormValues(prev => {
@@ -140,7 +201,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
       });
     }
   };
-
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -148,7 +208,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
       if (schema.type === 'object' && schema.properties) {
         Object.entries(schema.properties).forEach(([key, propSchema]) => {
           const fullPath = path ? `${path}.${key}` : key;
-          const value = values?.[key];
+          const value = getNestedValue(values, fullPath);
 
           // Check required fields
           if (schema.required?.includes(key) && (value === undefined || value === null || value === '')) {
@@ -166,6 +226,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
               newErrors[fullPath] = `${key} must be an integer`;
             } else if (propSchema.type === 'boolean' && typeof value !== 'boolean') {
               newErrors[fullPath] = `${key} must be a boolean`;
+            } else if (propSchema.type === 'array' && Array.isArray(value)) {
+              // Validate array items
+              if (propSchema.items) {
+                value.forEach((item: any, index: number) => {
+                  if (propSchema.items?.type === 'object' && propSchema.items.properties) {
+                    validateObject(propSchema.items, item, `${fullPath}.${index}`);
+                  }
+                });
+              }
             } else if (propSchema.type === 'object' && typeof value === 'object') {
               validateObject(propSchema, value, fullPath);
             }
@@ -186,18 +255,240 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
     }
   };
 
+  const getNestedValue = (obj: any, path: string): any => {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
+  };
+
+  const renderObjectField = (key: string, schema: JsonSchema, currentValue: any, onChange: (value: any) => void): React.ReactNode => {
+    const value = currentValue?.[key];
+
+    if (schema.type === 'string') {
+      if (schema.enum) {
+        return (
+          <select
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full border rounded-md px-2 py-1 text-sm border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="">{t('tool.selectOption')}</option>
+            {schema.enum.map((option: any, idx: number) => (
+              <option key={idx} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        );
+      } else {
+        return (
+          <input
+            type="text"
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full border rounded-md px-2 py-1 text-sm border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            placeholder={schema.description || t('tool.enterKey', { key })}
+          />
+        );
+      }
+    }
+
+    if (schema.type === 'number' || schema.type === 'integer') {
+      return (
+        <input
+          type="number"
+          step={schema.type === 'integer' ? '1' : 'any'}
+          value={value || ''}
+          onChange={(e) => {
+            const val = e.target.value === '' ? '' : schema.type === 'integer' ? parseInt(e.target.value) : parseFloat(e.target.value);
+            onChange(val);
+          }}
+          className="w-full border rounded-md px-2 py-1 text-sm border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+      );
+    }
+
+    if (schema.type === 'boolean') {
+      return (
+        <input
+          type="checkbox"
+          checked={value || false}
+          onChange={(e) => onChange(e.target.checked)}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+      );
+    }
+
+    // Default to text input
+    return (
+      <input
+        type="text"
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full border rounded-md px-2 py-1 text-sm border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        placeholder={schema.description || t('tool.enterKey', { key })}
+      />
+    );
+  };
+
   const renderField = (key: string, propSchema: JsonSchema, path: string = ''): React.ReactNode => {
     const fullPath = path ? `${path}.${key}` : key;
-    const value = formValues[key];
-    const error = errors[fullPath];
+    const value = getNestedValue(formValues, fullPath);
+    const error = errors[fullPath];    // Handle array type
+    if (propSchema.type === 'array') {
+      const arrayValue = getNestedValue(formValues, fullPath) || [];
 
-    if (propSchema.type === 'string') {
+      return (
+        <div key={fullPath} className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {key}
+            {(path ? getNestedValue(jsonSchema, path)?.required?.includes(key) : jsonSchema.required?.includes(key)) && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {propSchema.description && (
+            <p className="text-xs text-gray-500 mb-2">{propSchema.description}</p>
+          )}
+
+          <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
+            {arrayValue.map((item: any, index: number) => (
+              <div key={index} className="mb-3 p-3 bg-white border rounded-md">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-600">{t('tool.item', { index: index + 1 })}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newArray = [...arrayValue];
+                      newArray.splice(index, 1);
+                      handleInputChange(fullPath, newArray);
+                    }}
+                    className="text-red-500 hover:text-red-700 text-sm"
+                  >
+                    {t('common.remove')}
+                  </button>
+                </div>
+
+                {propSchema.items?.type === 'string' && propSchema.items.enum ? (
+                  <select
+                    value={item || ''}
+                    onChange={(e) => {
+                      const newArray = [...arrayValue];
+                      newArray[index] = e.target.value;
+                      handleInputChange(fullPath, newArray);
+                    }}
+                    className="w-full border rounded-md px-3 py-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">{t('tool.selectOption')}</option>
+                    {propSchema.items.enum.map((option: any, idx: number) => (
+                      <option key={idx} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : propSchema.items?.type === 'object' && propSchema.items.properties ? (
+                  <div className="space-y-3">
+                    {Object.entries(propSchema.items.properties).map(([objKey, objSchema]) => (
+                      <div key={objKey}>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          {objKey}
+                          {propSchema.items?.required?.includes(objKey) && <span className="text-red-500 ml-1">*</span>}
+                        </label>
+                        {renderObjectField(objKey, objSchema as JsonSchema, item, (newValue) => {
+                          const newArray = [...arrayValue];
+                          newArray[index] = { ...newArray[index], [objKey]: newValue };
+                          handleInputChange(fullPath, newArray);
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    value={item || ''}
+                    onChange={(e) => {
+                      const newArray = [...arrayValue];
+                      newArray[index] = e.target.value;
+                      handleInputChange(fullPath, newArray);
+                    }}
+                    className="w-full border rounded-md px-3 py-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder={t('tool.enterValue', { type: propSchema.items?.type || 'value' })}
+                  />
+                )}
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => {
+                const newItem = propSchema.items?.type === 'object' ? {} : '';
+                handleInputChange(fullPath, [...arrayValue, newItem]);
+              }}
+              className="w-full mt-2 px-3 py-2 text-sm text-blue-600 border border-blue-300 rounded-md hover:bg-blue-50"
+            >
+              {t('tool.addItem', { key })}
+            </button>
+          </div>
+
+          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+        </div>
+      );
+    }    // Handle object type
+    if (propSchema.type === 'object') {
+      if (propSchema.properties) {
+        // Object with defined properties - render as nested form
+        return (
+          <div key={fullPath} className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {key}
+              {(path ? getNestedValue(jsonSchema, path)?.required?.includes(key) : jsonSchema.required?.includes(key)) && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            {propSchema.description && (
+              <p className="text-xs text-gray-500 mb-2">{propSchema.description}</p>
+            )}
+
+            <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+              {Object.entries(propSchema.properties).map(([objKey, objSchema]) => (
+                renderField(objKey, objSchema as JsonSchema, fullPath)
+              ))}
+            </div>
+
+            {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+          </div>
+        );
+      } else {
+        // Object without defined properties - render as JSON textarea
+        return (
+          <div key={fullPath} className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {key}
+              {(path ? getNestedValue(jsonSchema, path)?.required?.includes(key) : jsonSchema.required?.includes(key)) && <span className="text-red-500 ml-1">*</span>}
+              <span className="text-xs text-gray-500 ml-1">(JSON object)</span>
+            </label>
+            {propSchema.description && (
+              <p className="text-xs text-gray-500 mb-2">{propSchema.description}</p>
+            )}
+            <textarea
+              value={typeof value === 'object' ? JSON.stringify(value, null, 2) : value || '{}'}
+              onChange={(e) => {
+                try {
+                  const parsedValue = JSON.parse(e.target.value);
+                  handleInputChange(fullPath, parsedValue);
+                } catch (err) {
+                  // Keep the string value if it's not valid JSON yet
+                  handleInputChange(fullPath, e.target.value);
+                }
+              }}
+              placeholder={`{\n  "key": "value"\n}`}
+              className={`w-full border rounded-md px-3 py-2 font-mono text-sm ${error ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              rows={4}
+            />
+            {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+          </div>
+        );
+      }
+    } if (propSchema.type === 'string') {
       if (propSchema.enum) {
         return (
           <div key={fullPath} className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {key}
-              {jsonSchema.required?.includes(key) && <span className="text-red-500 ml-1">*</span>}
+              {(path ? false : jsonSchema.required?.includes(key)) && <span className="text-red-500 ml-1">*</span>}
             </label>
             {propSchema.description && (
               <p className="text-xs text-gray-500 mb-2">{propSchema.description}</p>
@@ -222,7 +513,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
           <div key={fullPath} className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {key}
-              {jsonSchema.required?.includes(key) && <span className="text-red-500 ml-1">*</span>}
+              {(path ? false : jsonSchema.required?.includes(key)) && <span className="text-red-500 ml-1">*</span>}
             </label>
             {propSchema.description && (
               <p className="text-xs text-gray-500 mb-2">{propSchema.description}</p>
@@ -237,14 +528,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
           </div>
         );
       }
-    }
-
-    if (propSchema.type === 'number' || propSchema.type === 'integer') {
+    } if (propSchema.type === 'number' || propSchema.type === 'integer') {
       return (
         <div key={fullPath} className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             {key}
-            {jsonSchema.required?.includes(key) && <span className="text-red-500 ml-1">*</span>}
+            {(path ? false : jsonSchema.required?.includes(key)) && <span className="text-red-500 ml-1">*</span>}
           </label>
           {propSchema.description && (
             <p className="text-xs text-gray-500 mb-2">{propSchema.description}</p>
@@ -276,7 +565,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
             />
             <label className="ml-2 block text-sm text-gray-700">
               {key}
-              {jsonSchema.required?.includes(key) && <span className="text-red-500 ml-1">*</span>}
+              {(path ? false : jsonSchema.required?.includes(key)) && <span className="text-red-500 ml-1">*</span>}
             </label>
           </div>
           {propSchema.description && (
@@ -285,14 +574,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
           {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
         </div>
       );
-    }
-
-    // For other types, show as text input with description
+    }    // For other types, show as text input with description
     return (
       <div key={fullPath} className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">
           {key}
-          {jsonSchema.required?.includes(key) && <span className="text-red-500 ml-1">*</span>}
+          {(path ? false : jsonSchema.required?.includes(key)) && <span className="text-red-500 ml-1">*</span>}
           <span className="text-xs text-gray-500 ml-1">({propSchema.type})</span>
         </label>
         {propSchema.description && (
@@ -335,28 +622,101 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, onCancel, l
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {Object.entries(jsonSchema.properties || {}).map(([key, propSchema]) =>
-        renderField(key, propSchema)
-      )}
-
-      <div className="flex justify-end space-x-2 pt-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
-        >
-          {t('tool.cancel')}
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? t('tool.running') : t('tool.runTool')}
-        </button>
+    <div className="space-y-4">
+      {/* Mode Toggle */}
+      <div className="flex justify-between items-center border-b pb-3">
+        <h3 className="text-lg font-medium text-gray-900">{t('tool.parameters')}</h3>
+        <div className="flex space-x-2">
+          <button
+            type="button"
+            onClick={switchToFormMode}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${!isJsonMode
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+          >
+            {t('tool.formMode')}
+          </button>
+          <button
+            type="button"
+            onClick={switchToJsonMode}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${isJsonMode
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+          >
+            {t('tool.jsonMode')}
+          </button>
+        </div>
       </div>
-    </form>
+
+      {/* JSON Mode */}
+      {isJsonMode ? (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t('tool.jsonConfiguration')}
+            </label>
+            <textarea
+              value={jsonText}
+              onChange={(e) => handleJsonTextChange(e.target.value)}
+              placeholder={`{\n  "key": "value"\n}`}
+              className={`w-full h-64 border rounded-md px-3 py-2 font-mono text-sm resize-y ${jsonError ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
+            {jsonError && <p className="text-red-500 text-xs mt-1">{jsonError}</p>}
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+            >
+              {t('tool.cancel')}
+            </button>
+            <button
+              onClick={() => {
+                try {
+                  const parsedJson = JSON.parse(jsonText);
+                  onSubmit(parsedJson);
+                } catch (error) {
+                  setJsonError(t('tool.invalidJsonFormat'));
+                }
+              }}
+              disabled={loading || !!jsonError}
+              className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? t('tool.running') : t('tool.runTool')}
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* Form Mode */
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {Object.entries(jsonSchema.properties || {}).map(([key, propSchema]) =>
+            renderField(key, propSchema)
+          )}
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+            >
+              {t('tool.cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? t('tool.running') : t('tool.runTool')}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 };
 

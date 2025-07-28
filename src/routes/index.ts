@@ -40,7 +40,39 @@ import {
   getMarketServersByCategory,
   getMarketServersByTag,
 } from '../controllers/marketController.js';
-import { login, register, getCurrentUser, changePassword } from '../controllers/authController.js';
+import { 
+  login, 
+  register, 
+  getCurrentUser, 
+  changePassword,
+  getAllUsers,
+  getUsersWithTokens,
+  updateUserInfo,
+  deleteUserAccount,
+  updateUserAccountStatus,
+  generateUserAccessToken,
+  updateUserAccessToken,
+  revokeUserAccessToken,
+  validateUserAccessToken,
+  getUserStatistics,
+  getAllUsersStatistics,
+} from '../controllers/authController.js';
+import { 
+  getAccessLogs,
+  getSystemOverview,
+  cleanOldLogs,
+  clearAllLogs,
+  exportLogs,
+} from '../controllers/accessLogController.js';
+import {
+  getMcpUsageStats,
+  getUserMcpUsageStats,
+  getMcpUsageLogs,
+  clearMcpUsageLogs,
+  getMcpUsageOverview,
+  getUserAccessDetails,
+  exportUserAccessDetails,
+} from '../controllers/mcpUsageController.js';
 import { getAllLogs, clearLogs, streamLogs } from '../controllers/logController.js';
 import { getRuntimeConfig, getPublicConfig } from '../controllers/configController.js';
 import { callTool } from '../controllers/toolController.js';
@@ -121,6 +153,7 @@ export const initRoutes = (app: express.Application): void => {
   );
 
   router.get('/auth/user', auth, getCurrentUser);
+  router.get('/auth/me', auth, getCurrentUser);
 
   // Add change password route
   router.post(
@@ -132,6 +165,39 @@ export const initRoutes = (app: express.Application): void => {
     ],
     changePassword,
   );
+
+  // Extended user management routes (admin only)
+  router.get('/auth/users', getAllUsers);
+  router.get('/auth/users-with-tokens', getUsersWithTokens);
+  router.put('/auth/users/:username', updateUserInfo);
+  router.delete('/auth/users/:username', deleteUserAccount);
+  router.put('/auth/users/:username/status', updateUserAccountStatus);
+
+  // Token management routes (admin only)
+  router.post('/auth/users/:username/token', generateUserAccessToken);
+  router.put('/auth/users/:username/token', updateUserAccessToken);
+  router.delete('/auth/users/:username/token', revokeUserAccessToken);
+  router.post('/auth/validate-token', validateUserAccessToken);
+
+  // User statistics routes
+  router.get('/auth/users/:username/statistics', getUserStatistics);
+  router.get('/auth/users-statistics', getAllUsersStatistics);
+
+  // Access log routes
+  router.get('/access-logs', getAccessLogs);
+  router.get('/access-logs/overview', getSystemOverview);
+  router.post('/access-logs/clean', cleanOldLogs);
+  router.delete('/access-logs', clearAllLogs);
+  router.get('/access-logs/export', exportLogs);
+
+  // MCP usage routes
+  router.get('/mcp-usage/stats', getMcpUsageStats);
+  router.get('/mcp-usage/overview', getMcpUsageOverview);
+  router.get('/mcp-usage/logs', getMcpUsageLogs);
+  router.delete('/mcp-usage/logs', clearMcpUsageLogs);
+  router.get('/mcp-usage/users/:username', getUserMcpUsageStats);
+  router.get('/mcp-usage/access-details', getUserAccessDetails);
+  router.get('/mcp-usage/export', exportUserAccessDetails);
 
   // Runtime configuration endpoint (no auth required for frontend initialization)
   app.get(`${config.basePath}/config`, getRuntimeConfig);

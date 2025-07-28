@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frontend Auth</title>
+</head>
+<body>
+    <h1>MCPHub Frontend Auth Test</h1>
+    
+    <div>
+        <h2>Step 1: Login</h2>
+        <input type="text" id="username" value="admin" placeholder="Username">
+        <input type="password" id="password" value="admin" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div>
+        <h2>Step 2: Get Current User Info</h2>
+        <button onclick="getCurrentUser()">Get Current User</button>
+        <div id="currentUserResult"></div>
+    </div>
+
+    <div>
+        <h2>Step 3: Test MCP API</h2>
+        <button onclick="testMcpApi()">Test MCP Overview</button>
+        <div id="mcpApiResult"></div>
+    </div>
+
+    <script>
+        let jwtToken = null;
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+                
+                const data = await response.json();
+                document.getElementById('loginResult').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+                if (data.success && data.token) {
+                    jwtToken = data.token;
+                    localStorage.setItem('mcphub_token', data.token);
+                    console.log('JWT Token stored:', jwtToken);
+                }
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = 
+                    `<pre>Error: ${error.message}</pre>`;
+            }
+        }
+
+        async function getCurrentUser() {
+            if (!jwtToken) {
+                jwtToken = localStorage.getItem('mcphub_token');
+            }
+            
+            if (!jwtToken) {
+                document.getElementById('currentUserResult').innerHTML = 
+                    `<pre>No JWT token available. Please login first.</pre>`;
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': jwtToken,
+                    },
+                });
+                
+                const data = await response.json();
+                document.getElementById('currentUserResult').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    
+                if (data.success && data.user && data.user.accessToken) {
+                    console.log('Access Token found:', data.user.accessToken);
+                }
+            } catch (error) {
+                document.getElementById('currentUserResult').innerHTML = 
+                    `<pre>Error: ${error.message}</pre>`;
+            }
+        }
+
+        async function testMcpApi() {
+            if (!jwtToken) {
+                jwtToken = localStorage.getItem('mcphub_token');
+            }
+            
+            if (!jwtToken) {
+                document.getElementById('mcpApiResult').innerHTML = 
+                    `<pre>No JWT token available. Please login first.</pre>`;
+                return;
+            }
+            
+            // First get user info to extract access token
+            try {
+                const userResponse = await fetch('/api/auth/me', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': jwtToken,
+                    },
+                });
+                
+                const userData = await userResponse.json();
+                
+                if (userData.success && userData.user && userData.user.accessToken) {
+                    console.log('Using access token for MCP API:', userData.user.accessToken);
+                    
+                    // Now test MCP API with Bearer token
+                    const mcpResponse = await fetch('/api/mcp-usage/overview', {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${userData.user.accessToken}`,
+                        },
+                    });
+                    
+                    const mcpData = await mcpResponse.json();
+                    document.getElementById('mcpApiResult').innerHTML = 
+                        `<h3>MCP API Result:</h3><pre>${JSON.stringify(mcpData, null, 2)}</pre>`;
+                } else {
+                    document.getElementById('mcpApiResult').innerHTML = 
+                        `<pre>No access token found in user data: ${JSON.stringify(userData, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                document.getElementById('mcpApiResult').innerHTML = 
+                    `<pre>Error: ${error.message}</pre>`;
+            }
+        }
+
+        // Load token from localStorage on page load
+        window.onload = function() {
+            jwtToken = localStorage.getItem('mcphub_token');
+            if (jwtToken) {
+                console.log('JWT Token loaded from localStorage:', jwtToken);
+            }
+        };
+    </script>
+</body>
+</html> 
+ 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frontend Auth</title>
+</head>
+<body>
+    <h1>MCPHub Frontend Auth Test</h1>
+    
+    <div>
+        <h2>Step 1: Login</h2>
+        <input type="text" id="username" value="admin" placeholder="Username">
+        <input type="password" id="password" value="admin" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div>
+        <h2>Step 2: Get Current User Info</h2>
+        <button onclick="getCurrentUser()">Get Current User</button>
+        <div id="currentUserResult"></div>
+    </div>
+
+    <div>
+        <h2>Step 3: Test MCP API</h2>
+        <button onclick="testMcpApi()">Test MCP Overview</button>
+        <div id="mcpApiResult"></div>
+    </div>
+
+    <script>
+        let jwtToken = null;
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+                
+                const data = await response.json();
+                document.getElementById('loginResult').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+                if (data.success && data.token) {
+                    jwtToken = data.token;
+                    localStorage.setItem('mcphub_token', data.token);
+                    console.log('JWT Token stored:', jwtToken);
+                }
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = 
+                    `<pre>Error: ${error.message}</pre>`;
+            }
+        }
+
+        async function getCurrentUser() {
+            if (!jwtToken) {
+                jwtToken = localStorage.getItem('mcphub_token');
+            }
+            
+            if (!jwtToken) {
+                document.getElementById('currentUserResult').innerHTML = 
+                    `<pre>No JWT token available. Please login first.</pre>`;
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': jwtToken,
+                    },
+                });
+                
+                const data = await response.json();
+                document.getElementById('currentUserResult').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    
+                if (data.success && data.user && data.user.accessToken) {
+                    console.log('Access Token found:', data.user.accessToken);
+                }
+            } catch (error) {
+                document.getElementById('currentUserResult').innerHTML = 
+                    `<pre>Error: ${error.message}</pre>`;
+            }
+        }
+
+        async function testMcpApi() {
+            if (!jwtToken) {
+                jwtToken = localStorage.getItem('mcphub_token');
+            }
+            
+            if (!jwtToken) {
+                document.getElementById('mcpApiResult').innerHTML = 
+                    `<pre>No JWT token available. Please login first.</pre>`;
+                return;
+            }
+            
+            // First get user info to extract access token
+            try {
+                const userResponse = await fetch('/api/auth/me', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': jwtToken,
+                    },
+                });
+                
+                const userData = await userResponse.json();
+                
+                if (userData.success && userData.user && userData.user.accessToken) {
+                    console.log('Using access token for MCP API:', userData.user.accessToken);
+                    
+                    // Now test MCP API with Bearer token
+                    const mcpResponse = await fetch('/api/mcp-usage/overview', {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${userData.user.accessToken}`,
+                        },
+                    });
+                    
+                    const mcpData = await mcpResponse.json();
+                    document.getElementById('mcpApiResult').innerHTML = 
+                        `<h3>MCP API Result:</h3><pre>${JSON.stringify(mcpData, null, 2)}</pre>`;
+                } else {
+                    document.getElementById('mcpApiResult').innerHTML = 
+                        `<pre>No access token found in user data: ${JSON.stringify(userData, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                document.getElementById('mcpApiResult').innerHTML = 
+                    `<pre>Error: ${error.message}</pre>`;
+            }
+        }
+
+        // Load token from localStorage on page load
+        window.onload = function() {
+            jwtToken = localStorage.getItem('mcphub_token');
+            if (jwtToken) {
+                console.log('JWT Token loaded from localStorage:', jwtToken);
+            }
+        };
+    </script>
+</body>
+</html> 
+ 
+ 

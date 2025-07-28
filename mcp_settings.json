@@ -18,10 +18,12 @@
       ]
     },
     "fetch": {
+      "type": "stdio",
       "command": "uvx",
       "args": [
         "mcp-server-fetch"
-      ]
+      ],
+      "owner": "admin"
     },
     "slack": {
       "command": "npx",
@@ -39,7 +41,58 @@
     {
       "username": "admin",
       "password": "$2b$10$Vt7krIvjNgyN67LXqly0uOcTpN0LI55cYRbcKC71pUDAP0nJ7RPa.",
-      "isAdmin": true
+      "isAdmin": true,
+      "status": "active",
+      "email": "admin@mcphub.local",
+      "fullName": "Administrator",
+      "createdAt": 1753352526559,
+      "lastLoginAt": 1753678495635,
+      "lastActivity": 1753679823987,
+      "accessToken": "mcp_88693b45807d41e4ba75169737a0102a"
+    },
+    {
+      "username": "zhangyt03",
+      "password": "$2b$10$hBLHkq5OJjztAqpkRHa6Du1LnZfl/Q/NVZx3M4.68yxUMW7tZh//u",
+      "isAdmin": false,
+      "status": "active",
+      "email": "",
+      "fullName": "Yutong",
+      "createdAt": 1753356103487,
+      "accessToken": "ab2a436d2d86ee0ef4506a23327ba7f5103b8962a4f999319225050e",
+      "lastActivity": 1753680053410,
+      "lastLoginAt": 1753678491417
     }
-  ]
+  ],
+  "groups": [
+    {
+      "id": "053036d8-bd5f-4b8c-9f49-25774d3d2ccb",
+      "name": "amap",
+      "description": "",
+      "servers": [
+        "amap"
+      ],
+      "owner": "admin"
+    }
+  ],
+  "systemConfig": {
+    "routing": {
+      "enableGlobalRoute": true,
+      "enableGroupNameRoute": true,
+      "enableBearerAuth": false,
+      "bearerAuthKey": "lBsAhBYGNGqJeBfDvu7sQeuzOZeAqJXK",
+      "skipAuth": false,
+      "requireMcpAuth": true
+    },
+    "install": {
+      "pythonIndexUrl": "",
+      "npmRegistry": ""
+    },
+    "smartRouting": {
+      "enabled": false,
+      "dbUrl": "",
+      "openaiApiBaseUrl": "",
+      "openaiApiKey": "",
+      "openaiApiEmbeddingModel": ""
+    }
+  }
 }

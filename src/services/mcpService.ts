@@ -12,6 +12,8 @@ import { getServersInGroup } from './groupService.js';
 import { saveToolsAsVectorEmbeddings, searchToolsByVector } from './vectorSearchService.js';
 import { OpenAPIClient } from '../clients/openapi.js';
 import { getDataService } from './services.js';
+import mcpUsageLogger from './mcpUsageLogger.js';
+import { UserContextService } from './userContextService.js';
 
 const servers: { [sessionId: string]: Server } = {};
 
@@ -848,6 +850,26 @@ Available servers: ${serversList}`;
 
 export const handleCallToolRequest = async (request: any, extra: any) => {
   console.log(`Handling CallToolRequest for tool: ${JSON.stringify(request.params)}`);
+  
+  // Extract logging information - prioritize UserContextService for user context
+  const userContextService = UserContextService.getInstance();
+  const currentUser = userContextService.getCurrentUser();
+  
+  const toolName = request.params.name || request.params.arguments?.toolName;
+  const toolArgs = request.params.arguments || {};
+  
+  // Get username from multiple sources, prioritizing UserContextService
+  const username = currentUser?.username || 
+                  extra?.tokenUser?.username || 
+                  extra?.username || 
+                  'anonymous';
+                  
+  const ip = extra?.ip || 'unknown';
+  const userAgent = extra?.userAgent || 'mcp-client';
+  const sessionId = extra?.sessionId || 'unknown';
+  const serverName = extra?.server || 'auto-detect';
+  const startTime = Date.now();
+  
   try {
     // Special handling for agent group tools
     if (request.params.name === 'search_tools') {
@@ -945,6 +967,22 @@ export const handleCallToolRequest = async (request: any, extra: any) => {
         },
       };
 
+      // Log successful search_tools call
+      const duration = Date.now() - startTime;
+      mcpUsageLogger.logToolCall(
+        username,
+        'agent',
+        'search_tools',
+        true, // success = true
+        {
+          arguments: { query, limit },
+          duration,
+          ip,
+          userAgent,
+          sessionId,
+        }
+      );
+
       // Return in the same format as handleListToolsRequest
       return {
         content: [
@@ -1008,6 +1046,23 @@ export const handleCallToolRequest = async (request: any, extra: any) => {
         const result = await openApiClient.callTool(cleanToolName, finalArgs);
 
         console.log(`OpenAPI tool invocation result: ${JSON.stringify(result)}`);
+        
+        // Log successful OpenAPI tool call
+        const duration = Date.now() - startTime;
+        mcpUsageLogger.logToolCall(
+          username,
+          targetServerInfo.name,
+          cleanToolName,
+          true, // success = true
+          {
+            arguments: finalArgs,
+            duration,
+            ip,
+            userAgent,
+            sessionId,
+          }
+        );
+        
         return {
           content: [
             {
@@ -1045,6 +1100,23 @@ export const handleCallToolRequest = async (request: any, extra: any) => {
       );
 
       console.log(`Tool invocation result: ${JSON.stringify(result)}`);
+      
+      // Log successful MCP tool call
+      const duration = Date.now() - startTime;
+      mcpUsageLogger.logToolCall(
+        username,
+        targetServerInfo.name,
+        toolName,
+        true, // success = true
+        {
+          arguments: finalArgs,
+          duration,
+          ip,
+          userAgent,
+          sessionId,
+        }
+      );
+      
       return result;
     }
 
@@ -1071,6 +1143,23 @@ export const handleCallToolRequest = async (request: any, extra: any) => {
       const result = await openApiClient.callTool(cleanToolName, request.params.arguments || {});
 
       console.log(`OpenAPI tool invocation result: ${JSON.stringify(result)}`);
+      
+      // Log successful OpenAPI tool call (regular tool handling)
+      const duration = Date.now() - startTime;
+      mcpUsageLogger.logToolCall(
+        username,
+        serverInfo.name,
+        cleanToolName,
+        true, // success = true
+        {
+          arguments: request.params.arguments || {},
+          duration,
+          ip,
+          userAgent,
+          sessionId,
+        }
+      );
+      
       return {
         content: [
           {
@@ -1096,9 +1185,45 @@ export const handleCallToolRequest = async (request: any, extra: any) => {
       serverInfo.options || {},
     );
     console.log(`Tool call result: ${JSON.stringify(result)}`);
+    
+    // Log successful MCP tool call (regular tool handling)
+    const duration = Date.now() - startTime;
+    mcpUsageLogger.logToolCall(
+      username,
+      serverInfo.name,
+      request.params.name,
+      true, // success = true
+      {
+        arguments: request.params.arguments || {},
+        duration,
+        ip,
+        userAgent,
+        sessionId,
+      }
+    );
+    
     return result;
   } catch (error) {
     console.error(`Error handling CallToolRequest: ${error}`);
+    
+    // Log failed tool call
+    const duration = Date.now() - startTime;
+    const actualServerName = serverName === 'auto-detect' ? 'unknown' : serverName;
+    mcpUsageLogger.logToolCall(
+      username,
+      actualServerName,
+      toolName || 'unknown',
+      false, // success = false
+      {
+        arguments: toolArgs,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        duration,
+        ip,
+        userAgent,
+        sessionId,
+      }
+    );
+    
     return {
       content: [
         {

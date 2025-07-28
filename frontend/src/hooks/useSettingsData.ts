@@ -11,6 +11,7 @@ interface RoutingConfig {
   enableBearerAuth: boolean;
   bearerAuthKey: string;
   skipAuth: boolean;
+  requireMcpAuth: boolean;
 }
 
 interface InstallConfig {
@@ -48,6 +49,7 @@ export const useSettingsData = () => {
     enableBearerAuth: false,
     bearerAuthKey: '',
     skipAuth: false,
+    requireMcpAuth: false,
   });
 
   const [tempRoutingConfig, setTempRoutingConfig] = useState<TempRoutingConfig>({
@@ -102,6 +104,7 @@ export const useSettingsData = () => {
           enableBearerAuth: data.data.systemConfig.routing.enableBearerAuth ?? false,
           bearerAuthKey: data.data.systemConfig.routing.bearerAuthKey || '',
           skipAuth: data.data.systemConfig.routing.skipAuth ?? false,
+          requireMcpAuth: data.data.systemConfig.routing.requireMcpAuth ?? false,
         });
       }
       if (data.success && data.data?.systemConfig?.install) {

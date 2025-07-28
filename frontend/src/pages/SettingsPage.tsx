@@ -87,7 +87,7 @@ const SettingsPage: React.FC = () => {
     }));
   };
 
-  const handleRoutingConfigChange = async (key: 'enableGlobalRoute' | 'enableGroupNameRoute' | 'enableBearerAuth' | 'bearerAuthKey' | 'skipAuth', value: boolean | string) => {
+  const handleRoutingConfigChange = async (key: 'enableGlobalRoute' | 'enableGroupNameRoute' | 'enableBearerAuth' | 'bearerAuthKey' | 'skipAuth' | 'requireMcpAuth', value: boolean | string) => {
     // If enableBearerAuth is turned on and there's no key, generate one first
     if (key === 'enableBearerAuth' && value === true) {
       if (!tempRoutingConfig.bearerAuthKey && !routingConfig.bearerAuthKey) {
@@ -444,6 +444,20 @@ const SettingsPage: React.FC = () => {
                   disabled={loading}
                   checked={routingConfig.skipAuth}
                   onCheckedChange={(checked) => handleRoutingConfigChange('skipAuth', checked)}
+                />
+              </div>
+            </PermissionChecker>
+
+            <PermissionChecker permissions={PERMISSIONS.SETTINGS_SKIP_AUTH}>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                <div>
+                  <h3 className="font-medium text-gray-700">{t('settings.requireMcpAuth')}</h3>
+                  <p className="text-sm text-gray-500">{t('settings.requireMcpAuthDescription')}</p>
+                </div>
+                <Switch
+                  disabled={loading}
+                  checked={routingConfig.requireMcpAuth}
+                  onCheckedChange={(checked) => handleRoutingConfigChange('requireMcpAuth', checked)}
                 />
               </div>
             </PermissionChecker>

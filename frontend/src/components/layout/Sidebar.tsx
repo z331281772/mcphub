@@ -52,6 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
         </svg>
       ),
     },
+    // 根据权限显示菜单项
     ...(auth.user?.isAdmin && usePermissionCheck('x') ? [{
       path: '/users',
       label: t('nav.users'),
@@ -60,7 +61,25 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
           <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
         </svg>
       ),
+    }, {
+      path: '/user-management',
+      label: t('nav.userManagement'),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+        </svg>
+      ),
     }] : []),
+    // MCP统计功能 - 改为所有登录用户都可访问
+    {
+      path: '/mcp-usage',
+      label: t('nav.mcpAnalytics'),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+        </svg>
+      ),
+    },
     {
       path: '/market',
       label: t('nav.market'),

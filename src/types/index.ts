@@ -10,6 +10,36 @@ export interface IUser {
   username: string;
   password: string;
   isAdmin?: boolean;
+  status?: 'active' | 'disabled';     // 新增：用户状态
+  email?: string;                     // 新增：邮箱
+  fullName?: string;                  // 新增：全名
+  createdAt?: number;                 // 新增：创建时间
+  lastLoginAt?: number;               // 新增：最后登录时间
+  lastActivity?: number;              // 新增：最后活动时间
+  accessToken?: string;               // 新增：用户访问Token
+}
+
+// 新增：Token验证结果接口
+export interface ITokenValidation {
+  valid: boolean;
+  username?: string;
+  user?: IUser;
+  error?: string;
+}
+
+// 新增：访问日志接口
+export interface IAccessLog {
+  id: string;                         // 唯一标识
+  username: string;                   // 用户名
+  action: string;                     // 操作类型
+  resource: string;                   // 访问的资源
+  method: string;                     // HTTP方法
+  statusCode: number;                 // 响应状态码
+  ip: string;                         // 客户端IP
+  userAgent?: string;                 // 用户代理
+  timestamp: number;                  // 时间戳
+  duration?: number;                  // 请求耗时
+  details?: any;                      // 额外详情
 }
 
 // Group interface for server grouping
@@ -82,6 +112,7 @@ export interface SystemConfig {
     enableBearerAuth?: boolean; // Controls whether bearer auth is enabled for group routes
     bearerAuthKey?: string; // The bearer auth key to validate against
     skipAuth?: boolean; // Controls whether authentication is required for frontend and API access
+    requireMcpAuth?: boolean; // Controls whether MCP authentication is required
   };
   install?: {
     pythonIndexUrl?: string; // Python package repository URL (UV_DEFAULT_INDEX)
@@ -96,6 +127,7 @@ export interface UserConfig {
     enableGroupNameRoute?: boolean; // Controls whether group routing by name is allowed
     enableBearerAuth?: boolean; // Controls whether bearer auth is enabled for group routes
     bearerAuthKey?: string; // The bearer auth key to validate against
+    requireMcpAuth?: boolean; // Controls whether MCP authentication is required
   };
 }
 

@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { auth } from './auth.js';
 import { userContextMiddleware } from './userContext.js';
+import { accessLogger } from './accessLogger.js';
+import { optionalTokenAuth } from './tokenAuth.js';
 import { initializeDefaultUser } from '../models/User.js';
 import config from '../config/index.js';
 
@@ -47,11 +49,22 @@ export const initMiddlewares = (app: express.Application): void => {
     console.error('Error initializing default user:', err);
   });
 
+  // Add access logging middleware for all routes
+  app.use(accessLogger());
+
   // Protect API routes with authentication middleware, but exclude auth endpoints
   app.use(`${config.basePath}/api`, (req, res, next) => {
-    // Skip authentication for login and register endpoints
-    if (req.path === '/auth/login' || req.path === '/auth/register') {
+    // Skip authentication for login, register, validate-token endpoints
+    if (req.path === '/auth/login' || 
+        req.path === '/auth/register' || 
+        req.path === '/auth/validate-token') {
       next();
+    } else if (req.path.startsWith('/mcp-usage/') || req.path.startsWith('/tools/')) {
+      // MCP usage routes and tool calls support both JWT and Bearer token
+      optionalTokenAuth()(req, res, () => {
+        // Apply user context middleware after successful authentication
+        userContextMiddleware(req, res, next);
+      });
     } else {
       // Apply authentication middleware first
       auth(req, res, (err) => {

@@ -10,6 +10,8 @@ import DashboardPage from './pages/Dashboard';
 import ServersPage from './pages/ServersPage';
 import GroupsPage from './pages/GroupsPage';
 import UsersPage from './pages/UsersPage';
+import UserManagementPage from './pages/UserManagementPage';
+import McpUsagePage from './pages/McpUsagePage';
 import SettingsPage from './pages/SettingsPage';
 import MarketPage from './pages/MarketPage';
 import LogsPage from './pages/LogsPage';
@@ -33,6 +35,8 @@ function App() {
                   <Route path="/servers" element={<ServersPage />} />
                   <Route path="/groups" element={<GroupsPage />} />
                   <Route path="/users" element={<UsersPage />} />
+                  <Route path="/user-management" element={<UserManagementPage />} />
+                  <Route path="/mcp-usage" element={<McpUsagePage />} />
                   <Route path="/market" element={<MarketPage />} />
                   <Route path="/market/:serverName" element={<MarketPage />} />
                   <Route path="/logs" element={<LogsPage />} />

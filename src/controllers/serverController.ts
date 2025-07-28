@@ -513,7 +513,8 @@ export const updateSystemConfig = (req: Request, res: Response): void => {
           typeof routing.enableGroupNameRoute !== 'boolean' &&
           typeof routing.enableBearerAuth !== 'boolean' &&
           typeof routing.bearerAuthKey !== 'string' &&
-          typeof routing.skipAuth !== 'boolean')) &&
+          typeof routing.skipAuth !== 'boolean' &&
+          typeof routing.requireMcpAuth !== 'boolean')) &&
       (!install ||
         (typeof install.pythonIndexUrl !== 'string' && typeof install.npmRegistry !== 'string')) &&
       (!smartRouting ||
@@ -539,6 +540,7 @@ export const updateSystemConfig = (req: Request, res: Response): void => {
           enableBearerAuth: false,
           bearerAuthKey: '',
           skipAuth: false,
+          requireMcpAuth: false,
         },
         install: {
           pythonIndexUrl: '',
@@ -561,6 +563,7 @@ export const updateSystemConfig = (req: Request, res: Response): void => {
         enableBearerAuth: false,
         bearerAuthKey: '',
         skipAuth: false,
+        requireMcpAuth: false,
       };
     }
 
@@ -600,6 +603,10 @@ export const updateSystemConfig = (req: Request, res: Response): void => {
 
       if (typeof routing.skipAuth === 'boolean') {
         settings.systemConfig.routing.skipAuth = routing.skipAuth;
+      }
+
+      if (typeof routing.requireMcpAuth === 'boolean') {
+        settings.systemConfig.routing.requireMcpAuth = routing.requireMcpAuth;
       }
     }
 

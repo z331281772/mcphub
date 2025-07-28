@@ -37,8 +37,9 @@ export const usePermissionCheck = (requiredPermissions: string | string[]): bool
 
   const userPermissions = auth.user.permissions || [];
 
-  if (requiredPermissions === 'x' && !userPermissions.includes('x')) {
-    return false;
+  // If user is admin, they have all permissions by default
+  if (auth.user.isAdmin) {
+    return true;
   }
 
   // If user has '*' permission, they have all permissions
@@ -46,9 +47,8 @@ export const usePermissionCheck = (requiredPermissions: string | string[]): bool
     return true;
   }
 
-  // If user is admin, they have all permissions by default
-  if (auth.user.isAdmin) {
-    return true;
+  if (requiredPermissions === 'x' && !userPermissions.includes('x')) {
+    return false;
   }
 
   // Normalize required permissions to array

@@ -61,6 +61,10 @@ export const callTool = async (req: Request, res: Response): Promise<void> => {
     const extra = {
       sessionId: req.headers['x-session-id'] || 'api-session',
       server: server || undefined,
+      tokenUser: (req as any).tokenUser,
+      username: (req as any).tokenUser?.username || (req as any).user?.username,
+      ip: req.ip || req.connection.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'api-client',
     };
 
     const result = (await handleCallToolRequest(mockRequest, extra)) as ToolCallResult;

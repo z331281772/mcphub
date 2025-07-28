@@ -13,6 +13,8 @@ import {
 } from './services/sseService.js';
 import { initializeDefaultUser } from './models/User.js';
 import { sseUserContextMiddleware } from './middlewares/userContext.js';
+import { optionalTokenAuth } from './middlewares/tokenAuth.js';
+import { mcpAccessLogger } from './middlewares/accessLogger.js';
 
 // Get the current working directory (will be project root in most cases)
 const currentFileDir = process.cwd() + '/src';
@@ -42,48 +44,73 @@ export class AppServer {
         .then(() => {
           console.log('MCP server initialized successfully');
 
-          // Original routes (global and group-based)
-          this.app.get(`${this.basePath}/sse/:group?`, sseUserContextMiddleware, (req, res) =>
-            handleSseConnection(req, res),
+          // Original routes (global and group-based) with token auth and logging
+          this.app.get(`${this.basePath}/sse/:group?`, 
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
+            sseUserContextMiddleware, 
+            (req, res) => handleSseConnection(req, res),
           );
-          this.app.post(`${this.basePath}/messages`, sseUserContextMiddleware, handleSseMessage);
+          this.app.post(`${this.basePath}/messages`, 
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
+            sseUserContextMiddleware, 
+            handleSseMessage
+          );
           this.app.post(
             `${this.basePath}/mcp/:group?`,
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
             sseUserContextMiddleware,
             handleMcpPostRequest,
           );
           this.app.get(
             `${this.basePath}/mcp/:group?`,
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
             sseUserContextMiddleware,
             handleMcpOtherRequest,
           );
           this.app.delete(
             `${this.basePath}/mcp/:group?`,
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
             sseUserContextMiddleware,
             handleMcpOtherRequest,
           );
 
-          // User-scoped routes with user context middleware
-          this.app.get(`${this.basePath}/:user/sse/:group?`, sseUserContextMiddleware, (req, res) =>
-            handleSseConnection(req, res),
+          // User-scoped routes with token auth and logging
+          this.app.get(`${this.basePath}/:user/sse/:group?`, 
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
+            sseUserContextMiddleware, 
+            (req, res) => handleSseConnection(req, res),
           );
           this.app.post(
             `${this.basePath}/:user/messages`,
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
             sseUserContextMiddleware,
             handleSseMessage,
           );
           this.app.post(
             `${this.basePath}/:user/mcp/:group?`,
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
             sseUserContextMiddleware,
             handleMcpPostRequest,
           );
           this.app.get(
             `${this.basePath}/:user/mcp/:group?`,
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
             sseUserContextMiddleware,
             handleMcpOtherRequest,
           );
           this.app.delete(
             `${this.basePath}/:user/mcp/:group?`,
+            optionalTokenAuth(), 
+            mcpAccessLogger(),
             sseUserContextMiddleware,
             handleMcpOtherRequest,
           );

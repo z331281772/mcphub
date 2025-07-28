@@ -45,6 +45,7 @@ export const sseUserContextMiddleware = async (
   try {
     const userContextService = UserContextService.getInstance();
     const username = req.params.user;
+    const tokenUser = (req as any).tokenUser;
 
     if (username) {
       // For user-scoped routes, set the user context
@@ -69,8 +70,29 @@ export const sseUserContextMiddleware = async (
       });
 
       console.log(`User context set for SSE/MCP endpoint: ${username}`);
+    } else if (tokenUser && tokenUser.username) {
+      // For global routes with valid token, use token user information
+      const user: IUser = {
+        username: tokenUser.username,
+        password: '',
+        isAdmin: tokenUser.user?.isAdmin || false,
+      };
+
+      userContextService.setCurrentUser(user);
+
+      // Clean up user context when response ends
+      res.on('finish', () => {
+        userContextService.clearCurrentUser();
+      });
+
+      // Also clean up on connection close for SSE
+      res.on('close', () => {
+        userContextService.clearCurrentUser();
+      });
+
+      console.log(`User context set for SSE/MCP endpoint from token: ${tokenUser.username}`);
     } else {
-      // For global routes, clear user context (admin access)
+      // For global routes without authentication, clear user context
       userContextService.clearCurrentUser();
       console.log('Global SSE/MCP endpoint access - no user context');
     }

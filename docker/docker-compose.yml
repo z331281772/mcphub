@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  postgres:
+    # 使用预装pgvector扩展的PostgreSQL镜像
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: mcphub
+      POSTGRES_USER: mcphub
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mcphub123}
+      # 设置PostgreSQL配置以支持向量扩展
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+      # 启用shared_preload_libraries以支持向量扩展
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # 添加初始化脚本支持向量扩展
+      - ../scripts/database/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql:ro
+    restart: ${RESTART_POLICY:-unless-stopped}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mcphub -d mcphub"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis123} --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    restart: ${RESTART_POLICY:-unless-stopped}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  mcphub:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        INSTALL_EXT: ${INSTALL_EXT:-false}
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      DATABASE_URL: postgresql://mcphub:${DB_PASSWORD:-mcphub123}@postgres:5432/mcphub
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis123}
+      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-key-change-this-in-production}
+      HTTP_PROXY: ${HTTP_PROXY:-}
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+      NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmjs.org/}
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-60000}
+      BASE_PATH: ${BASE_PATH:-}
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      # 配置文件（绑定挂载便于直接编辑）
+      - ../config/app/mcp_settings.json:/app/mcp_settings.json
+      - ../config/app/servers.json:/app/servers.json
+      # 日志目录（绑定挂载便于访问和调试）
+      - ../logs/access:/app/access_logs
+      - ../logs/mcp_usage:/app/mcp_usage_logs
+      # 应用数据（数据卷持久化）
+      - app_data:/app/data
+      # 临时文件和上传文件（如果需要持久化）
+      - temp_data:/app/temp
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: ${RESTART_POLICY:-unless-stopped}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_data:
+    driver: local
+  temp_data:
+    driver: local
+  uploads_data:
+    driver: local

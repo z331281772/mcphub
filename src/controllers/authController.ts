@@ -22,8 +22,18 @@ import accessLogService from '../services/accessLogService.js';
 
 const dataService: DataService = getDataService();
 
-// Default secret key - in production, use an environment variable
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+// JWT Secret key - critical for security
+const JWT_SECRET = (() => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret === 'your-secret-key-change-this') {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET must be set in production environment and cannot be the default value');
+    }
+    console.warn('WARNING: Using default JWT secret. This is ONLY acceptable in development!');
+    return 'your-secret-key-change-this';
+  }
+  return secret;
+})();
 const TOKEN_EXPIRY = '24h';
 
 // Login user

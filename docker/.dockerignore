@@ -1,0 +1,15 @@
+.git
+.gitignore
+__pycache__
+*.pyc
+venv/
+env/
+.vscode/
+.idea
+logs/
+*.log
+data/output/
+.DS_Store
+*.tmp
+.ipynb_checkpoints
+.env

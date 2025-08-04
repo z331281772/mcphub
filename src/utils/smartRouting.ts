@@ -36,8 +36,13 @@ export function getSmartRoutingConfig(): SmartRoutingConfig {
       parseBooleanEnvVar,
     ),
 
-    // Database configuration
-    dbUrl: getConfigValue([process.env.DB_URL], smartRoutingSettings.dbUrl, '', expandEnvVars),
+    // Database configuration - check both DB_URL and DATABASE_URL for compatibility
+    dbUrl: getConfigValue(
+      [process.env.DB_URL, process.env.DATABASE_URL], 
+      smartRoutingSettings.dbUrl, 
+      '', 
+      expandEnvVars
+    ),
 
     // OpenAI API configuration
     openaiApiBaseUrl: getConfigValue(

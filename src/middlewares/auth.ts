@@ -2,8 +2,18 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { loadSettings } from '../config/index.js';
 
-// Default secret key - in production, use an environment variable
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+// JWT Secret key - critical for security
+const JWT_SECRET = (() => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret === 'your-secret-key-change-this') {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET must be set in production environment and cannot be the default value');
+    }
+    console.warn('WARNING: Using default JWT secret. This is ONLY acceptable in development!');
+    return 'your-secret-key-change-this';
+  }
+  return secret;
+})();
 
 const validateBearerAuth = (req: Request, routingConfig: any): boolean => {
   if (!routingConfig.enableBearerAuth) {

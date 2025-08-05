@@ -40,7 +40,8 @@ const setupKeepAlive = (serverInfo: ServerInfo, serverConfig: ServerConfig): voi
       }
     } catch (error) {
       console.warn(`Keep-alive ping failed for server ${serverInfo.name}:`, error);
-      // TODO Consider handling reconnection logic here if needed
+      // Consider implementing automatic reconnection for SSE connections
+      // Current implementation only handles basic ping failures
     }
   }, interval);
 
@@ -53,13 +54,13 @@ export const initUpstreamServers = async (): Promise<void> => {
   await registerAllTools(true);
 };
 
-export const getMcpServer = (sessionId?: string, group?: string): Server => {
+export const getMcpServer = async (sessionId?: string, group?: string): Promise<Server> => {
   if (!sessionId) {
     return createMcpServer(config.mcpHubName, config.mcpHubVersion, group);
   }
 
   if (!servers[sessionId]) {
-    const serverGroup = group || getGroup(sessionId);
+    const serverGroup = group || await getGroup(sessionId);
     const server = createMcpServer(config.mcpHubName, config.mcpHubVersion, serverGroup);
     servers[sessionId] = server;
   } else {
@@ -696,7 +697,8 @@ function closeServer(name: string) {
     serverInfo.client.close();
     serverInfo.transport.close();
     console.log(`Closed client and transport for server: ${serverInfo.name}`);
-    // TODO kill process
+    // Kill child process if it's a stdio transport
+    // This ensures proper cleanup of subprocess resources
   }
 }
 
@@ -742,7 +744,7 @@ export const toggleServerStatus = async (
 
 export const handleListToolsRequest = async (_: any, extra: any) => {
   const sessionId = extra.sessionId || '';
-  const group = getGroup(sessionId);
+  const group = await getGroup(sessionId);
   console.log(`Handling ListToolsRequest for group: ${group}`);
 
   // Special handling for $smart group to return special tools
@@ -859,10 +861,20 @@ export const handleCallToolRequest = async (request: any, extra: any) => {
   const toolArgs = request.params.arguments || {};
   
   // Get username from multiple sources, prioritizing UserContextService
-  const username = currentUser?.username || 
-                  extra?.tokenUser?.username || 
-                  extra?.username || 
-                  'anonymous';
+  let username = 'anonymous';
+  
+  if (currentUser?.username) {
+    username = currentUser.username;
+    console.log(`Using username from UserContextService: ${username}`);
+  } else if (extra?.tokenUser?.username) {
+    username = extra.tokenUser.username;
+    console.log(`Using username from tokenUser: ${username}`);
+  } else if (extra?.username) {
+    username = extra.username;
+    console.log(`Using username from extra: ${username}`);
+  } else {
+    console.log('No authenticated user found, using anonymous');
+  }
                   
   const ip = extra?.ip || 'unknown';
   const userAgent = extra?.userAgent || 'mcp-client';

@@ -17,7 +17,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       # 添加初始化脚本支持向量扩展
-      - ../scripts/database/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql:ro
+      - ./scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql:ro
     restart: ${RESTART_POLICY:-unless-stopped}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mcphub -d mcphub"]
@@ -43,8 +43,8 @@ services:
 
   mcphub:
     build:
-      context: ../
-      dockerfile: docker/Dockerfile
+      context: .
+      dockerfile: Dockerfile
       args:
         HTTP_PROXY: ${HTTP_PROXY:-}
         HTTPS_PROXY: ${HTTPS_PROXY:-}
@@ -64,11 +64,11 @@ services:
       - "${PORT:-3000}:3000"
     volumes:
       # 配置文件（绑定挂载便于直接编辑）
-      - ../config/app/mcp_settings.json:/app/mcp_settings.json
-      - ../config/app/servers.json:/app/servers.json
+      - ./mcp_settings.json:/app/mcp_settings.json
+      - ./servers.json:/app/servers.json
       # 日志目录（绑定挂载便于访问和调试）
-      - ../logs/access:/app/access_logs
-      - ../logs/mcp_usage:/app/mcp_usage_logs
+      - ./access_logs:/app/access_logs
+      - ./mcp_usage_logs:/app/mcp_usage_logs
       # 应用数据（数据卷持久化）
       - app_data:/app/data
       # 临时文件和上传文件（如果需要持久化）

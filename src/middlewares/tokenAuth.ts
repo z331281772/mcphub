@@ -2,6 +2,19 @@ import { Request, Response, NextFunction } from 'express';
 import { validateAccessToken, updateLastActivity } from '../models/User.js';
 import { loadSettings } from '../config/index.js';
 
+// Helper function to check authentication configuration
+const getAuthConfig = () => {
+  const settings = loadSettings();
+  const routingConfig = settings.systemConfig?.routing || {};
+  
+  return {
+    requireMcpAuth: routingConfig.requireMcpAuth || false,
+    enableBearerAuth: routingConfig.enableBearerAuth || false,
+    bearerAuthKey: routingConfig.bearerAuthKey || '',
+    skipAuth: routingConfig.skipAuth || false
+  };
+};
+
 // Helper function to extract token from request
 const extractToken = (req: Request): string | null => {
   // Check query parameter first
@@ -66,16 +79,18 @@ export const tokenAuth = () => {
 // This will become mandatory if requireMcpAuth is enabled in system config
 export const optionalTokenAuth = () => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const settings = loadSettings();
-    const requireMcpAuth = settings.systemConfig?.routing?.requireMcpAuth || false;
+    const authConfig = getAuthConfig();
+    console.log(`MCP Auth config - requireMcpAuth: ${authConfig.requireMcpAuth}, enableBearerAuth: ${authConfig.enableBearerAuth}`);
 
     const token = extractToken(req);
 
     // If MCP auth is required but no token provided, reject
-    if (requireMcpAuth && !token) {
+    if (authConfig.requireMcpAuth && !token) {
+      console.warn('MCP authentication required but no token provided');
       res.status(401).json({
         success: false,
-        error: 'Authentication required for MCP service access. Please provide a valid access token.'
+        error: 'Authentication required for MCP service access. Please provide a valid access token.',
+        code: 'MCP_AUTH_TOKEN_REQUIRED'
       });
       return;
     }
@@ -84,10 +99,12 @@ export const optionalTokenAuth = () => {
       const validation = validateAccessToken(token);
 
       // If MCP auth is required and token is invalid, reject
-      if (requireMcpAuth && !validation.valid) {
+      if (authConfig.requireMcpAuth && !validation.valid) {
+        console.warn(`MCP authentication failed: ${validation.error || 'Invalid token'}`);
         res.status(401).json({
           success: false,
-          error: validation.error || 'Invalid access token for MCP service access'
+          error: validation.error || 'Invalid access token for MCP service access',
+          code: 'MCP_AUTH_TOKEN_INVALID'
         });
         return;
       }
@@ -125,8 +142,9 @@ export const checkServerAccess = (allowAnonymous: boolean = false) => {
       return;
     }
 
-    // TODO: Add group-based access control here if needed
+    // Implement group-based access control
     // For now, all authenticated users have access to all servers
+    // In future versions, implement proper ACL based on user groups and server permissions
 
     next();
   };

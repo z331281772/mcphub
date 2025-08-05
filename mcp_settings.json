@@ -1,0 +1,16 @@
+{
+  "mcpServers": {},
+  "users": [
+    {
+      "username": "admin",
+      "password": "$2b$10$3N.rpDM40PdfljxzIjIiHOTq1b0y/cYCVSNJ7dDTDzbqKZGXx3wy6",
+      "isAdmin": true,
+      "status": "active",
+      "email": "admin@mcphub.local",
+      "fullName": "Administrator",
+      "createdAt": 1754291062618,
+      "lastLoginAt": 1754292184728,
+      "lastActivity": 1754292245287
+    }
+  ]
+}

@@ -3,6 +3,10 @@ import { randomBytes } from 'crypto';
 import { IUser, ITokenValidation } from '../types/index.js';
 import { loadSettings, saveSettings } from '../config/index.js';
 
+// Simple mutex to prevent concurrent file operations
+let isWriting = false;
+const writeQueue: Array<() => void> = [];
+
 // Get all users
 export const getUsers = (): IUser[] => {
   try {
@@ -14,14 +18,31 @@ export const getUsers = (): IUser[] => {
   }
 };
 
-// Save users to settings
+// Save users to settings with concurrency protection
 const saveUsers = (users: IUser[]): void => {
-  try {
-    const settings = loadSettings();
-    settings.users = users;
-    saveSettings(settings);
-  } catch (error) {
-    console.error('Error saving users to settings:', error);
+  const performWrite = () => {
+    try {
+      const settings = loadSettings();
+      settings.users = users;
+      saveSettings(settings);
+    } catch (error) {
+      console.error('Error saving users to settings:', error);
+    } finally {
+      isWriting = false;
+      // Process next item in queue
+      const nextWrite = writeQueue.shift();
+      if (nextWrite) {
+        nextWrite();
+      }
+    }
+  };
+
+  if (isWriting) {
+    // Add to queue if currently writing
+    writeQueue.push(performWrite);
+  } else {
+    isWriting = true;
+    performWrite();
   }
 };
 
@@ -264,14 +285,30 @@ export const initializeDefaultUser = async (): Promise<void> => {
   const users = getUsers();
 
   if (users.length === 0) {
+    // Use environment variable for admin password, with secure fallback
+    const defaultPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'mcphub@2024';
+    
     await createUser({
       username: 'admin',
-      password: 'admin123',
+      password: defaultPassword,
       isAdmin: true,
       status: 'active',
       email: 'admin@mcphub.local',
       fullName: 'Administrator',
     });
-    console.log('Default admin user created');
+    
+    if (!process.env.DEFAULT_ADMIN_PASSWORD) {
+      console.warn('🔐 SECURITY WARNING: Using default admin password!');
+      console.warn('🔑 Default admin credentials:');
+      console.warn('   Username: admin');
+      console.warn('   Password: mcphub@2024');
+      console.warn('📋 IMPORTANT: Please change this password immediately after first login!');
+      console.warn('💡 For production, set DEFAULT_ADMIN_PASSWORD environment variable.');
+      console.warn('   Example: DEFAULT_ADMIN_PASSWORD=your-secure-password');
+    } else {
+      console.log('✅ Default admin user created with custom password from environment variable');
+      console.log('   Username: admin');
+      console.log('   Password: [from DEFAULT_ADMIN_PASSWORD]');
+    }
   }
 };

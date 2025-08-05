@@ -198,22 +198,22 @@ describe('sseService', () => {
   });
 
   describe('getGroup', () => {
-    it('should return empty string for non-existent session', () => {
-      const result = getGroup('non-existent-session');
+    it('should return empty string for non-existent session', async () => {
+      const result = await getGroup('non-existent-session');
       expect(result).toBe('');
     });
 
-    it('should return group for existing session', () => {
+    it('should return group for existing session', async () => {
       // This would need to be tested after a connection is established
       // For now, testing the default behavior
-      const result = getGroup('test-session');
+      const result = await getGroup('test-session');
       expect(result).toBe('');
     });
   });
 
   describe('getConnectionCount', () => {
-    it('should return current number of connections', () => {
-      const count = getConnectionCount();
+    it('should return current number of connections', async () => {
+      const count = await getConnectionCount();
       // The count may be > 0 due to previous tests since transports is module-level
       expect(typeof count).toBe('number');
       expect(count).toBeGreaterThanOrEqual(0);

@@ -8,14 +8,14 @@ echo "========================================"
 # 检查必要文件
 echo "📁 检查必要文件..."
 files_to_check=(
-    "docker/docker-compose.yml"
+    "docker-compose.yml"
     ".env"
-    "scripts/database/init-postgres.sql"
-    "scripts/database/check-pgvector.sh"
-    "docker/scripts/backup.sh"
-    "docker/scripts/restore.sh"
-    "config/app/mcp_settings.json"
-    "config/app/servers.json"
+    "scripts/init-postgres.sql"
+    "scripts/check-pgvector.sh"
+    "docker-backup.sh"
+    "docker-restore.sh"
+    "mcp_settings.json"
+    "servers.json"
 )
 
 missing_files=()
@@ -58,13 +58,13 @@ echo ""
 # 检查docker-compose.yml语法
 echo "📝 检查docker-compose.yml语法..."
 if command -v python3 >/dev/null 2>&1; then
-    if python3 -c "import yaml; yaml.safe_load(open('docker/docker-compose.yml', 'r')); print('✅ YAML语法正确')" 2>/dev/null; then
+    if python3 -c "import yaml; yaml.safe_load(open('docker-compose.yml', 'r')); print('✅ YAML语法正确')" 2>/dev/null; then
         :
     else
         echo "❌ YAML语法错误，请检查docker-compose.yml"
     fi
 elif command -v node >/dev/null 2>&1; then
-    if node -e "const yaml = require('js-yaml'); const fs = require('fs'); yaml.load(fs.readFileSync('docker/docker-compose.yml', 'utf8')); console.log('✅ YAML语法正确');" 2>/dev/null; then
+    if node -e "const yaml = require('js-yaml'); const fs = require('fs'); yaml.load(fs.readFileSync('docker-compose.yml', 'utf8')); console.log('✅ YAML语法正确');" 2>/dev/null; then
         :
     else
         echo "❌ YAML语法错误或js-yaml模块未安装"
@@ -113,13 +113,13 @@ echo ""
 
 # 检查Docker服务配置
 echo "🐳 检查Docker服务配置..."
-if grep -q "pgvector/pgvector:pg15" docker/docker-compose.yml; then
+if grep -q "pgvector/pgvector:pg15" docker-compose.yml; then
     echo "✅ 使用正确的PostgreSQL+pgvector镜像"
 else
     echo "❌ PostgreSQL镜像配置可能有问题"
 fi
 
-if grep -q "redis:7-alpine" docker/docker-compose.yml; then
+if grep -q "redis:7-alpine" docker-compose.yml; then
     echo "✅ 使用正确的Redis镜像"
 else
     echo "❌ Redis镜像配置可能有问题"
@@ -135,7 +135,7 @@ volumes=(
 )
 
 for volume in "${volumes[@]}"; do
-    if grep -q "$volume:" docker/docker-compose.yml; then
+    if grep -q "$volume:" docker-compose.yml; then
         echo "✅ 数据卷 $volume 已配置"
     else
         echo "❌ 数据卷 $volume 配置缺失"

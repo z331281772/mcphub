@@ -28,5 +28,830 @@
     "details": {
       "authType": "jwt"
     }
+  },
+  {
+    "id": "65860cf6-2a20-4615-a22f-a92ece7de30f",
+    "username": "anonymous",
+    "action": "login",
+    "resource": "/auth/login",
+    "method": "POST",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292184730,
+    "duration": 68,
+    "details": {
+      "authType": "anonymous"
+    }
+  },
+  {
+    "id": "9fb20225-ad2d-495b-806c-aa5522c5e5e9",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292184844,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "3f53f68f-8fd2-4b1d-ba96-5fbb57d6a112",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292184852,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "9602619f-ba47-44fa-ba21-617a05b4fb05",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292184870,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "1c4f9680-dcb1-4416-8f3c-a293013ce58f",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292184878,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "32295194-b544-4c72-b011-b08c1cfaa644",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292184884,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "d04ac6ed-bd5b-4589-976f-313c10549d3b",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292186726,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "c3105b7f-5f94-48b7-86a2-d74df1937b35",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292186748,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "02ddc17a-3eec-4aeb-ad23-fe24c16139c0",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292186799,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "974a7925-4fb0-4361-bc25-062340e88ac9",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292186806,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "e03cd637-909b-4b75-917f-d6b53f963539",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292186812,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "edc99b7d-6b6b-4564-8c44-d54f08eab89a",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292189377,
+    "duration": 2,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "763be9ca-c39f-45c8-8416-5bcd732074ec",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292189394,
+    "duration": 2,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "f6bf95bf-a0e1-444e-9262-b2ed30b58d55",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292189421,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "00dd21c4-53ab-4e96-92a2-c2814b16011c",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292189427,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "2b8f99a0-9595-4bcb-bc30-ae78b6f8aee5",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292189433,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "e902a113-fd09-4842-b5fa-1e90081317a0",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292199429,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "a8368c9a-9de6-4e68-b4b6-368c79ea992f",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292209432,
+    "duration": 0,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "5fc44d81-ff92-41ff-9f13-d6e0d70a6d5c",
+    "username": "admin",
+    "action": "api_request",
+    "resource": "/auth/me",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292217608,
+    "duration": 3,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "aca81006-ceb7-4111-bc58-e59fbe02f8b0",
+    "username": "admin",
+    "action": "api_request",
+    "resource": "/auth/me",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292217619,
+    "duration": 3,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "57e17288-41c0-412f-a288-4e4bb16e19c2",
+    "username": "admin",
+    "action": "user_list",
+    "resource": "/auth/users-with-tokens",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292217756,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "6061c0ba-88e8-4e9a-b8a9-018a4d2cdc03",
+    "username": "admin",
+    "action": "user_list",
+    "resource": "/auth/users-with-tokens",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292217761,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "c1628132-0c52-4683-9d4e-aa7200859f94",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/market/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292218983,
+    "duration": 46,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "328b38a7-8250-43bd-9431-dd9444e9d2fa",
+    "username": "admin",
+    "action": "market_browse",
+    "resource": "/market/categories",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292219026,
+    "duration": 31,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "ec8ed5e6-7e7b-4688-ad6c-e25c32baadc2",
+    "username": "admin",
+    "action": "market_browse",
+    "resource": "/market/tags",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292219053,
+    "duration": 22,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "f4ac829a-6292-49e3-a267-cec3d29e74c2",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292219056,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "e2ac1029-4bdd-4ffc-8d1d-a9b281796849",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/market/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292219157,
+    "duration": 33,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "192ec6c2-e53f-4739-b20f-3565b5ac2687",
+    "username": "admin",
+    "action": "market_browse",
+    "resource": "/market/categories",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292219188,
+    "duration": 23,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "09b51907-02cd-4a92-b345-9e671de7562f",
+    "username": "admin",
+    "action": "market_browse",
+    "resource": "/market/tags",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292219208,
+    "duration": 16,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "053c5bc4-414f-436d-a0b6-a1fb107e6374",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292219213,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "146a35a0-f60a-4203-8a44-04af18f079e6",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292221489,
+    "duration": 2,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "5b5e6cea-8b90-4361-abea-74d73b9f9ae1",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292221509,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "a71ba470-6eba-4344-92c4-b4690c6cb1e3",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292221546,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "3a5769bc-af06-405f-9972-fb46056fa64c",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292221554,
+    "duration": 2,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "8a47c8f2-24a3-43e3-8a41-62fc70930326",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292221562,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "e655ed6a-f9d3-4e01-b7a3-df4ad11e7bb0",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292221949,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "afb981ef-7695-4333-a50b-ef21c3abfb6e",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292221973,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "c11fb867-43ec-4a22-aea2-29a9125416d9",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292222028,
+    "duration": 2,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "3617ec48-671b-45f8-a2ca-4499da06e401",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292222036,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "d26cc603-bcb3-4581-96f9-8004fd40e3b1",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292222042,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "fa807011-efd0-4afb-9664-6a40bb29dafa",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292232024,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "8fc6e660-b952-4dd2-b86e-1b995952278f",
+    "username": "admin",
+    "action": "user_list",
+    "resource": "/auth/users-with-tokens",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292241167,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "cc74a0a2-5b42-4ca0-882b-f51401457f28",
+    "username": "admin",
+    "action": "user_list",
+    "resource": "/auth/users-with-tokens",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292241203,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "41161f13-70cc-4c43-a7f7-386e23d9f535",
+    "username": "admin",
+    "action": "api_request",
+    "resource": "/auth/me",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292243891,
+    "duration": 3,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "80537b23-4fc1-4043-8162-ff8fa86cf030",
+    "username": "admin",
+    "action": "api_request",
+    "resource": "/auth/me",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292243909,
+    "duration": 3,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "d3842678-c823-4489-94e4-7fdaf09e27f5",
+    "username": "admin",
+    "action": "user_list",
+    "resource": "/auth/users-with-tokens",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292243938,
+    "duration": 2,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "2d3dc9c4-6844-476e-b89b-73cc5f345608",
+    "username": "admin",
+    "action": "user_list",
+    "resource": "/auth/users-with-tokens",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292243946,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "ef4050d8-f637-47d4-ac4d-ecfa0d646e34",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/market/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292245082,
+    "duration": 37,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "8e6b3cb2-ee2d-4a54-ada4-001539819e8c",
+    "username": "admin",
+    "action": "market_browse",
+    "resource": "/market/categories",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292245124,
+    "duration": 33,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "9cdd09c6-3ca0-4ae1-9d7b-210233877480",
+    "username": "admin",
+    "action": "market_browse",
+    "resource": "/market/tags",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292245168,
+    "duration": 38,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "65c46587-be94-475b-bef8-85c1237259be",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/market/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292245228,
+    "duration": 56,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "89c057ad-1724-499c-a013-1beda39494da",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292245239,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "23e590c1-a90e-4405-83d0-2c0cc8093759",
+    "username": "admin",
+    "action": "market_browse",
+    "resource": "/market/categories",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292245260,
+    "duration": 16,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "22df0a25-7c05-44e3-9b64-d51feaa0f9f7",
+    "username": "admin",
+    "action": "market_browse",
+    "resource": "/market/tags",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292245281,
+    "duration": 19,
+    "details": {
+      "authType": "jwt"
+    }
+  },
+  {
+    "id": "523a37c3-fee7-47f6-bf12-e789fd607f71",
+    "username": "admin",
+    "action": "server_list",
+    "resource": "/servers",
+    "method": "GET",
+    "statusCode": 200,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+    "timestamp": 1754292245286,
+    "duration": 1,
+    "details": {
+      "authType": "jwt"
+    }
   }
 ]

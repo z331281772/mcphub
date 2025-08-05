@@ -1,9 +1,19 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// 安全处理__filename和__dirname，避免Jest环境中的冲突
+let moduleFilename: string;
+let moduleDirname: string;
+
+if (typeof __filename !== 'undefined') {
+  // CommonJS环境（如Jest测试）
+  moduleFilename = __filename;
+  moduleDirname = __dirname;
+} else {
+  // ES模块环境降级处理：使用相对路径
+  moduleFilename = './mcpUsageLogger.ts';
+  moduleDirname = path.resolve(process.cwd(), 'src/services');
+}
 
 // MCP工具使用记录接口
 export interface McpUsageLog {
@@ -43,7 +53,7 @@ class McpUsageLoggerService {
 
   constructor() {
     // 设置日志目录和文件
-    this.logsDir = path.resolve(path.dirname(__dirname), '../mcp_usage_logs');
+    this.logsDir = path.resolve(path.dirname(moduleDirname), '../mcp_usage_logs');
     this.logFile = path.join(this.logsDir, 'mcp_usage.json');
     
     // 确保目录存在

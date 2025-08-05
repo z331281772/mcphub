@@ -9,10 +9,69 @@ import { loadSettings } from '../config/index.js';
 import config from '../config/index.js';
 import { UserContextService } from './userContextService.js';
 
-const transports: { [sessionId: string]: { transport: Transport; group: string } } = {};
+// Thread-safe transport management
+class TransportManager {
+  private transports: { [sessionId: string]: { transport: Transport; group: string } } = {};
+  private lock = false;
+  private queue: Array<() => void> = [];
 
-export const getGroup = (sessionId: string): string => {
-  return transports[sessionId]?.group || '';
+  private async executeWithLock<T>(operation: () => T): Promise<T> {
+    return new Promise((resolve) => {
+      const execute = () => {
+        try {
+          const result = operation();
+          resolve(result);
+        } finally {
+          this.lock = false;
+          const next = this.queue.shift();
+          if (next) next();
+        }
+      };
+
+      if (this.lock) {
+        this.queue.push(execute);
+      } else {
+        this.lock = true;
+        execute();
+      }
+    });
+  }
+
+  async add(sessionId: string, transport: Transport, group: string): Promise<void> {
+    return this.executeWithLock(() => {
+      this.transports[sessionId] = { transport, group };
+    });
+  }
+
+  async remove(sessionId: string): Promise<void> {
+    return this.executeWithLock(() => {
+      delete this.transports[sessionId];
+    });
+  }
+
+  async get(sessionId: string): Promise<{ transport: Transport; group: string } | undefined> {
+    return this.executeWithLock(() => {
+      return this.transports[sessionId];
+    });
+  }
+
+  async getGroup(sessionId: string): Promise<string> {
+    return this.executeWithLock(() => {
+      return this.transports[sessionId]?.group || '';
+    });
+  }
+
+  async getCount(): Promise<number> {
+    return this.executeWithLock(() => {
+      return Object.keys(this.transports).length;
+    });
+  }
+}
+
+const transportManager = new TransportManager();
+
+export const getGroup = async (sessionId: string): Promise<string> => {
+  return transportManager.getGroup(sessionId);
 };
 
 // Helper function to validate bearer auth
@@ -81,10 +140,10 @@ export const handleSseConnection = async (req: Request, res: Response): Promise<
   console.log(`Creating SSE transport with messages path: ${messagesPath}`);
 
   const transport = new SSEServerTransport(messagesPath, res);
-  transports[transport.sessionId] = { transport, group: group };
+  await transportManager.add(transport.sessionId, transport, group || '');
 
-  res.on('close', () => {
-    delete transports[transport.sessionId];
+  res.on('close', async () => {
+    await transportManager.remove(transport.sessionId);
     deleteMcpServer(transport.sessionId);
     console.log(`SSE connection closed: ${transport.sessionId}`);
   });
@@ -92,7 +151,8 @@ export const handleSseConnection = async (req: Request, res: Response): Promise<
   console.log(
     `New SSE connection established: ${transport.sessionId} with group: ${group || 'global'}${username ? ` for user: ${username}` : ''}`,
   );
-  await getMcpServer(transport.sessionId, group).connect(transport);
+  const mcpServer = await getMcpServer(transport.sessionId, group);
+  await mcpServer.connect(transport);
 };
 
 export const handleSseMessage = async (req: Request, res: Response): Promise<void> => {
@@ -117,7 +177,7 @@ export const handleSseMessage = async (req: Request, res: Response): Promise<voi
   }
 
   // Check if transport exists before destructuring
-  const transportData = transports[sessionId];
+  const transportData = await transportManager.get(sessionId);
   if (!transportData) {
     console.warn(`No transport found for sessionId: ${sessionId}`);
     res.status(404).send('No transport found for sessionId');
@@ -147,6 +207,7 @@ export const handleMcpPostRequest = async (req: Request, res: Response): Promise
   
   // Check bearer auth using filtered settings
   if (!validateBearerAuth(req)) {
+    console.warn('Bearer authentication failed for MCP request');
     res.status(401).send('Bearer authentication required or invalid token');
     return;
   }
@@ -163,28 +224,30 @@ export const handleMcpPostRequest = async (req: Request, res: Response): Promise
   }
 
   let transport: StreamableHTTPServerTransport;
-  if (sessionId && transports[sessionId]) {
+  const existingTransport = sessionId ? await transportManager.get(sessionId) : null;
+  if (sessionId && existingTransport) {
     console.log(`Reusing existing transport for sessionId: ${sessionId}`);
-    transport = transports[sessionId].transport as StreamableHTTPServerTransport;
+    transport = existingTransport.transport as StreamableHTTPServerTransport;
   } else if (!sessionId && isInitializeRequest(req.body)) {
     transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
-      onsessioninitialized: (sessionId) => {
-        transports[sessionId] = { transport, group };
+      onsessioninitialized: async (sessionId) => {
+        await transportManager.add(sessionId, transport, group || '');
       },
     });
 
-    transport.onclose = () => {
+    transport.onclose = async () => {
       console.log(`Transport closed: ${transport.sessionId}`);
       if (transport.sessionId) {
-        delete transports[transport.sessionId];
+        await transportManager.remove(transport.sessionId);
         deleteMcpServer(transport.sessionId);
         console.log(`MCP connection closed: ${transport.sessionId}`);
       }
     };
 
     console.log(`MCP connection established: ${transport.sessionId}${username ? ` for user: ${username}` : ''}`);
-    await getMcpServer(transport.sessionId, group).connect(transport);
+    const mcpServer = await getMcpServer(transport.sessionId, group);
+    await mcpServer.connect(transport);
   } else {
     res.status(400).json({
       jsonrpc: '2.0',
@@ -216,15 +279,16 @@ export const handleMcpOtherRequest = async (req: Request, res: Response) => {
   }
 
   const sessionId = req.headers['mcp-session-id'] as string | undefined;
-  if (!sessionId || !transports[sessionId]) {
+  const transportData = sessionId ? await transportManager.get(sessionId) : null;
+  if (!sessionId || !transportData) {
     res.status(400).send('Invalid or missing session ID');
     return;
   }
 
-  const { transport } = transports[sessionId];
+  const { transport } = transportData;
   await (transport as StreamableHTTPServerTransport).handleRequest(req, res);
 };
 
-export const getConnectionCount = (): number => {
-  return Object.keys(transports).length;
+export const getConnectionCount = async (): Promise<number> => {
+  return transportManager.getCount();
 };

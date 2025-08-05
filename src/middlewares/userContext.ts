@@ -49,12 +49,12 @@ export const sseUserContextMiddleware = async (
 
     if (username) {
       // For user-scoped routes, set the user context
-      // Note: In a real implementation, you should validate the user exists
-      // and has proper permissions
+      // Validate user exists and get proper permissions from database
+      const userFromDB = require('../models/User.js').findUserByUsername(username);
       const user: IUser = {
         username,
         password: '',
-        isAdmin: false, // TODO: Should be retrieved from user database
+        isAdmin: userFromDB?.isAdmin || false, // Retrieved from user database
       };
 
       userContextService.setCurrentUser(user);
@@ -94,7 +94,7 @@ export const sseUserContextMiddleware = async (
     } else {
       // For global routes without authentication, clear user context
       userContextService.clearCurrentUser();
-      console.log('Global SSE/MCP endpoint access - no user context');
+      console.log('Global SSE/MCP endpoint access - no user context (no token provided)');
     }
 
     next();

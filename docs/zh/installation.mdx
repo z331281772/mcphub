@@ -1,46 +1,46 @@
 ---
-title: 'Installation Guide'
-description: 'Detailed installation instructions for all platforms'
+title: '安装指南'
+description: '各种平台的详细安装说明'
 ---
 
-## Prerequisites
+## 先决条件
 
-Before installing MCPHub, ensure you have the following prerequisites:
+在安装 MCPHub 之前，请确保您具备以下先决条件：
 
-- **Node.js** 18+ (for local development)
-- **Docker** (recommended for production)
-- **pnpm** (for local development)
+- **Node.js** 18+ (用于本地开发)
+- **Docker** (推荐用于生产环境)
+- **pnpm** (用于本地开发)
 
-Optional for Smart Routing:
+智能路由的可选要求：
 
-- **PostgreSQL** with pgvector extension
-- **OpenAI API Key** or compatible embedding service
+- **PostgreSQL** 带 pgvector 扩展
+- **OpenAI API Key** 或兼容的嵌入服务
 
-## Installation Methods
+## 安装方法
 
 <Tabs>
-  <Tab title="Docker (Recommended)">
-    ### Docker Installation
+  <Tab title="Docker (推荐)">
+    ### Docker 安装
 
-    Docker is the recommended way to deploy MCPHub in production.
+    Docker 是在生产环境中部署 MCPHub 的推荐方式。
 
-    #### 1. Basic Installation
+    #### 1. 基础安装
 
     ```bash
-    # Pull the latest image
+    # 拉取最新镜像
     docker pull samanhappy/mcphub:latest
 
-    # Run with default settings
+    # 使用默认设置运行
     docker run -d \
       --name mcphub \
       -p 3000:3000 \
       samanhappy/mcphub:latest
     ```
 
-    #### 2. With Custom Configuration
+    #### 2. 使用自定义配置
 
     ```bash
-    # Create your configuration file
+    # 创建您的配置文件
     cat > mcp_settings.json << 'EOF'
     {
       "mcpServers": {
@@ -56,7 +56,7 @@ Optional for Smart Routing:
     }
     EOF
 
-    # Run with mounted config
+    # 使用挂载的配置运行
     docker run -d \
       --name mcphub \
       -p 3000:3000 \
@@ -64,7 +64,7 @@ Optional for Smart Routing:
       samanhappy/mcphub:latest
     ```
 
-    #### 3. With Environment Variables
+    #### 3. 使用环境变量
 
     ```bash
     docker run -d \
@@ -77,7 +77,7 @@ Optional for Smart Routing:
 
     #### 4. Docker Compose
 
-    Create a `docker-compose.yml` file:
+    创建 `docker-compose.yml` 文件：
 
     ```yaml
     version: '3.8'
@@ -94,7 +94,7 @@ Optional for Smart Routing:
           - REQUEST_TIMEOUT=60000
         restart: unless-stopped
 
-      # Optional: PostgreSQL for Smart Routing
+      # 可选：用于智能路由的 PostgreSQL
       postgres:
         image: pgvector/pgvector:pg16
         environment:
@@ -110,139 +110,139 @@ Optional for Smart Routing:
       postgres_data:
     ```
 
-    Run with:
+    运行命令：
     ```bash
     docker-compose up -d
     ```
 
   </Tab>
 
-  <Tab title="npm Package">
-    ### npm Package Installation
+  <Tab title="npm 包">
+    ### npm 包安装
 
-    Install MCPHub as a global npm package:
+    将 MCPHub 安装为全局 npm 包：
 
-    #### 1. Global Installation
+    #### 1. 全局安装
 
     ```bash
-    # Install globally
+    # 全局安装
     npm install -g @samanhappy/mcphub
 
-    # Or with yarn
+    # 或使用 yarn
     yarn global add @samanhappy/mcphub
 
-    # Or with pnpm
+    # 或使用 pnpm
     pnpm add -g @samanhappy/mcphub
     ```
 
-    #### 2. Running MCPHub
+    #### 2. 运行 MCPHub
 
     ```bash
-    # Run with default settings
+    # 使用默认设置运行
     mcphub
 
-    # Run with custom port
+    # 使用自定义端口运行
     PORT=8080 mcphub
     ```
 
-    {/* #### 3. Local Installation
+    {/* #### 3. 本地安装
 
-    You can also install MCPHub locally in a project:
+    您也可以在项目中本地安装 MCPHub：
 
     ```bash
-    # Create a new directory
+    # 创建新目录
     mkdir my-mcphub
     cd my-mcphub
 
-    # Initialize package.json
+    # 初始化 package.json
     npm init -y
 
-    # Install MCPHub locally
+    # 本地安装 MCPHub
     npm install @samanhappy/mcphub
 
-    # Create a start script
+    # 创建启动脚本
     echo '#!/bin/bash\nnpx mcphub' > start.sh
     chmod +x start.sh
 
-    # Run MCPHub
+    # 运行 MCPHub
     ./start.sh
     ``` */}
   </Tab>
 
-  <Tab title="Local Development">
-    ### Local Development Setup
+  <Tab title="本地开发">
+    ### 本地开发环境设置
 
-    For development, customization, or contribution:
+    用于开发、自定义或贡献：
 
-    #### 1. Clone Repository
+    #### 1. 克隆仓库
 
     ```bash
-    # Clone the repository
+    # 克隆仓库
     git clone https://github.com/samanhappy/mcphub.git
     cd mcphub
     ```
 
-    #### 2. Install Dependencies
+    #### 2. 安装依赖
 
     ```bash
-    # Install dependencies with pnpm (recommended)
+    # 使用 pnpm 安装依赖（推荐）
     pnpm install
 
-    # Or with npm
+    # 或使用 npm
     npm install
 
-    # Or with yarn
+    # 或使用 yarn
     yarn install
     ```
 
-    #### 3. Development Mode
+    #### 3. 开发模式
 
     ```bash
-    # Start both backend and frontend in development mode
+    # 在开发模式下同时启动后端和前端
     pnpm dev
 
-    # This will start:
-    # - Backend on http://localhost:3001
-    # - Frontend on http://localhost:5173
-    # - Frontend proxies API calls to backend
+    # 这将启动：
+    # - 后端在 http://localhost:3001
+    # - 前端在 http://localhost:5173
+    # - 前端代理 API 调用到后端
     ```
 
-    #### 4. Build for Production
+    #### 4. 生产构建
 
     ```bash
-    # Build both backend and frontend
+    # 构建后端和前端
     pnpm build
 
-    # Start production server
+    # 启动生产服务器
     pnpm start
     ```
 
-    #### 5. Development Scripts
+    #### 5. 开发脚本
 
     ```bash
-    # Backend only (for API development)
+    # 仅后端（用于 API 开发）
     pnpm backend:dev
 
-    # Frontend only (when backend is running separately)
+    # 仅前端（当后端单独运行时）
     pnpm frontend:dev
 
-    # Run tests
+    # 运行测试
     pnpm test
 
-    # Lint code
+    # 代码检查
     pnpm lint
 
-    # Format code
+    # 代码格式化
     pnpm format
     ```
 
     <Note>
-      On Windows, you may need to run backend and frontend separately:
+      在 Windows 上，您可能需要分别运行后端和前端：
       ```bash
-      # Terminal 1: Backend
+      # 终端 1：后端
       pnpm backend:dev
 
-      # Terminal 2: Frontend
+      # 终端 2：前端
       pnpm frontend:dev
       ```
     </Note>
@@ -250,11 +250,11 @@ Optional for Smart Routing:
   </Tab>
 
   <Tab title="Kubernetes">
-    ### Kubernetes Deployment
+    ### Kubernetes 部署
 
-    Deploy MCPHub on Kubernetes with these manifests:
+    使用这些清单在 Kubernetes 上部署 MCPHub：
 
-    #### 1. ConfigMap for Settings
+    #### 1. 设置的 ConfigMap
 
     ```yaml
     apiVersion: v1
@@ -277,7 +277,7 @@ Optional for Smart Routing:
         }
     ```
 
-    #### 2. Deployment
+    #### 2. 部署
 
     ```yaml
     apiVersion: apps/v1
@@ -312,7 +312,7 @@ Optional for Smart Routing:
               name: mcphub-config
     ```
 
-    #### 3. Service
+    #### 3. 服务
 
     ```yaml
     apiVersion: v1
@@ -328,7 +328,7 @@ Optional for Smart Routing:
       type: ClusterIP
     ```
 
-    #### 4. Ingress (Optional)
+    #### 4. Ingress (可选)
 
     ```yaml
     apiVersion: networking.k8s.io/v1
@@ -351,7 +351,7 @@ Optional for Smart Routing:
                   number: 80
     ```
 
-    Deploy with:
+    部署命令：
     ```bash
     kubectl apply -f mcphub-configmap.yaml
     kubectl apply -f mcphub-deployment.yaml
@@ -362,21 +362,21 @@ Optional for Smart Routing:
   </Tab>
 </Tabs>
 
-## Smart Routing Setup (Optional)
+## 智能路由设置 (可选)
 
-Smart Routing provides AI-powered tool discovery using vector semantic search.
+智能路由使用向量语义搜索提供 AI 驱动的工具发现。
 
-### Prerequisites
+### 先决条件
 
-1. **PostgreSQL with pgvector**
-2. **OpenAI API Key** (or compatible embedding service)
+1. **PostgreSQL 带 pgvector 扩展**
+2. **OpenAI API Key** (或兼容的嵌入服务)
 
-### Database Setup
+### 数据库设置
 
 <Tabs>
   <Tab title="Docker PostgreSQL">
     ```bash
-    # Run PostgreSQL with pgvector
+    # 运行带 pgvector 的 PostgreSQL
     docker run -d \
       --name mcphub-postgres \
       -e POSTGRES_DB=mcphub \
@@ -387,62 +387,62 @@ Smart Routing provides AI-powered tool discovery using vector semantic search.
     ```
   </Tab>
 
-  <Tab title="Existing PostgreSQL">
-    If you have an existing PostgreSQL instance:
+  <Tab title="现有 PostgreSQL">
+    如果您有现有的 PostgreSQL 实例：
 
     ```sql
-    -- Connect to your PostgreSQL instance
-    -- Create database
+    -- 连接到您的 PostgreSQL 实例
+    -- 创建数据库
     CREATE DATABASE mcphub;
 
-    -- Connect to the mcphub database
+    -- 连接到 mcphub 数据库
     \c mcphub;
 
-    -- Enable pgvector extension
+    -- 启用 pgvector 扩展
     CREATE EXTENSION IF NOT EXISTS vector;
     ```
 
   </Tab>
 
-  <Tab title="Cloud PostgreSQL">
-    For cloud providers (AWS RDS, Google Cloud SQL, etc.):
+  <Tab title="云 PostgreSQL">
+    对于云提供商（AWS RDS、Google Cloud SQL 等）：
 
-    1. Enable the pgvector extension in your cloud provider's console
-    2. Create a database named `mcphub`
-    3. Note down the connection details
+    1. 在您的云提供商控制台中启用 pgvector 扩展
+    2. 创建名为 `mcphub` 的数据库
+    3. 记下连接详细信息
 
   </Tab>
 </Tabs>
 
-{/* ### Environment Configuration
+{/* ### 环境配置
 
-Set the following environment variables:
+设置以下环境变量：
 
 ```bash
-# Database connection
+# 数据库连接
 DATABASE_URL=postgresql://mcphub:your_password@localhost:5432/mcphub
 
-# OpenAI API for embeddings
+# 用于嵌入的 OpenAI API
 OPENAI_API_KEY=your_openai_api_key
 
-# Optional: Custom embedding model
+# 可选：自定义嵌入模型
 EMBEDDING_MODEL=text-embedding-3-small
 
-# Optional: Enable smart routing
+# 可选：启用智能路由
 ENABLE_SMART_ROUTING=true
 ``` */}
 
-## Verification
+## 验证
 
-After installation, verify MCPHub is working:
+安装后，验证 MCPHub 是否正常工作：
 
-{/* ### 1. Health Check
+{/* ### 1. 健康检查
 
 ```bash
 curl http://localhost:3000/api/health
 ```
 
-Expected response:
+预期响应：
 
 ```json
 {
@@ -452,15 +452,15 @@ Expected response:
 }
 ``` */}
 
-### Dashboard Access
+### 控制台访问
 
-Open your browser and navigate to:
+打开浏览器并导航到：
 
 ```
 http://localhost:3000
 ```
 
-{/* ### 3. API Test
+{/* ### 3. API 测试
 
 ```bash
 curl -X POST http://localhost:3000/mcp \
@@ -473,98 +473,98 @@ curl -X POST http://localhost:3000/mcp \
   }'
 ``` */}
 
-## Troubleshooting
+## 故障排除
 
 <AccordionGroup>
-  <Accordion title="Docker Issues">
-    **Port already in use:**
+  <Accordion title="Docker 问题">
+    **端口已被使用：**
     ```bash
-    # Check what's using port 3000
+    # 检查是什么在使用端口 3000
     lsof -i :3000
 
-    # Use a different port
+    # 使用不同的端口
     docker run -p 8080:3000 samanhappy/mcphub
     ```
 
-    **Container won't start:**
+    **容器无法启动：**
     ```bash
-    # Check container logs
+    # 检查容器日志
     docker logs mcphub
 
-    # Run interactively for debugging
+    # 交互式运行以进行调试
     docker run -it --rm samanhappy/mcphub /bin/bash
     ```
 
   </Accordion>
 
-  <Accordion title="npm Installation Issues">
-    **Permission errors:**
+  <Accordion title="npm 安装问题">
+    **权限错误：**
     ```bash
-    # Use npx instead of global install
+    # 使用 npx 而不是全局安装
     npx @samanhappy/mcphub
 
-    # Or fix npm permissions
+    # 或修复 npm 权限
     npm config set prefix ~/.npm-global
     export PATH=~/.npm-global/bin:$PATH
     ```
 
-    **Node version issues:**
+    **Node 版本问题：**
     ```bash
-    # Check Node version
+    # 检查 Node 版本
     node --version
 
-    # Install Node 18+ using nvm
+    # 使用 nvm 安装 Node 18+
     nvm install 18
     nvm use 18
     ```
 
   </Accordion>
 
-  <Accordion title="Network Issues">
-    **Can't access dashboard:**
-    - Check if MCPHub is running: `ps aux | grep mcphub`
-    - Verify port binding: `netstat -tlnp | grep 3000`
-    - Check firewall settings
-    - Try accessing via `127.0.0.1:3000` instead of `localhost:3000`
+  <Accordion title="网络问题">
+    **无法访问控制台：**
+    - 检查 MCPHub 是否在运行：`ps aux | grep mcphub`
+    - 验证端口绑定：`netstat -tlnp | grep 3000`
+    - 检查防火墙设置
+    - 尝试通过 `127.0.0.1:3000` 而不是 `localhost:3000` 访问
 
-    **AI clients can't connect:**
-    - Ensure the endpoint URL is correct
-    - Check if MCPHub is behind a proxy
-    - Verify network policies in Kubernetes/Docker environments
+    **AI 客户端无法连接：**
+    - 确保端点 URL 正确
+    - 检查 MCPHub 是否在代理后面
+    - 验证 Kubernetes/Docker 环境中的网络策略
 
   </Accordion>
 
-  <Accordion title="Smart Routing Issues">
-    **Database connection failed:**
+  <Accordion title="智能路由问题">
+    **数据库连接失败：**
     ```bash
-    # Test database connection
+    # 测试数据库连接
     psql $DATABASE_URL -c "SELECT 1;"
 
-    # Check if pgvector is installed
+    # 检查是否安装了 pgvector
     psql $DATABASE_URL -c "CREATE EXTENSION IF NOT EXISTS vector;"
     ```
 
-    **Embedding service errors:**
-    - Verify OpenAI API key is valid
-    - Check internet connectivity
-    - Monitor rate limits
+    **嵌入服务错误：**
+    - 验证 OpenAI API 密钥是否有效
+    - 检查互联网连接
+    - 监控速率限制
 
   </Accordion>
 </AccordionGroup>
 
-## Next Steps
+## 下一步
 
 <CardGroup cols={2}>
-  <Card title="Configuration" icon="cog" href="/configuration/mcp-settings">
-    Configure your MCP servers and settings
+  <Card title="配置" icon="cog" href="/zh/configuration/mcp-settings">
+    配置您的 MCP 服务器和设置
   </Card>
-  <Card title="Quick Start" icon="rocket" href="/quickstart">
-    Get up and running in 5 minutes
+  <Card title="快速开始" icon="rocket" href="/zh/quickstart">
+    5分钟内启动并运行
   </Card>
-  <Card title="Server Management" icon="server" href="/features/server-management">
-    Learn how to manage your MCP servers
+  <Card title="服务器管理" icon="server" href="/zh/features/server-management">
+    了解如何管理您的 MCP 服务器
   </Card>
-  <Card title="API Reference" icon="code" href="/api-reference/introduction">
-    Explore the complete API documentation
+  <Card title="API 参考" icon="code" href="/zh/api-reference/introduction">
+    探索完整的 API 文档
   </Card>
 </CardGroup>
